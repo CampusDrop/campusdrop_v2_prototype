@@ -22,10 +22,10 @@
         <div class="brand-mark">CD</div>
         <p class="eyebrow">Campus AR mission</p>
         <h1>Campus Drop</h1>
-        <p class="lead">캠퍼스 이미지를 스캔하면 미션이 열립니다</p>
+        <p class="lead">세종대 지도 안내판을 스캔하면 기린이 나타납니다</p>
         <button class="primary-action" id="startScan">AR 스캔 시작</button>
-        <a class="marker-link" href="./campus-drop-marker.svg" target="_blank" rel="noreferrer">
-          데모 마커 이미지 열기
+        <a class="marker-link" href="./sejong-map-fixture.jpeg" target="_blank" rel="noreferrer">
+          인식할 기물 예시 보기
         </a>
       </section>
 
@@ -39,10 +39,10 @@
         </div>
         <div class="scan-frame" id="scanFrame"><span></span><span></span><span></span><span></span></div>
         <div class="scan-hint" id="scanHint">
-          <strong>이미지를 화면 중앙에 맞춰주세요</strong>
-          <p>데모 마커 포스터의 초록색 표식을 프레임 안에 넣으면 미션 입구가 열립니다.</p>
+          <strong>지도 안내판을 화면 중앙에 맞춰주세요</strong>
+          <p>세종대 지도 안내판의 밝은 지도 영역이 프레임 안에 들어오면 기린이 나타납니다.</p>
         </div>
-        <button class="ar-hit-area" id="openMission" aria-label="퀘스트 NPC 만나기"></button>
+        <button class="ar-hit-area" id="openMission" aria-label="퀘스트 기린 만나기"></button>
         <div class="npc-stage" aria-hidden="true">
           <div class="npc-glow"></div>
           <model-viewer
@@ -53,32 +53,32 @@
             shadow-intensity="0"
             interaction-prompt="none"
             disable-zoom
-            alt="Campus Drop quest NPC"
+            alt="Campus Drop quest giraffe"
           ></model-viewer>
         </div>
         <div class="npc-dialogue" id="npcDialogue">
-          <strong>세종 가이드</strong>
-          <p>여기까지 찾아왔구나. 오늘의 캠퍼스 퀘스트를 받을 준비 됐어?</p>
-          <span>캐릭터를 탭해 퀘스트 시작</span>
+          <strong>세종 기린</strong>
+          <p>지도 앞까지 왔구나. 오늘의 캠퍼스 퀘스트를 받을 준비 됐어?</p>
+          <span>기린을 탭해 퀘스트 시작</span>
         </div>
       </section>
 
       <section class="screen mission-screen" data-screen="mission">
         <div class="mission-header">
           <span class="location-chip">세종관 1층 라운지</span>
-          <h2>NPC의 캠퍼스 퀘스트</h2>
-          <p>가이드가 남긴 세 개의 단서를 조합해 3자리 코드를 입력하세요.</p>
+          <h2>기린의 캠퍼스 퀘스트</h2>
+          <p>기린이 남긴 세 개의 단서를 조합해 3자리 코드를 입력하세요.</p>
         </div>
         <div class="clue-board" aria-label="미션 단서">
           <div class="clue"><span>단서 1</span><strong>강의실 문패의 네 번째 숫자</strong></div>
-          <div class="clue"><span>단서 2</span><strong>포스터 속 두 번째 별 개수</strong></div>
+          <div class="clue"><span>단서 2</span><strong>지도 위 두 번째 분홍 번호</strong></div>
           <div class="clue"><span>단서 3</span><strong>쿠폰 스탬프에 남은 여덟 조각</strong></div>
         </div>
         <form class="code-form" id="codeForm">
           <label for="missionCode">3자리 코드</label>
           <input id="missionCode" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="000" />
           <p class="form-error" id="missionError"></p>
-          <button class="primary-action" type="submit">박스 열기</button>
+          <button class="primary-action" type="submit">퀘스트 제출</button>
         </form>
       </section>
 
