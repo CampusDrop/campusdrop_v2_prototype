@@ -236,8 +236,31 @@ export default function Home() {
           {scanState === "found" && (
             <>
               <button className="ar-hit-area" onClick={openMission} aria-label="퀘스트 기린 만나기" />
+              <div className="summon-flash" aria-hidden="true" />
               <div className="npc-stage" aria-hidden="true">
                 <div className="npc-glow" />
+                <div className="summon-runes">
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                </div>
+                <div className="spark-field">
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                </div>
                 <model-viewer
                   src={npcModelUrl}
                   camera-orbit="90deg 76deg 3.2m"

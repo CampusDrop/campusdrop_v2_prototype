@@ -399,6 +399,7 @@ h2 {
   box-shadow: 7px 7px 0 rgba(0, 0, 0, 0.4);
   font-family: "HakgyoansimByeol", var(--font-geist-sans), sans-serif;
   padding: 17px 18px 16px;
+  animation: dialogueSlam 0.48s cubic-bezier(0.2, 1.35, 0.35, 1) both 0.52s;
 }
 
 .npc-dialogue strong {
@@ -429,7 +430,9 @@ h2 {
   width: min(78vw, 340px);
   height: min(52vh, 430px);
   filter: drop-shadow(0 22px 34px rgba(0, 0, 0, 0.48));
-  animation: npcFloat 2.3s ease-in-out infinite;
+  animation:
+    npcSummon 0.78s cubic-bezier(0.18, 1.45, 0.34, 1) both,
+    npcFloat 2.3s ease-in-out infinite 0.78s;
 }
 
 .npc-glow {
@@ -447,7 +450,175 @@ h2 {
     0 0 28px rgba(32, 214, 163, 0.78),
     inset 0 0 28px rgba(255, 255, 255, 0.28);
   translate: -50% -50%;
-  animation: questRing 4.5s linear infinite;
+  animation:
+    ringPop 0.55s ease-out both,
+    questRing 4.5s linear infinite 0.55s;
+}
+
+.summon-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background:
+    radial-gradient(circle at 50% 44%, rgba(255, 255, 255, 0.96), rgba(124, 249, 214, 0.45) 18%, transparent 44%),
+    linear-gradient(to bottom, transparent, rgba(255, 204, 77, 0.22), transparent);
+  animation: summonFlash 0.72s ease-out both;
+  pointer-events: none;
+}
+
+.summon-runes {
+  position: absolute;
+  left: 50%;
+  top: 58%;
+  width: min(70vw, 300px);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  animation: runeSpin 3.8s linear infinite;
+}
+
+.summon-runes::before,
+.summon-runes::after {
+  position: absolute;
+  inset: 18%;
+  border: 3px solid rgba(255, 204, 77, 0.78);
+  border-radius: 999px;
+  box-shadow: 0 0 22px rgba(255, 204, 77, 0.54);
+  content: "";
+}
+
+.summon-runes::after {
+  inset: 32%;
+  border-color: rgba(124, 249, 214, 0.78);
+}
+
+.summon-runes span {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 10px;
+  height: 34px;
+  border-radius: 999px;
+  background: linear-gradient(var(--sun), var(--mint));
+  box-shadow: 0 0 14px rgba(124, 249, 214, 0.8);
+  transform-origin: 0 0;
+}
+
+.summon-runes span:nth-child(1) { rotate: 0deg; translate: 0 -118px; }
+.summon-runes span:nth-child(2) { rotate: 45deg; translate: 0 -118px; }
+.summon-runes span:nth-child(3) { rotate: 90deg; translate: 0 -118px; }
+.summon-runes span:nth-child(4) { rotate: 135deg; translate: 0 -118px; }
+.summon-runes span:nth-child(5) { rotate: 180deg; translate: 0 -118px; }
+.summon-runes span:nth-child(6) { rotate: 225deg; translate: 0 -118px; }
+.summon-runes span:nth-child(7) { rotate: 270deg; translate: 0 -118px; }
+.summon-runes span:nth-child(8) { rotate: 315deg; translate: 0 -118px; }
+
+.spark-field {
+  position: absolute;
+  inset: 18% 8% 26%;
+  overflow: visible;
+}
+
+.spark-field span {
+  position: absolute;
+  width: 9px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: white;
+  box-shadow:
+    0 0 10px white,
+    0 0 18px var(--mint);
+  animation: sparkRise 1.8s ease-in-out infinite;
+}
+
+.spark-field span:nth-child(1) { left: 12%; top: 64%; animation-delay: 0s; }
+.spark-field span:nth-child(2) { left: 22%; top: 42%; animation-delay: 0.18s; background: var(--sun); }
+.spark-field span:nth-child(3) { left: 34%; top: 70%; animation-delay: 0.36s; }
+.spark-field span:nth-child(4) { left: 45%; top: 36%; animation-delay: 0.54s; background: var(--mint); }
+.spark-field span:nth-child(5) { left: 55%; top: 72%; animation-delay: 0.72s; }
+.spark-field span:nth-child(6) { left: 66%; top: 44%; animation-delay: 0.9s; background: var(--sun); }
+.spark-field span:nth-child(7) { left: 76%; top: 64%; animation-delay: 1.08s; }
+.spark-field span:nth-child(8) { left: 84%; top: 34%; animation-delay: 1.26s; background: var(--mint); }
+.spark-field span:nth-child(9) { left: 18%; top: 24%; animation-delay: 1.44s; }
+.spark-field span:nth-child(10) { left: 72%; top: 22%; animation-delay: 1.62s; }
+
+@keyframes summonFlash {
+  0% {
+    opacity: 0;
+    scale: 0.65;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    scale: 1.25;
+  }
+}
+
+@keyframes ringPop {
+  0% {
+    opacity: 0;
+    scale: 0.2;
+  }
+  100% {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+@keyframes npcSummon {
+  0% {
+    opacity: 0;
+    transform: translateY(60px) scale(0.18);
+    filter: brightness(2) blur(5px) drop-shadow(0 0 20px white);
+  }
+  56% {
+    opacity: 1;
+    transform: translateY(-22px) scale(1.13);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(-10px) scale(1);
+  }
+}
+
+@keyframes dialogueSlam {
+  0% {
+    opacity: 0;
+    transform: translateY(22px) scale(0.94);
+  }
+  72% {
+    transform: translateY(-4px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes runeSpin {
+  0% {
+    rotate: 0deg;
+    opacity: 0.92;
+  }
+  100% {
+    rotate: 360deg;
+    opacity: 0.92;
+  }
+}
+
+@keyframes sparkRise {
+  0% {
+    opacity: 0;
+    transform: translateY(22px) scale(0.5);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-58px) scale(1.25);
+  }
 }
 
 @keyframes npcFloat {
