@@ -22,11 +22,16 @@
         <div class="brand-mark">CD</div>
         <p class="eyebrow">Campus AR mission</p>
         <h1>Campus Drop</h1>
-        <p class="lead">세종대 지도 안내판을 스캔하면 기린이 나타납니다</p>
+        <p class="lead">지도 안내판이나 전용 포스터를 스캔하면 기린이 나타납니다</p>
         <button class="primary-action" id="startScan">AR 스캔 시작</button>
-        <a class="marker-link" href="./sejong-map-fixture.jpeg" target="_blank" rel="noreferrer">
-          인식할 기물 예시 보기
-        </a>
+        <div class="marker-links">
+          <a class="marker-link" href="./sejong-map-fixture.jpeg" target="_blank" rel="noreferrer">
+            인식할 기물 예시 보기
+          </a>
+          <a class="marker-link" href="./campus-drop-marker.svg" target="_blank" rel="noreferrer">
+            전용 포스터 열기
+          </a>
+        </div>
       </section>
 
       <section class="screen scan-screen" data-screen="scan" aria-label="AR 스캔 화면">
@@ -39,8 +44,8 @@
         </div>
         <div class="scan-frame" id="scanFrame"><span></span><span></span><span></span><span></span></div>
         <div class="scan-hint" id="scanHint">
-          <strong>지도 안내판을 화면 중앙에 맞춰주세요</strong>
-          <p>세종대 지도 안내판의 밝은 지도 영역이 프레임 안에 들어오면 기린이 나타납니다.</p>
+          <strong>지도 안내판이나 포스터를 중앙에 맞춰주세요</strong>
+          <p>세종대 지도 안내판의 밝은 지도 영역 또는 전용 포스터의 초록/노랑 표식이 프레임 안에 들어오면 기린이 나타납니다.</p>
         </div>
         <button class="ar-hit-area" id="openMission" aria-label="퀘스트 기린 만나기"></button>
         <div class="npc-stage" aria-hidden="true">

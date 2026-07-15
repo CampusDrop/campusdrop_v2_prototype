@@ -13,7 +13,8 @@ declare global {
   }
 }
 
-const markerUrl = "/sejong-map-fixture.jpeg";
+const fixtureUrl = "/sejong-map-fixture.jpeg";
+const posterUrl = "/campus-drop-marker.svg";
 const npcModelUrl = "/sejongGF.glb";
 const answer = "428";
 
@@ -185,13 +186,18 @@ export default function Home() {
           <div className="brand-mark">CD</div>
           <p className="eyebrow">Campus AR mission</p>
           <h1>Campus Drop</h1>
-          <p className="lead">세종대 지도 안내판을 스캔하면 기린이 나타납니다</p>
+          <p className="lead">지도 안내판이나 전용 포스터를 스캔하면 기린이 나타납니다</p>
           <button className="primary-action" onClick={beginScan}>
             AR 스캔 시작
           </button>
-          <a className="marker-link" href={markerUrl} target="_blank">
-            인식할 기물 예시 보기
-          </a>
+          <div className="marker-links">
+            <a className="marker-link" href={fixtureUrl} target="_blank">
+              인식할 기물 예시 보기
+            </a>
+            <a className="marker-link" href={posterUrl} target="_blank">
+              전용 포스터 열기
+            </a>
+          </div>
         </section>
       )}
 
@@ -219,11 +225,11 @@ export default function Home() {
                   ? "카메라를 준비하고 있어요"
                   : scanState === "error"
                     ? "카메라를 열 수 없어요"
-                    : "지도 안내판을 화면 중앙에 맞춰주세요"}
+                    : "지도 안내판이나 포스터를 중앙에 맞춰주세요"}
               </strong>
               <p>
                 {cameraError ||
-                  "세종대 지도 안내판의 밝은 지도 영역이 프레임 안에 들어오면 기린이 나타납니다."}
+                  "세종대 지도 안내판의 밝은 지도 영역 또는 전용 포스터의 초록/노랑 표식이 프레임 안에 들어오면 기린이 나타납니다."}
               </p>
             </div>
           )}
