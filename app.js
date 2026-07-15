@@ -7,12 +7,19 @@ const scanHint = document.querySelector("#scanHint");
 const codeInput = document.querySelector("#missionCode");
 const missionError = document.querySelector("#missionError");
 const todayLabel = document.querySelector("#todayLabel");
+const npcDialogue = document.querySelector("#npcDialogue");
+const npcDialogueTextNode = document.querySelector("#npcDialogueText");
+const npcDialogueText = "지도 앞까지 왔구나. 오늘의 캠퍼스 퀘스트를 받을 준비 됐어?";
+const dialogueStartMs = 4300;
+const typingIntervalMs = 46;
 
 let stream = null;
 let raf = null;
 let foundFrames = 0;
 let canOpenMission = false;
 let missionReadyTimer = null;
+let dialogueStartTimer = null;
+let dialogueTypingTimer = null;
 
 todayLabel.textContent = new Intl.DateTimeFormat("ko-KR", {
   month: "long",
@@ -60,7 +67,7 @@ async function beginScan() {
   setStep("scan");
   foundFrames = 0;
   canOpenMission = false;
-  if (missionReadyTimer) window.clearTimeout(missionReadyTimer);
+  resetDialogue();
   scanScreen.classList.remove("is-found");
   scanFrame.classList.remove("is-found");
   scanHint.querySelector("strong").textContent = "카메라를 준비하고 있어요";
@@ -155,8 +162,34 @@ function revealObject() {
   scanScreen.classList.add("is-found");
   scanFrame.classList.add("is-found");
   canOpenMission = false;
+  resetDialogue();
+  let index = 0;
+  dialogueStartTimer = window.setTimeout(() => {
+    npcDialogue.classList.add("is-typing");
+    dialogueTypingTimer = window.setInterval(() => {
+      index += 1;
+      npcDialogueTextNode.textContent = npcDialogueText.slice(0, index);
+      if (index >= npcDialogueText.length) {
+        window.clearInterval(dialogueTypingTimer);
+        dialogueTypingTimer = null;
+        npcDialogue.classList.remove("is-typing");
+        npcDialogue.classList.add("is-complete");
+        missionReadyTimer = window.setTimeout(() => {
+          canOpenMission = true;
+        }, 260);
+      }
+    }, typingIntervalMs);
+  }, dialogueStartMs);
+}
+
+function resetDialogue() {
+  canOpenMission = false;
   if (missionReadyTimer) window.clearTimeout(missionReadyTimer);
-  missionReadyTimer = window.setTimeout(() => {
-    canOpenMission = true;
-  }, 3000);
+  if (dialogueStartTimer) window.clearTimeout(dialogueStartTimer);
+  if (dialogueTypingTimer) window.clearInterval(dialogueTypingTimer);
+  missionReadyTimer = null;
+  dialogueStartTimer = null;
+  dialogueTypingTimer = null;
+  npcDialogueTextNode.textContent = "";
+  npcDialogue.classList.remove("is-typing", "is-complete");
 }
