@@ -25,6 +25,7 @@ export default function Home() {
   const [code, setCode] = useState("");
   const [missionError, setMissionError] = useState("");
   const [collected, setCollected] = useState(false);
+  const [canOpenMission, setCanOpenMission] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -88,6 +89,15 @@ export default function Home() {
     const timer = window.setTimeout(() => setStep("coupon"), 1700);
     return () => window.clearTimeout(timer);
   }, [step]);
+
+  useEffect(() => {
+    if (scanState !== "found") {
+      setCanOpenMission(false);
+      return;
+    }
+    const timer = window.setTimeout(() => setCanOpenMission(true), 3000);
+    return () => window.clearTimeout(timer);
+  }, [scanState]);
 
   function stopCamera() {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -158,10 +168,12 @@ export default function Home() {
   function beginScan() {
     setStep("scan");
     setScanState("idle");
+    setCanOpenMission(false);
     foundFramesRef.current = 0;
   }
 
   function openMission() {
+    if (!canOpenMission) return;
     stopCamera();
     setStep("mission");
   }
@@ -238,7 +250,12 @@ export default function Home() {
           )}
           {scanState === "found" && (
             <>
-              <button className="ar-hit-area" onClick={openMission} aria-label="퀘스트 기린 만나기" />
+              <button
+                className="ar-hit-area"
+                onClick={openMission}
+                aria-label="퀘스트 기린 만나기"
+                disabled={!canOpenMission}
+              />
               <div className="summon-flash" aria-hidden="true" />
               <div className="speed-lines" aria-hidden="true">
                 <span />

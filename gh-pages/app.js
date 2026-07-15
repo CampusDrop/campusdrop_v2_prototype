@@ -11,6 +11,8 @@ const todayLabel = document.querySelector("#todayLabel");
 let stream = null;
 let raf = null;
 let foundFrames = 0;
+let canOpenMission = false;
+let missionReadyTimer = null;
 
 todayLabel.textContent = new Intl.DateTimeFormat("ko-KR", {
   month: "long",
@@ -24,6 +26,7 @@ document.querySelector("#closeScan").addEventListener("click", () => {
   setStep("start");
 });
 document.querySelector("#openMission").addEventListener("click", () => {
+  if (!canOpenMission) return;
   stopCamera();
   setStep("mission");
 });
@@ -56,6 +59,8 @@ function setStep(step) {
 async function beginScan() {
   setStep("scan");
   foundFrames = 0;
+  canOpenMission = false;
+  if (missionReadyTimer) window.clearTimeout(missionReadyTimer);
   scanScreen.classList.remove("is-found");
   scanFrame.classList.remove("is-found");
   scanHint.querySelector("strong").textContent = "카메라를 준비하고 있어요";
@@ -149,4 +154,9 @@ function scanForMarker() {
 function revealObject() {
   scanScreen.classList.add("is-found");
   scanFrame.classList.add("is-found");
+  canOpenMission = false;
+  if (missionReadyTimer) window.clearTimeout(missionReadyTimer);
+  missionReadyTimer = window.setTimeout(() => {
+    canOpenMission = true;
+  }, 3000);
 }
