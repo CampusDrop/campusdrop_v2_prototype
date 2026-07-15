@@ -30,6 +30,7 @@ export default function Home() {
   const [collected, setCollected] = useState(false);
   const [canOpenMission, setCanOpenMission] = useState(false);
   const [typedDialogue, setTypedDialogue] = useState("");
+  const [frozenFrame, setFrozenFrame] = useState("");
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -125,6 +126,17 @@ export default function Home() {
     rafRef.current = null;
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
+    if (videoRef.current) videoRef.current.srcObject = null;
+  }
+
+  function freezeCameraFrame(video: HTMLVideoElement) {
+    const snapshot = document.createElement("canvas");
+    snapshot.width = video.videoWidth;
+    snapshot.height = video.videoHeight;
+    const snapshotCtx = snapshot.getContext("2d");
+    if (!snapshotCtx) return;
+    snapshotCtx.drawImage(video, 0, 0, snapshot.width, snapshot.height);
+    setFrozenFrame(snapshot.toDataURL("image/jpeg", 0.86));
   }
 
   function scanForMarker() {
@@ -178,6 +190,8 @@ export default function Home() {
       const detected = posterDetected || fixtureDetected;
       foundFramesRef.current = detected ? foundFramesRef.current + 1 : 0;
       if (foundFramesRef.current > 10) {
+        freezeCameraFrame(video);
+        stopCamera();
         setScanState("found");
         return;
       }
@@ -191,6 +205,7 @@ export default function Home() {
     setScanState("idle");
     setCanOpenMission(false);
     setTypedDialogue("");
+    setFrozenFrame("");
     foundFramesRef.current = 0;
   }
 
@@ -241,6 +256,9 @@ export default function Home() {
       {step === "scan" && (
         <section className="screen scan-screen" aria-label="AR 스캔 화면">
           <video ref={videoRef} className="camera-feed" playsInline muted />
+          {frozenFrame && (
+            <img className="camera-freeze" src={frozenFrame} alt="" aria-hidden="true" />
+          )}
           <canvas ref={canvasRef} className="hidden-canvas" />
           <div className="scan-vignette" />
           <div className="scan-topbar">
