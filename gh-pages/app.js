@@ -72,9 +72,9 @@ async function beginScan() {
     });
     video.srcObject = stream;
     await video.play();
-    scanHint.querySelector("strong").textContent = "이미지를 화면 중앙에 맞춰주세요";
+    scanHint.querySelector("strong").textContent = "지도 안내판을 화면 중앙에 맞춰주세요";
     scanHint.querySelector("p").textContent =
-      "데모 마커 포스터의 초록색 표식을 프레임 안에 넣으면 미션 입구가 열립니다.";
+      "세종대 지도 안내판의 밝은 지도 영역이 프레임 안에 들어오면 기린이 나타납니다.";
     scanForMarker();
   } catch {
     scanHint.querySelector("strong").textContent = "카메라를 열 수 없어요";
@@ -99,24 +99,42 @@ function scanForMarker() {
       raf = requestAnimationFrame(tick);
       return;
     }
-    canvas.width = 96;
-    canvas.height = 96;
-    context.drawImage(video, 0, 0, 96, 96);
-    const image = context.getImageData(18, 18, 60, 60).data;
+    canvas.width = 120;
+    canvas.height = 120;
+    context.drawImage(video, 0, 0, 120, 120);
+    const posterImage = context.getImageData(18, 18, 60, 60).data;
+    const fixtureImage = context.getImageData(20, 35, 80, 60).data;
     let green = 0;
     let yellow = 0;
     let dark = 0;
-    for (let i = 0; i < image.length; i += 4) {
-      const r = image[i];
-      const g = image[i + 1];
-      const b = image[i + 2];
+    let cyan = 0;
+    let pink = 0;
+    let bright = 0;
+    let fixtureDark = 0;
+    for (let i = 0; i < posterImage.length; i += 4) {
+      const r = posterImage[i];
+      const g = posterImage[i + 1];
+      const b = posterImage[i + 2];
       if (g > 95 && g > r * 1.1 && g > b * 1.15) green += 1;
       if (r > 150 && g > 120 && b < 95) yellow += 1;
       if (r < 55 && g < 70 && b < 80) dark += 1;
     }
-    const detected = green > 90 && yellow > 40 && dark > 35;
+    for (let i = 0; i < fixtureImage.length; i += 4) {
+      const r = fixtureImage[i];
+      const g = fixtureImage[i + 1];
+      const b = fixtureImage[i + 2];
+      if (b > 100 && g > 95 && r < 180 && b > r * 1.03) cyan += 1;
+      if (r > 135 && b > 85 && g < 125 && r > g * 1.15) pink += 1;
+      if (r > 165 && g > 145 && b > 110) bright += 1;
+      if (r < 58 && g < 58 && b < 68) fixtureDark += 1;
+    }
+    const posterDetected = green > 90 && yellow > 40 && dark > 35;
+    const fixtureDetected =
+      (cyan > 155 && pink > 35 && bright > 850 && fixtureDark > 330) ||
+      (cyan > 250 && bright > 1050 && fixtureDark > 420);
+    const detected = posterDetected || fixtureDetected;
     foundFrames = detected ? foundFrames + 1 : 0;
-    if (foundFrames > 8) {
+    if (foundFrames > 5) {
       revealObject();
       return;
     }

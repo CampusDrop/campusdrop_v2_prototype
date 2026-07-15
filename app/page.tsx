@@ -13,7 +13,7 @@ declare global {
   }
 }
 
-const markerUrl = "/campus-drop-marker.svg";
+const markerUrl = "/sejong-map-fixture.jpeg";
 const npcModelUrl = "/sejongGF.glb";
 const answer = "428";
 
@@ -107,24 +107,42 @@ export default function Home() {
         rafRef.current = requestAnimationFrame(tick);
         return;
       }
-      canvas.width = 96;
-      canvas.height = 96;
-      ctx.drawImage(video, 0, 0, 96, 96);
-      const image = ctx.getImageData(18, 18, 60, 60).data;
+      canvas.width = 120;
+      canvas.height = 120;
+      ctx.drawImage(video, 0, 0, 120, 120);
+      const posterImage = ctx.getImageData(18, 18, 60, 60).data;
+      const fixtureImage = ctx.getImageData(20, 35, 80, 60).data;
       let green = 0;
       let yellow = 0;
       let dark = 0;
-      for (let i = 0; i < image.length; i += 4) {
-        const r = image[i];
-        const g = image[i + 1];
-        const b = image[i + 2];
+      let cyan = 0;
+      let pink = 0;
+      let bright = 0;
+      let fixtureDark = 0;
+      for (let i = 0; i < posterImage.length; i += 4) {
+        const r = posterImage[i];
+        const g = posterImage[i + 1];
+        const b = posterImage[i + 2];
         if (g > 95 && g > r * 1.1 && g > b * 1.15) green += 1;
         if (r > 150 && g > 120 && b < 95) yellow += 1;
         if (r < 55 && g < 70 && b < 80) dark += 1;
       }
-      const detected = green > 90 && yellow > 40 && dark > 35;
+      for (let i = 0; i < fixtureImage.length; i += 4) {
+        const r = fixtureImage[i];
+        const g = fixtureImage[i + 1];
+        const b = fixtureImage[i + 2];
+        if (b > 100 && g > 95 && r < 180 && b > r * 1.03) cyan += 1;
+        if (r > 135 && b > 85 && g < 125 && r > g * 1.15) pink += 1;
+        if (r > 165 && g > 145 && b > 110) bright += 1;
+        if (r < 58 && g < 58 && b < 68) fixtureDark += 1;
+      }
+      const posterDetected = green > 90 && yellow > 40 && dark > 35;
+      const fixtureDetected =
+        (cyan > 155 && pink > 35 && bright > 850 && fixtureDark > 330) ||
+        (cyan > 250 && bright > 1050 && fixtureDark > 420);
+      const detected = posterDetected || fixtureDetected;
       foundFramesRef.current = detected ? foundFramesRef.current + 1 : 0;
-      if (foundFramesRef.current > 8) {
+      if (foundFramesRef.current > 5) {
         setScanState("found");
         return;
       }
@@ -167,12 +185,12 @@ export default function Home() {
           <div className="brand-mark">CD</div>
           <p className="eyebrow">Campus AR mission</p>
           <h1>Campus Drop</h1>
-          <p className="lead">캠퍼스 이미지를 스캔하면 미션이 열립니다</p>
+          <p className="lead">세종대 지도 안내판을 스캔하면 기린이 나타납니다</p>
           <button className="primary-action" onClick={beginScan}>
             AR 스캔 시작
           </button>
           <a className="marker-link" href={markerUrl} target="_blank">
-            데모 마커 이미지 열기
+            인식할 기물 예시 보기
           </a>
         </section>
       )}
@@ -201,17 +219,17 @@ export default function Home() {
                   ? "카메라를 준비하고 있어요"
                   : scanState === "error"
                     ? "카메라를 열 수 없어요"
-                    : "이미지를 화면 중앙에 맞춰주세요"}
+                    : "지도 안내판을 화면 중앙에 맞춰주세요"}
               </strong>
               <p>
                 {cameraError ||
-                  "데모 마커 포스터의 초록색 표식을 프레임 안에 넣으면 미션 입구가 열립니다."}
+                  "세종대 지도 안내판의 밝은 지도 영역이 프레임 안에 들어오면 기린이 나타납니다."}
               </p>
             </div>
           )}
           {scanState === "found" && (
             <>
-              <button className="ar-hit-area" onClick={openMission} aria-label="퀘스트 NPC 만나기" />
+              <button className="ar-hit-area" onClick={openMission} aria-label="퀘스트 기린 만나기" />
               <div className="npc-stage" aria-hidden="true">
                 <div className="npc-glow" />
                 <model-viewer
@@ -222,13 +240,13 @@ export default function Home() {
                   shadow-intensity="0"
                   interaction-prompt="none"
                   disable-zoom
-                  alt="Campus Drop quest NPC"
+                  alt="Campus Drop quest giraffe"
                 />
               </div>
               <div className="npc-dialogue">
-                <strong>세종 가이드</strong>
-                <p>여기까지 찾아왔구나. 오늘의 캠퍼스 퀘스트를 받을 준비 됐어?</p>
-                <span>캐릭터를 탭해 퀘스트 시작</span>
+                <strong>세종 기린</strong>
+                <p>지도 앞까지 왔구나. 오늘의 캠퍼스 퀘스트를 받을 준비 됐어?</p>
+                <span>기린을 탭해 퀘스트 시작</span>
               </div>
             </>
           )}
@@ -239,8 +257,8 @@ export default function Home() {
         <section className="screen mission-screen">
           <div className="mission-header">
             <span className="location-chip">세종관 1층 라운지</span>
-            <h2>NPC의 캠퍼스 퀘스트</h2>
-            <p>가이드가 남긴 세 개의 단서를 조합해 3자리 코드를 입력하세요.</p>
+            <h2>기린의 캠퍼스 퀘스트</h2>
+            <p>기린이 남긴 세 개의 단서를 조합해 3자리 코드를 입력하세요.</p>
           </div>
           <div className="clue-board" aria-label="미션 단서">
             <div className="clue">
@@ -249,7 +267,7 @@ export default function Home() {
             </div>
             <div className="clue">
               <span>단서 2</span>
-              <strong>포스터 속 두 번째 별 개수</strong>
+              <strong>지도 위 두 번째 분홍 번호</strong>
             </div>
             <div className="clue">
               <span>단서 3</span>
@@ -272,7 +290,7 @@ export default function Home() {
             />
             {missionError && <p className="form-error">{missionError}</p>}
             <button className="primary-action" type="submit">
-              박스 열기
+              퀘스트 제출
             </button>
           </form>
         </section>
