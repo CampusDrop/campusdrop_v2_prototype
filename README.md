@@ -64,6 +64,14 @@ npm run build
 
 배포는 Vercel, Cloudflare Pages, 또는 Sites 배포 환경에 올릴 수 있습니다. 배포 후에는 스마트폰에서 HTTPS 주소로 접속해 카메라 권한을 허용하면 됩니다.
 
+## GitHub Pages
+
+GitHub Pages용 정적 데모는 `gh-pages/` 폴더에 있습니다. `main` 브랜치에 push하면 `.github/workflows/pages.yml`이 실행되어 다음 주소로 배포됩니다.
+
+- `https://campusdrop.github.io/campusdrop_v2_prototype/`
+
+Pages 버전도 같은 사용자 흐름을 제공합니다. 첫 화면에서 `데모 마커 이미지 열기`를 눌러 마커를 다른 화면에 띄우거나 인쇄한 뒤, 스마트폰으로 `AR 스캔 시작`을 눌러 시연하세요.
+
 ## AR 라이브러리 구조
 
 현재 데모는 다음 구조로 동작합니다.

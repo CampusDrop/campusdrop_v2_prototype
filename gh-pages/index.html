@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Campus Drop WebAR Demo</title>
+    <meta
+      name="description"
+      content="캠퍼스 이미지를 스캔하면 AR 미션이 열리고 당일 쿠폰을 받는 Campus Drop WebAR 데모"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app" data-step="start">
+      <section class="screen start-screen" data-screen="start">
+        <div class="campus-sky" aria-hidden="true">
+          <span class="sun"></span>
+          <span class="pin pin-a"></span>
+          <span class="pin pin-b"></span>
+          <span class="route"></span>
+        </div>
+        <div class="brand-mark">CD</div>
+        <p class="eyebrow">Campus AR mission</p>
+        <h1>Campus Drop</h1>
+        <p class="lead">캠퍼스 이미지를 스캔하면 미션이 열립니다</p>
+        <button class="primary-action" id="startScan">AR 스캔 시작</button>
+        <a class="marker-link" href="./campus-drop-marker.svg" target="_blank" rel="noreferrer">
+          데모 마커 이미지 열기
+        </a>
+      </section>
+
+      <section class="screen scan-screen" data-screen="scan" aria-label="AR 스캔 화면">
+        <video id="cameraFeed" class="camera-feed" playsinline muted></video>
+        <canvas id="scanCanvas" class="hidden-canvas"></canvas>
+        <div class="scan-vignette"></div>
+        <div class="scan-topbar">
+          <button class="ghost-button" id="closeScan">닫기</button>
+          <span>Campus Drop Scan</span>
+        </div>
+        <div class="scan-frame" id="scanFrame"><span></span><span></span><span></span><span></span></div>
+        <div class="scan-hint" id="scanHint">
+          <strong>이미지를 화면 중앙에 맞춰주세요</strong>
+          <p>데모 마커 포스터의 초록색 표식을 프레임 안에 넣으면 미션 입구가 열립니다.</p>
+        </div>
+        <button class="ar-hit-area" id="openMission" aria-label="AR 보물상자 열기"></button>
+        <div class="three-layer" id="threeLayer" aria-hidden="true"></div>
+        <div class="css-chest" id="cssChest" aria-hidden="true">
+          <span class="css-chest-lid"></span>
+          <span class="css-chest-lock"></span>
+        </div>
+        <div class="ar-copy" id="arCopy">
+          <strong>보물상자를 탭하세요</strong>
+          <span>이미지 마커 위에 미션 입구가 열렸습니다</span>
+        </div>
+      </section>
+
+      <section class="screen mission-screen" data-screen="mission">
+        <div class="mission-header">
+          <span class="location-chip">세종관 1층 라운지</span>
+          <h2>잠긴 캠퍼스 박스</h2>
+          <p>세 개의 단서를 조합해 3자리 코드를 입력하세요.</p>
+        </div>
+        <div class="clue-board" aria-label="미션 단서">
+          <div class="clue"><span>단서 1</span><strong>강의실 문패의 네 번째 숫자</strong></div>
+          <div class="clue"><span>단서 2</span><strong>포스터 속 두 번째 별 개수</strong></div>
+          <div class="clue"><span>단서 3</span><strong>쿠폰 스탬프에 남은 여덟 조각</strong></div>
+        </div>
+        <form class="code-form" id="codeForm">
+          <label for="missionCode">3자리 코드</label>
+          <input id="missionCode" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="000" />
+          <p class="form-error" id="missionError"></p>
+          <button class="primary-action" type="submit">박스 열기</button>
+        </form>
+      </section>
+
+      <section class="screen success-screen" data-screen="success">
+        <div class="reward-burst">
+          <span></span><span></span><span></span>
+          <div class="reward-token">20%</div>
+        </div>
+        <h2>미션 클리어!</h2>
+        <p>오늘만 사용할 수 있는 캠퍼스 보상을 획득했어요.</p>
+      </section>
+
+      <section class="screen coupon-screen" data-screen="coupon">
+        <p class="eyebrow">Reward unlocked</p>
+        <h2>오늘의 캠퍼스 쿠폰</h2>
+        <div class="coupon-ticket">
+          <div>
+            <span class="store-name">세종 카페 라운지</span>
+            <strong>아메리카노 20% 할인</strong>
+          </div>
+          <div class="coupon-visual" aria-label="쿠폰 코드 CAMPUS-428">
+            <span></span><span></span><span></span><span></span>
+            <em>CAMPUS-428</em>
+          </div>
+          <div class="coupon-footer">
+            <span id="todayLabel"></span>
+            <strong>오늘 23:59까지</strong>
+          </div>
+        </div>
+        <div class="today-alert">당일 사용 제한 쿠폰입니다</div>
+        <button class="secondary-action" id="restartDemo">처음부터 다시 시연</button>
+      </section>
+    </main>
+    <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
