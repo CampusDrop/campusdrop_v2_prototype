@@ -237,8 +237,18 @@ export default function Home() {
             <>
               <button className="ar-hit-area" onClick={openMission} aria-label="퀘스트 기린 만나기" />
               <div className="summon-flash" aria-hidden="true" />
+              <div className="speed-lines" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+                <span />
+                <span />
+                <span />
+              </div>
               <div className="npc-stage" aria-hidden="true">
+                <div className="summon-beam" />
                 <div className="npc-glow" />
+                <div className="impact-ring" />
                 <div className="summon-runes">
                   <span />
                   <span />
