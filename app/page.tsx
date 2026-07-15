@@ -249,9 +249,15 @@ export default function Home() {
                 <span />
               </div>
               <div className="npc-stage" aria-hidden="true">
+                <div className="clock-gears">
+                  <span />
+                  <span />
+                  <span />
+                </div>
                 <div className="summon-beam" />
                 <div className="npc-glow" />
                 <div className="impact-ring" />
+                <div className="clock-hands" />
                 <div className="summon-runes">
                   <span />
                   <span />
