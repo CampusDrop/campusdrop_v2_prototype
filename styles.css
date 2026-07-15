@@ -10,6 +10,14 @@
   --shadow: 0 22px 60px rgba(15, 35, 35, 0.16);
 }
 
+@font-face {
+  font-family: "HakgyoansimByeol";
+  src: url("./HakgyoansimByeolbichhaneul-B.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 * { box-sizing: border-box; }
 
 html,
@@ -126,18 +134,28 @@ h2 { margin: 0; font-size: clamp(34px, 10vw, 52px); font-weight: 950; line-heigh
 .scan-frame span:nth-child(4) { bottom: 0; right: 0; border-bottom: 5px solid; border-right: 5px solid; }
 .scan-frame.is-found span { border-color: var(--mint); filter: drop-shadow(0 0 12px rgba(32, 214, 163, 0.85)); }
 
-.scan-hint, .ar-copy {
+.scan-hint, .npc-dialogue {
   position: absolute; left: 18px; right: 18px; bottom: max(20px, env(safe-area-inset-bottom)); z-index: 5;
   border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 22px; background: rgba(8, 14, 14, 0.76);
   color: white; padding: 16px; backdrop-filter: blur(18px);
 }
-.scan-hint strong, .ar-copy strong { display: block; font-size: 18px; }
-.scan-hint p, .ar-copy span { display: block; margin: 6px 0 0; color: rgba(255, 255, 255, 0.76); font-size: 14px; line-height: 1.4; }
+.scan-hint strong, .npc-dialogue strong { display: block; font-size: 18px; }
+.scan-hint p, .npc-dialogue p, .npc-dialogue span { display: block; margin: 6px 0 0; color: rgba(255, 255, 255, 0.76); font-size: 14px; line-height: 1.4; }
 .ar-hit-area { z-index: 6; border: 0; background: transparent; cursor: pointer; display: none; }
-.ar-copy, .npc-stage { display: none; }
+.npc-dialogue, .npc-stage { display: none; }
 .scan-screen.is-found .scan-hint { display: none; }
-.scan-screen.is-found .ar-copy, .scan-screen.is-found .ar-hit-area { display: block; }
+.scan-screen.is-found .npc-dialogue, .scan-screen.is-found .ar-hit-area { display: block; }
 .scan-screen.is-found .npc-stage { display: grid; }
+
+.npc-dialogue {
+  border: 3px solid white; border-radius: 0; background: rgba(0, 0, 0, 0.88);
+  box-shadow: 7px 7px 0 rgba(0, 0, 0, 0.4);
+  font-family: "HakgyoansimByeol", Inter, "Apple SD Gothic Neo", sans-serif;
+  padding: 17px 18px 16px;
+}
+.npc-dialogue strong { color: var(--sun); font-size: 16px; letter-spacing: 0; }
+.npc-dialogue p { color: white; font-size: 20px; line-height: 1.38; }
+.npc-dialogue span { color: rgba(255, 255, 255, 0.68); font-size: 14px; }
 
 .npc-stage { z-index: 4; place-items: center; pointer-events: none; }
 .npc-stage model-viewer {
