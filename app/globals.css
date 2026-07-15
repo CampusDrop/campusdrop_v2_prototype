@@ -246,7 +246,7 @@ h2 {
 
 .camera-feed,
 .scan-vignette,
-.three-layer,
+.npc-stage,
 .ar-hit-area {
   position: absolute;
   inset: 0;
@@ -372,69 +372,59 @@ h2 {
   line-height: 1.4;
 }
 
-.three-layer {
+.npc-stage {
   z-index: 4;
+  display: grid;
+  place-items: center;
   pointer-events: none;
 }
 
-.css-chest {
+.npc-stage model-viewer {
+  width: min(78vw, 340px);
+  height: min(52vh, 430px);
+  filter: drop-shadow(0 22px 34px rgba(0, 0, 0, 0.48));
+  animation: npcFloat 2.3s ease-in-out infinite;
+}
+
+.npc-glow {
   position: absolute;
   left: 50%;
-  top: 46%;
-  z-index: 4;
-  width: 132px;
-  height: 108px;
-  border: 5px solid var(--ink);
-  border-radius: 18px 18px 24px 24px;
-  background: linear-gradient(135deg, var(--mint), #12a986);
+  top: 54%;
+  width: min(58vw, 250px);
+  aspect-ratio: 1;
+  border: 3px solid rgba(124, 249, 214, 0.78);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle, rgba(32, 214, 163, 0.22), transparent 62%),
+    conic-gradient(from 40deg, rgba(124, 249, 214, 0), rgba(124, 249, 214, 0.78), rgba(255, 204, 77, 0.4), rgba(124, 249, 214, 0));
   box-shadow:
-    0 0 28px rgba(32, 214, 163, 0.9),
-    0 28px 60px rgba(0, 0, 0, 0.32);
+    0 0 28px rgba(32, 214, 163, 0.78),
+    inset 0 0 28px rgba(255, 255, 255, 0.28);
   translate: -50% -50%;
-  animation: floatChest 1.9s ease-in-out infinite;
-  pointer-events: none;
+  animation: questRing 4.5s linear infinite;
 }
 
-.css-chest::before {
-  position: absolute;
-  inset: 22px 0 auto;
-  height: 5px;
-  background: rgba(19, 32, 31, 0.35);
-  content: "";
-}
-
-.css-chest-lid {
-  position: absolute;
-  left: -10px;
-  right: -10px;
-  top: -34px;
-  height: 48px;
-  border: 5px solid var(--ink);
-  border-radius: 22px 22px 12px 12px;
-  background: var(--sun);
-}
-
-.css-chest-lock {
-  position: absolute;
-  left: 50%;
-  top: 38px;
-  width: 30px;
-  height: 38px;
-  border: 4px solid var(--ink);
-  border-radius: 9px;
-  background: white;
-  translate: -50% 0;
-}
-
-@keyframes floatChest {
+@keyframes npcFloat {
   0%,
   100% {
-    rotate: -3deg;
-    transform: translateY(-7px) scale(1);
+    transform: translateY(-10px) scale(1);
   }
   50% {
-    rotate: 4deg;
-    transform: translateY(8px) scale(1.04);
+    transform: translateY(10px) scale(1.035);
+  }
+}
+
+@keyframes questRing {
+  0% {
+    rotate: 0deg;
+    scale: 0.96;
+  }
+  50% {
+    scale: 1.06;
+  }
+  100% {
+    rotate: 360deg;
+    scale: 0.96;
   }
 }
 

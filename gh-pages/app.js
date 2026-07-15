@@ -4,7 +4,6 @@ const video = document.querySelector("#cameraFeed");
 const canvas = document.querySelector("#scanCanvas");
 const scanFrame = document.querySelector("#scanFrame");
 const scanHint = document.querySelector("#scanHint");
-const threeLayer = document.querySelector("#threeLayer");
 const codeInput = document.querySelector("#missionCode");
 const missionError = document.querySelector("#missionError");
 const todayLabel = document.querySelector("#todayLabel");
@@ -12,8 +11,6 @@ const todayLabel = document.querySelector("#todayLabel");
 let stream = null;
 let raf = null;
 let foundFrames = 0;
-let renderer = null;
-let threeAnimation = null;
 
 todayLabel.textContent = new Intl.DateTimeFormat("ko-KR", {
   month: "long",
@@ -59,7 +56,7 @@ function setStep(step) {
 async function beginScan() {
   setStep("scan");
   foundFrames = 0;
-  scanScreen.classList.remove("is-found", "is-three-ready");
+  scanScreen.classList.remove("is-found");
   scanFrame.classList.remove("is-found");
   scanHint.querySelector("strong").textContent = "카메라를 준비하고 있어요";
   scanHint.querySelector("p").textContent = "권한 요청이 뜨면 카메라 접근을 허용해주세요.";
@@ -89,14 +86,6 @@ async function beginScan() {
 function stopCamera() {
   if (raf) cancelAnimationFrame(raf);
   raf = null;
-  if (threeAnimation) cancelAnimationFrame(threeAnimation);
-  threeAnimation = null;
-  if (renderer) {
-    renderer.dispose();
-    renderer = null;
-  }
-  threeLayer.innerHTML = "";
-  scanScreen.classList.remove("is-three-ready");
   if (stream) {
     stream.getTracks().forEach((track) => track.stop());
     stream = null;
@@ -139,75 +128,4 @@ function scanForMarker() {
 function revealObject() {
   scanScreen.classList.add("is-found");
   scanFrame.classList.add("is-found");
-  mountThreeChest();
-}
-
-function mountThreeChest() {
-  if (!window.THREE || !threeLayer) return;
-  const THREE = window.THREE;
-  const width = threeLayer.clientWidth || window.innerWidth;
-  const height = threeLayer.clientHeight || window.innerHeight;
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(48, width / height, 0.1, 100);
-  camera.position.z = 4.6;
-
-  renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setSize(width, height);
-  threeLayer.innerHTML = "";
-  threeLayer.appendChild(renderer.domElement);
-  scanScreen.classList.add("is-three-ready");
-
-  const group = new THREE.Group();
-  const body = new THREE.Mesh(
-    new THREE.BoxGeometry(1.35, 1, 1),
-    new THREE.MeshStandardMaterial({
-      color: 0x20d6a3,
-      metalness: 0.28,
-      roughness: 0.22,
-      emissive: 0x0b6d5e,
-      emissiveIntensity: 0.45,
-    }),
-  );
-  const lid = new THREE.Mesh(
-    new THREE.BoxGeometry(1.5, 0.34, 1.12),
-    new THREE.MeshStandardMaterial({
-      color: 0xffcc4d,
-      metalness: 0.2,
-      roughness: 0.26,
-      emissive: 0x8b5b00,
-      emissiveIntensity: 0.25,
-    }),
-  );
-  lid.position.y = 0.67;
-  const lock = new THREE.Mesh(
-    new THREE.BoxGeometry(0.24, 0.34, 0.08),
-    new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0x7cf9d6 }),
-  );
-  lock.position.set(0, 0.22, 0.56);
-  group.add(body, lid, lock);
-  scene.add(group);
-
-  const ring = new THREE.Mesh(
-    new THREE.TorusGeometry(1.25, 0.025, 16, 90),
-    new THREE.MeshBasicMaterial({ color: 0x7cf9d6, transparent: true, opacity: 0.75 }),
-  );
-  ring.rotation.x = Math.PI / 2;
-  scene.add(ring);
-  scene.add(new THREE.AmbientLight(0xffffff, 1.5));
-  const light = new THREE.PointLight(0xffffff, 2.8, 12);
-  light.position.set(1.8, 2.2, 3.5);
-  scene.add(light);
-
-  let frame = 0;
-  const animate = () => {
-    frame += 0.016;
-    group.rotation.y += 0.018;
-    group.position.y = Math.sin(frame * 2.2) * 0.12;
-    ring.rotation.z += 0.012;
-    ring.scale.setScalar(1 + Math.sin(frame * 3) * 0.04);
-    renderer.render(scene, camera);
-    threeAnimation = requestAnimationFrame(animate);
-  };
-  animate();
 }

@@ -42,23 +42,33 @@
           <strong>이미지를 화면 중앙에 맞춰주세요</strong>
           <p>데모 마커 포스터의 초록색 표식을 프레임 안에 넣으면 미션 입구가 열립니다.</p>
         </div>
-        <button class="ar-hit-area" id="openMission" aria-label="AR 보물상자 열기"></button>
-        <div class="three-layer" id="threeLayer" aria-hidden="true"></div>
-        <div class="css-chest" id="cssChest" aria-hidden="true">
-          <span class="css-chest-lid"></span>
-          <span class="css-chest-lock"></span>
+        <button class="ar-hit-area" id="openMission" aria-label="퀘스트 NPC 만나기"></button>
+        <div class="npc-stage" aria-hidden="true">
+          <div class="npc-glow"></div>
+          <model-viewer
+            src="./sejongGF.glb"
+            auto-rotate
+            rotation-per-second="28deg"
+            camera-orbit="0deg 74deg 3.2m"
+            field-of-view="28deg"
+            exposure="1.1"
+            shadow-intensity="0"
+            interaction-prompt="none"
+            disable-zoom
+            alt="Campus Drop quest NPC"
+          ></model-viewer>
         </div>
         <div class="ar-copy" id="arCopy">
-          <strong>보물상자를 탭하세요</strong>
-          <span>이미지 마커 위에 미션 입구가 열렸습니다</span>
+          <strong>NPC를 탭해 퀘스트 받기</strong>
+          <span>캠퍼스 가이드가 오늘의 미션을 들고 기다리고 있어요</span>
         </div>
       </section>
 
       <section class="screen mission-screen" data-screen="mission">
         <div class="mission-header">
           <span class="location-chip">세종관 1층 라운지</span>
-          <h2>잠긴 캠퍼스 박스</h2>
-          <p>세 개의 단서를 조합해 3자리 코드를 입력하세요.</p>
+          <h2>NPC의 캠퍼스 퀘스트</h2>
+          <p>가이드가 남긴 세 개의 단서를 조합해 3자리 코드를 입력하세요.</p>
         </div>
         <div class="clue-board" aria-label="미션 단서">
           <div class="clue"><span>단서 1</span><strong>강의실 문패의 네 번째 숫자</strong></div>
@@ -103,7 +113,7 @@
         <button class="secondary-action" id="restartDemo">처음부터 다시 시연</button>
       </section>
     </main>
-    <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
     <script src="./app.js"></script>
   </body>
 </html>

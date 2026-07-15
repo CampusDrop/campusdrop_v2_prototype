@@ -6,12 +6,15 @@ type Step = "start" | "scan" | "mission" | "success" | "coupon";
 type ScanState = "idle" | "requesting" | "searching" | "found" | "error";
 
 declare global {
-  interface Window {
-    THREE?: any;
+  namespace JSX {
+    interface IntrinsicElements {
+      "model-viewer": any;
+    }
   }
 }
 
 const markerUrl = "/campus-drop-marker.svg";
+const npcModelUrl = "/sejongGF.glb";
 const answer = "428";
 
 export default function Home() {
@@ -21,10 +24,8 @@ export default function Home() {
   const [code, setCode] = useState("");
   const [missionError, setMissionError] = useState("");
   const [collected, setCollected] = useState(false);
-  const [threeReady, setThreeReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const threeMountRef = useRef<HTMLDivElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number | null>(null);
   const foundFramesRef = useRef(0);
@@ -79,93 +80,6 @@ export default function Home() {
       stopCamera();
     };
   }, [step]);
-
-  useEffect(() => {
-    if (step !== "scan" || scanState !== "found") return;
-    let disposed = false;
-    let frame = 0;
-    let renderer: any;
-
-    async function mountThree() {
-      await loadThree();
-      if (disposed || !window.THREE || !threeMountRef.current) return;
-      setThreeReady(true);
-      const THREE = window.THREE;
-      const width = threeMountRef.current.clientWidth || window.innerWidth;
-      const height = threeMountRef.current.clientHeight || window.innerHeight;
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(48, width / height, 0.1, 100);
-      camera.position.z = 4.6;
-
-      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      renderer.setSize(width, height);
-      threeMountRef.current.innerHTML = "";
-      threeMountRef.current.appendChild(renderer.domElement);
-
-      const group = new THREE.Group();
-      const body = new THREE.Mesh(
-        new THREE.BoxGeometry(1.35, 1, 1),
-        new THREE.MeshStandardMaterial({
-          color: 0x20d6a3,
-          metalness: 0.28,
-          roughness: 0.22,
-          emissive: 0x0b6d5e,
-          emissiveIntensity: 0.45,
-        }),
-      );
-      const lid = new THREE.Mesh(
-        new THREE.BoxGeometry(1.5, 0.34, 1.12),
-        new THREE.MeshStandardMaterial({
-          color: 0xffcc4d,
-          metalness: 0.2,
-          roughness: 0.26,
-          emissive: 0x8b5b00,
-          emissiveIntensity: 0.25,
-        }),
-      );
-      lid.position.y = 0.67;
-      const lock = new THREE.Mesh(
-        new THREE.BoxGeometry(0.24, 0.34, 0.08),
-        new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0x7cf9d6 }),
-      );
-      lock.position.set(0, 0.22, 0.56);
-      group.add(body, lid, lock);
-      scene.add(group);
-
-      const ring = new THREE.Mesh(
-        new THREE.TorusGeometry(1.25, 0.025, 16, 90),
-        new THREE.MeshBasicMaterial({ color: 0x7cf9d6, transparent: true, opacity: 0.75 }),
-      );
-      ring.rotation.x = Math.PI / 2;
-      scene.add(ring);
-
-      scene.add(new THREE.AmbientLight(0xffffff, 1.5));
-      const light = new THREE.PointLight(0xffffff, 2.8, 12);
-      light.position.set(1.8, 2.2, 3.5);
-      scene.add(light);
-
-      const animate = () => {
-        if (disposed) return;
-        frame += 0.016;
-        group.rotation.y += 0.018;
-        group.position.y = Math.sin(frame * 2.2) * 0.12;
-        ring.rotation.z += 0.012;
-        ring.scale.setScalar(1 + Math.sin(frame * 3) * 0.04);
-        renderer.render(scene, camera);
-        requestAnimationFrame(animate);
-      };
-      animate();
-    }
-
-    mountThree();
-    return () => {
-      disposed = true;
-      setThreeReady(false);
-      renderer?.dispose?.();
-      if (threeMountRef.current) threeMountRef.current.innerHTML = "";
-    };
-  }, [step, scanState]);
 
   useEffect(() => {
     if (step !== "success") return;
@@ -297,17 +211,25 @@ export default function Home() {
           )}
           {scanState === "found" && (
             <>
-              <button className="ar-hit-area" onClick={openMission} aria-label="AR 보물상자 열기" />
-              <div ref={threeMountRef} className="three-layer" aria-hidden="true" />
-              {!threeReady && (
-                <div className="css-chest" aria-hidden="true">
-                  <span className="css-chest-lid" />
-                  <span className="css-chest-lock" />
-                </div>
-              )}
+              <button className="ar-hit-area" onClick={openMission} aria-label="퀘스트 NPC 만나기" />
+              <div className="npc-stage" aria-hidden="true">
+                <div className="npc-glow" />
+                <model-viewer
+                  src={npcModelUrl}
+                  auto-rotate
+                  rotation-per-second="28deg"
+                  camera-orbit="0deg 74deg 3.2m"
+                  field-of-view="28deg"
+                  exposure="1.1"
+                  shadow-intensity="0"
+                  interaction-prompt="none"
+                  disable-zoom
+                  alt="Campus Drop quest NPC"
+                />
+              </div>
               <div className="ar-copy">
-                <strong>보물상자를 탭하세요</strong>
-                <span>이미지 마커 위에 미션 입구가 열렸습니다</span>
+                <strong>NPC를 탭해 퀘스트 받기</strong>
+                <span>캠퍼스 가이드가 오늘의 미션을 들고 기다리고 있어요</span>
               </div>
             </>
           )}
@@ -318,8 +240,8 @@ export default function Home() {
         <section className="screen mission-screen">
           <div className="mission-header">
             <span className="location-chip">세종관 1층 라운지</span>
-            <h2>잠긴 캠퍼스 박스</h2>
-            <p>세 개의 단서를 조합해 3자리 코드를 입력하세요.</p>
+            <h2>NPC의 캠퍼스 퀘스트</h2>
+            <p>가이드가 남긴 세 개의 단서를 조합해 3자리 코드를 입력하세요.</p>
           </div>
           <div className="clue-board" aria-label="미션 단서">
             <div className="clue">
@@ -406,23 +328,4 @@ export default function Home() {
       )}
     </main>
   );
-}
-
-function loadThree() {
-  if (window.THREE) return Promise.resolve();
-  return new Promise<void>((resolve, reject) => {
-    const existing = document.querySelector<HTMLScriptElement>("[data-three]");
-    if (existing) {
-      existing.addEventListener("load", () => resolve(), { once: true });
-      existing.addEventListener("error", () => reject(), { once: true });
-      return;
-    }
-    const script = document.createElement("script");
-    script.src = "https://unpkg.com/three@0.160.0/build/three.min.js";
-    script.async = true;
-    script.dataset.three = "true";
-    script.onload = () => resolve();
-    script.onerror = () => reject();
-    document.head.appendChild(script);
-  });
 }
