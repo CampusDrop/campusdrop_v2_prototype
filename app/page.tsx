@@ -17,6 +17,9 @@ const fixtureUrl = "/sejong-map-fixture.jpeg";
 const posterUrl = "/campus-drop-marker.svg";
 const npcModelUrl = "/sejongGF.glb";
 const answer = "428";
+const npcDialogueText = "지도 앞까지 왔구나. 오늘의 캠퍼스 퀘스트를 받을 준비 됐어?";
+const dialogueStartMs = 4300;
+const typingIntervalMs = 46;
 
 export default function Home() {
   const [step, setStep] = useState<Step>("start");
@@ -26,6 +29,7 @@ export default function Home() {
   const [missionError, setMissionError] = useState("");
   const [collected, setCollected] = useState(false);
   const [canOpenMission, setCanOpenMission] = useState(false);
+  const [typedDialogue, setTypedDialogue] = useState("");
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -91,12 +95,29 @@ export default function Home() {
   }, [step]);
 
   useEffect(() => {
-    if (scanState !== "found") {
-      setCanOpenMission(false);
-      return;
-    }
-    const timer = window.setTimeout(() => setCanOpenMission(true), 3000);
-    return () => window.clearTimeout(timer);
+    setCanOpenMission(false);
+    setTypedDialogue("");
+    if (scanState !== "found") return;
+
+    let index = 0;
+    let interval: number | undefined;
+    let readyTimer: number | undefined;
+    const startTimer = window.setTimeout(() => {
+      interval = window.setInterval(() => {
+        index += 1;
+        setTypedDialogue(npcDialogueText.slice(0, index));
+        if (index >= npcDialogueText.length) {
+          if (interval) window.clearInterval(interval);
+          readyTimer = window.setTimeout(() => setCanOpenMission(true), 260);
+        }
+      }, typingIntervalMs);
+    }, dialogueStartMs);
+
+    return () => {
+      window.clearTimeout(startTimer);
+      if (interval) window.clearInterval(interval);
+      if (readyTimer) window.clearTimeout(readyTimer);
+    };
   }, [scanState]);
 
   function stopCamera() {
@@ -169,6 +190,7 @@ export default function Home() {
     setStep("scan");
     setScanState("idle");
     setCanOpenMission(false);
+    setTypedDialogue("");
     foundFramesRef.current = 0;
   }
 
@@ -308,9 +330,13 @@ export default function Home() {
                   alt="Campus Drop quest giraffe"
                 />
               </div>
-              <div className="npc-dialogue">
+              <div
+                className={`npc-dialogue ${
+                  typedDialogue && typedDialogue.length < npcDialogueText.length ? "is-typing" : ""
+                } ${canOpenMission ? "is-complete" : ""}`}
+              >
                 <strong>세종 기린</strong>
-                <p>지도 앞까지 왔구나. 오늘의 캠퍼스 퀘스트를 받을 준비 됐어?</p>
+                <p>{typedDialogue}</p>
                 <span>기린을 탭해 퀘스트 시작</span>
               </div>
             </>
