@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1600" viewBox="0 0 1200 1600" role="img" aria-labelledby="title desc">
+  <title id="title">Campus Drop demo marker poster</title>
+  <desc id="desc">A high contrast campus poster marker for the Campus Drop WebAR demo.</desc>
+  <rect width="1200" height="1600" fill="#fffdf7"/>
+  <rect x="64" y="64" width="1072" height="1472" rx="56" fill="#e8fbf1" stroke="#13201f" stroke-width="18"/>
+  <circle cx="1004" cy="194" r="82" fill="#ffcc4d" stroke="#13201f" stroke-width="14"/>
+  <path d="M166 1060 C332 914 472 1166 650 1014 C790 894 894 974 1034 858" fill="none" stroke="#11866c" stroke-width="22" stroke-linecap="round" stroke-dasharray="22 34"/>
+  <g transform="translate(134 148)">
+    <rect width="192" height="192" rx="28" fill="#20d6a3" stroke="#13201f" stroke-width="16"/>
+    <text x="96" y="118" fill="#13201f" font-family="Arial, Helvetica, sans-serif" font-size="62" font-weight="900" text-anchor="middle">CD</text>
+  </g>
+  <text x="134" y="430" fill="#11866c" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="900" letter-spacing="5">CAMPUS AR MISSION</text>
+  <text x="134" y="560" fill="#13201f" font-family="Arial, Helvetica, sans-serif" font-size="118" font-weight="900">Campus</text>
+  <text x="134" y="678" fill="#13201f" font-family="Arial, Helvetica, sans-serif" font-size="118" font-weight="900">Drop</text>
+  <text x="138" y="756" fill="#394743" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700">Scan this image to open today's mission.</text>
+  <g transform="translate(300 860)">
+    <rect x="0" y="0" width="600" height="420" rx="42" fill="#13201f"/>
+    <rect x="38" y="38" width="524" height="344" rx="30" fill="#fffdf7"/>
+    <rect x="78" y="78" width="128" height="128" rx="18" fill="#20d6a3"/>
+    <rect x="394" y="78" width="128" height="128" rx="18" fill="#20d6a3"/>
+    <rect x="78" y="214" width="128" height="128" rx="18" fill="#ffcc4d"/>
+    <rect x="394" y="214" width="128" height="128" rx="18" fill="#ffcc4d"/>
+    <rect x="238" y="104" width="124" height="66" rx="16" fill="#13201f"/>
+    <rect x="238" y="202" width="124" height="66" rx="16" fill="#20d6a3"/>
+    <circle cx="300" cy="316" r="36" fill="#ff6f61"/>
+  </g>
+  <g fill="#13201f" font-family="Arial, Helvetica, sans-serif" font-weight="900" text-anchor="middle">
+    <text x="600" y="1375" font-size="48">MISSION CODE HINT</text>
+    <text x="600" y="1440" font-size="84">4 · 2 · 8</text>
+  </g>
+</svg>
