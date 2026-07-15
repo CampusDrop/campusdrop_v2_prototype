@@ -409,12 +409,14 @@ export default function Home() {
               <span className="store-name">세종 카페 라운지</span>
               <strong>아메리카노 20% 할인</strong>
             </div>
-            <div className="coupon-visual" aria-label="쿠폰 코드 CAMPUS-428">
-              <span />
-              <span />
-              <span />
-              <span />
-              <em>CAMPUS-428</em>
+            <div className="coupon-visual" aria-label="오늘의 캠퍼스 쿠폰 QR 코드 CAMPUS-428">
+              <div className="coupon-qr" aria-hidden="true">
+                <span className="qr-eye qr-eye-tl" />
+                <span className="qr-eye qr-eye-tr" />
+                <span className="qr-eye qr-eye-bl" />
+                <span className="qr-pixels" />
+              </div>
+              <em>QR 쿠폰 · CAMPUS-428</em>
             </div>
             <div className="coupon-footer">
               <span>{todayLabel}</span>

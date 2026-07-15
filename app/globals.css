@@ -1217,24 +1217,69 @@ h2 {
 
 .coupon-visual {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  justify-items: center;
+  gap: 12px;
   border: 2px dashed rgba(19, 32, 31, 0.28);
   border-radius: 18px;
   background: white;
-  padding: 14px;
+  padding: 18px;
 }
 
-.coupon-visual span {
+.coupon-qr {
+  position: relative;
+  width: min(58vw, 214px);
   aspect-ratio: 1;
+  border: 10px solid white;
+  border-radius: 12px;
   background:
-    linear-gradient(90deg, #111 42%, transparent 42% 58%, #111 58%),
-    linear-gradient(#111 42%, transparent 42% 58%, #111 58%);
-  border-radius: 5px;
+    linear-gradient(90deg, #111 0 8px, transparent 8px 18px, #111 18px 28px, transparent 28px 38px, #111 38px 48px, transparent 48px 58px, #111 58px 68px, transparent 68px 88px, #111 88px 98px, transparent 98px 118px, #111 118px 128px, transparent 128px),
+    linear-gradient(#111 0 8px, transparent 8px 18px, #111 18px 28px, transparent 28px 38px, #111 38px 48px, transparent 48px 58px, #111 58px 68px, transparent 68px 88px, #111 88px 98px, transparent 98px 118px, #111 118px 128px, transparent 128px);
+  background-blend-mode: multiply;
+  box-shadow:
+    0 0 0 3px #111,
+    0 14px 30px rgba(19, 32, 31, 0.14);
+}
+
+.qr-eye {
+  position: absolute;
+  width: 56px;
+  aspect-ratio: 1;
+  border: 8px solid #111;
+  background: white;
+}
+
+.qr-eye::after {
+  position: absolute;
+  inset: 10px;
+  background: #111;
+  content: "";
+}
+
+.qr-eye-tl {
+  left: 8px;
+  top: 8px;
+}
+
+.qr-eye-tr {
+  right: 8px;
+  top: 8px;
+}
+
+.qr-eye-bl {
+  bottom: 8px;
+  left: 8px;
+}
+
+.qr-pixels {
+  position: absolute;
+  inset: 76px 18px 18px 76px;
+  background:
+    linear-gradient(90deg, #111 0 11px, transparent 11px 22px, #111 22px 33px, transparent 33px 44px, #111 44px 55px, transparent 55px),
+    linear-gradient(#111 0 11px, transparent 11px 22px, #111 22px 33px, transparent 33px 44px, #111 44px 55px, transparent 55px);
+  opacity: 0.98;
 }
 
 .coupon-visual em {
-  grid-column: 1 / -1;
   color: var(--muted);
   font-style: normal;
   font-weight: 950;
