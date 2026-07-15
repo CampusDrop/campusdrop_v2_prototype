@@ -128,13 +128,16 @@ function scanForMarker() {
       if (r > 165 && g > 145 && b > 110) bright += 1;
       if (r < 58 && g < 58 && b < 68) fixtureDark += 1;
     }
-    const posterDetected = green > 90 && yellow > 40 && dark > 35;
+    const posterDetected = green > 130 && yellow > 70 && dark > 60;
     const fixtureDetected =
-      (cyan > 155 && pink > 35 && bright > 850 && fixtureDark > 330) ||
-      (cyan > 250 && bright > 1050 && fixtureDark > 420);
+      cyan > 260 &&
+      pink > 80 &&
+      bright > 1350 &&
+      fixtureDark > 900 &&
+      cyan + pink + bright + fixtureDark > 3300;
     const detected = posterDetected || fixtureDetected;
     foundFrames = detected ? foundFrames + 1 : 0;
-    if (foundFrames > 5) {
+    if (foundFrames > 10) {
       revealObject();
       return;
     }
