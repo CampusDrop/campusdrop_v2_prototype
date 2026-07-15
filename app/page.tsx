@@ -240,7 +240,7 @@ export default function Home() {
                 <div className="npc-glow" />
                 <model-viewer
                   src={npcModelUrl}
-                  camera-orbit="0deg 76deg 3.2m"
+                  camera-orbit="90deg 76deg 3.2m"
                   field-of-view="28deg"
                   exposure="1.1"
                   shadow-intensity="0"
