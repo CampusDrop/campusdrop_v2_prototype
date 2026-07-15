@@ -72,9 +72,9 @@ async function beginScan() {
     });
     video.srcObject = stream;
     await video.play();
-    scanHint.querySelector("strong").textContent = "지도 안내판을 화면 중앙에 맞춰주세요";
+    scanHint.querySelector("strong").textContent = "지도 안내판이나 포스터를 중앙에 맞춰주세요";
     scanHint.querySelector("p").textContent =
-      "세종대 지도 안내판의 밝은 지도 영역이 프레임 안에 들어오면 기린이 나타납니다.";
+      "세종대 지도 안내판의 밝은 지도 영역 또는 전용 포스터의 초록/노랑 표식이 프레임 안에 들어오면 기린이 나타납니다.";
     scanForMarker();
   } catch {
     scanHint.querySelector("strong").textContent = "카메라를 열 수 없어요";
