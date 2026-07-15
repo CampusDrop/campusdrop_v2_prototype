@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "HakgyoansimByeol";
+  src: url("/HakgyoansimByeolbichhaneul-B.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --ink: #13201f;
   --muted: #66736f;
@@ -343,7 +351,7 @@ h2 {
 }
 
 .scan-hint,
-.ar-copy {
+.npc-dialogue {
   position: absolute;
   left: 18px;
   right: 18px;
@@ -358,18 +366,45 @@ h2 {
 }
 
 .scan-hint strong,
-.ar-copy strong {
+.npc-dialogue strong {
   display: block;
   font-size: 18px;
 }
 
 .scan-hint p,
-.ar-copy span {
+.npc-dialogue p,
+.npc-dialogue span {
   display: block;
   margin: 6px 0 0;
   color: rgba(255, 255, 255, 0.76);
   font-size: 14px;
   line-height: 1.4;
+}
+
+.npc-dialogue {
+  border: 3px solid white;
+  border-radius: 0;
+  background: rgba(0, 0, 0, 0.88);
+  box-shadow: 7px 7px 0 rgba(0, 0, 0, 0.4);
+  font-family: "HakgyoansimByeol", var(--font-geist-sans), sans-serif;
+  padding: 17px 18px 16px;
+}
+
+.npc-dialogue strong {
+  color: var(--sun);
+  font-size: 16px;
+  letter-spacing: 0;
+}
+
+.npc-dialogue p {
+  color: white;
+  font-size: 20px;
+  line-height: 1.38;
+}
+
+.npc-dialogue span {
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 14px;
 }
 
 .npc-stage {

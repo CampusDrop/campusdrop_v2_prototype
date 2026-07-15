@@ -216,9 +216,7 @@ export default function Home() {
                 <div className="npc-glow" />
                 <model-viewer
                   src={npcModelUrl}
-                  auto-rotate
-                  rotation-per-second="28deg"
-                  camera-orbit="0deg 74deg 3.2m"
+                  camera-orbit="0deg 76deg 3.2m"
                   field-of-view="28deg"
                   exposure="1.1"
                   shadow-intensity="0"
@@ -227,9 +225,10 @@ export default function Home() {
                   alt="Campus Drop quest NPC"
                 />
               </div>
-              <div className="ar-copy">
-                <strong>NPC를 탭해 퀘스트 받기</strong>
-                <span>캠퍼스 가이드가 오늘의 미션을 들고 기다리고 있어요</span>
+              <div className="npc-dialogue">
+                <strong>세종 가이드</strong>
+                <p>여기까지 찾아왔구나. 오늘의 캠퍼스 퀘스트를 받을 준비 됐어?</p>
+                <span>캐릭터를 탭해 퀘스트 시작</span>
               </div>
             </>
           )}
