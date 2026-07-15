@@ -1,6 +1,7 @@
 const app = document.querySelector(".app");
 const scanScreen = document.querySelector(".scan-screen");
 const video = document.querySelector("#cameraFeed");
+const frozenFrame = document.querySelector("#frozenFrame");
 const canvas = document.querySelector("#scanCanvas");
 const scanFrame = document.querySelector("#scanFrame");
 const scanHint = document.querySelector("#scanHint");
@@ -68,6 +69,8 @@ async function beginScan() {
   foundFrames = 0;
   canOpenMission = false;
   resetDialogue();
+  frozenFrame.removeAttribute("src");
+  frozenFrame.classList.remove("is-visible");
   scanScreen.classList.remove("is-found");
   scanFrame.classList.remove("is-found");
   scanHint.querySelector("strong").textContent = "카메라를 준비하고 있어요";
@@ -102,6 +105,18 @@ function stopCamera() {
     stream.getTracks().forEach((track) => track.stop());
     stream = null;
   }
+  video.srcObject = null;
+}
+
+function freezeCameraFrame() {
+  const snapshot = document.createElement("canvas");
+  snapshot.width = video.videoWidth;
+  snapshot.height = video.videoHeight;
+  const snapshotContext = snapshot.getContext("2d");
+  if (!snapshotContext) return;
+  snapshotContext.drawImage(video, 0, 0, snapshot.width, snapshot.height);
+  frozenFrame.src = snapshot.toDataURL("image/jpeg", 0.86);
+  frozenFrame.classList.add("is-visible");
 }
 
 function scanForMarker() {
@@ -150,6 +165,8 @@ function scanForMarker() {
     const detected = posterDetected || fixtureDetected;
     foundFrames = detected ? foundFrames + 1 : 0;
     if (foundFrames > 10) {
+      freezeCameraFrame();
+      stopCamera();
       revealObject();
       return;
     }
