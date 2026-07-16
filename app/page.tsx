@@ -18,6 +18,7 @@ type Step =
   | "success"
   | "coupon";
 type ScanState = "idle" | "requesting" | "searching" | "found" | "error";
+type ArMode = "marker" | "bird";
 
 declare global {
   namespace JSX {
@@ -66,6 +67,7 @@ declare global {
 const fixtureUrl = "/sejong-map-fixture.jpeg";
 const posterUrl = "/campus-drop-marker.svg";
 const npcModelUrl = "/sejongGF.glb";
+const blueBirdModelUrl = "/blueBird.glb";
 const answer = "428";
 const npcDialogueText = "지도 앞까지 왔구나. 오늘의 캠퍼스 퀘스트를 받을 준비 됐어?";
 const dialogueStartMs = 4300;
@@ -73,6 +75,15 @@ const typingIntervalMs = 46;
 const sejongCenter = { lat: 37.550944, lng: 127.073765 };
 const defaultUserLocation = { lat: 37.497952, lng: 127.027619 };
 const interactionRadiusMeters = 100;
+const eventDurationMs = 5 * 60 * 1000;
+const eventReachRadiusMeters = 40;
+const campusEventSpots = [
+  { name: "대양AI센터", lat: 37.550944, lng: 127.073765 },
+  { name: "학생회관 앞", lat: 37.54992, lng: 127.07436 },
+  { name: "중앙광장", lat: 37.55054, lng: 127.07508 },
+  { name: "도서관 길목", lat: 37.55134, lng: 127.07456 },
+  { name: "세종관 산책로", lat: 37.5511, lng: 127.07298 },
+];
 const personalBeaconMarkup = `
   <span class="personal-beacon" aria-hidden="true">
     <span class="beacon-pulse beacon-pulse-a"></span>
@@ -90,6 +101,7 @@ const mapCrewPoints = [
   { name: "노바", lat: 37.55052, lng: 127.07318, sigil: "N", status: "미점령", members: 7, reward: "도감 조각" },
 ];
 type MapCrewPoint = (typeof mapCrewPoints)[number];
+type CampusEventSpot = (typeof campusEventSpots)[number];
 const mapZoomScaleByLevel: Record<number, number> = {
   1: 2.25,
   2: 1.78,
@@ -130,9 +142,43 @@ const collectionModels = [
   { season: "벚꽃 시즌", name: "봄길 사슴", title: "지난 시즌 기록", unlocked: true, src: npcModelUrl },
 ];
 
+function getDistanceMeters(from: { lat: number; lng: number }, to: { lat: number; lng: number }) {
+  const earthRadius = 6371000;
+  const toRad = (value: number) => (value * Math.PI) / 180;
+  const dLat = toRad(to.lat - from.lat);
+  const dLng = toRad(to.lng - from.lng);
+  const lat1 = toRad(from.lat);
+  const lat2 = toRad(to.lat);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+  return earthRadius * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function getBearingLabel(from: { lat: number; lng: number }, to: { lat: number; lng: number }) {
+  const toRad = (value: number) => (value * Math.PI) / 180;
+  const toDeg = (value: number) => (value * 180) / Math.PI;
+  const lat1 = toRad(from.lat);
+  const lat2 = toRad(to.lat);
+  const dLng = toRad(to.lng - from.lng);
+  const y = Math.sin(dLng) * Math.cos(lat2);
+  const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng);
+  const bearing = (toDeg(Math.atan2(y, x)) + 360) % 360;
+  const labels = ["북", "북동", "동", "남동", "남", "남서", "서", "북서"];
+  return labels[Math.round(bearing / 45) % 8];
+}
+
+function formatEventTime(ms: number) {
+  const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+}
+
 export default function Home() {
   const [step, setStep] = useState<Step>("signup-basic");
   const [scanState, setScanState] = useState<ScanState>("idle");
+  const [arMode, setArMode] = useState<ArMode>("marker");
   const [cameraError, setCameraError] = useState("");
   const [code, setCode] = useState("");
   const [missionError, setMissionError] = useState("");
@@ -142,6 +188,14 @@ export default function Home() {
   const [frozenFrame, setFrozenFrame] = useState("");
   const [mapMenuOpen, setMapMenuOpen] = useState(false);
   const [selectedMapSpot, setSelectedMapSpot] = useState<MapCrewPoint | null>(null);
+  const [activeEventIndex, setActiveEventIndex] = useState(0);
+  const [eventEndsAt, setEventEndsAt] = useState(() => Date.now() + eventDurationMs);
+  const [eventRemainingMs, setEventRemainingMs] = useState(eventDurationMs);
+  const [eventReached, setEventReached] = useState(false);
+  const [eventCompleted, setEventCompleted] = useState(false);
+  const [eventDistance, setEventDistance] = useState<number | null>(null);
+  const [eventBearing, setEventBearing] = useState("확인 중");
+  const [birdLocked, setBirdLocked] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const kakaoShellRef = useRef<HTMLDivElement | null>(null);
@@ -155,10 +209,12 @@ export default function Home() {
   } | null>(null);
   const mapSpotOverlaysRef = useRef<{ setMap: (map: unknown) => void }[]>([]);
   const mapClusterOverlayRef = useRef<{ setMap: (map: unknown) => void } | null>(null);
+  const eventMarkerOverlayRef = useRef<{ setMap: (map: unknown) => void } | null>(null);
   const mapRenderDebounceRef = useRef<number | null>(null);
   const myLocationOverlayRef = useRef<{ setMap: (map: unknown) => void } | null>(null);
   const interactionCircleRef = useRef<{ setMap: (map: unknown) => void } | null>(null);
   const locationWatchIdRef = useRef<number | null>(null);
+  const currentUserLocationRef = useRef(defaultUserLocation);
   const lastLocationRequestRef = useRef(0);
   const streamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -214,6 +270,7 @@ export default function Home() {
         kakaoMapInstanceRef.current = map;
         setKakaoReady(true);
         renderUserRadar(defaultUserLocation.lat, defaultUserLocation.lng, map);
+        renderEventMarker(map);
         const syncMapPointScale = () => {
           const zoomLevel = Math.max(1, Math.min(7, map.getLevel()));
           const scale = mapZoomScaleByLevel[zoomLevel] ?? 0.32;
@@ -326,8 +383,52 @@ export default function Home() {
     visibleSpots.forEach((crew) => createSpotOverlay(crew, map));
   }
 
+  function renderEventMarker(map = kakaoMapInstanceRef.current) {
+    if (!window.kakao || !map) return;
+    if (eventMarkerOverlayRef.current) eventMarkerOverlayRef.current.setMap(null);
+    const spot = campusEventSpots[activeEventIndex];
+    const marker = document.createElement("button");
+    marker.type = "button";
+    marker.className = `event-red-marker${eventCompleted ? " is-complete" : ""}`;
+    marker.setAttribute("aria-label", `${spot.name} AR 탐색 이벤트`);
+    marker.innerHTML = `<span></span><strong>${eventCompleted ? "완료" : "AR"}</strong>`;
+    marker.addEventListener("click", () => {
+      const center = new window.kakao!.maps.LatLng(spot.lat, spot.lng);
+      if (map.panTo) map.panTo(center);
+      else map.setCenter(center);
+    });
+    eventMarkerOverlayRef.current = new window.kakao.maps.CustomOverlay({
+      position: new window.kakao.maps.LatLng(spot.lat, spot.lng),
+      content: marker,
+      xAnchor: 0.5,
+      yAnchor: 1,
+      zIndex: 30,
+    });
+    eventMarkerOverlayRef.current.setMap(map);
+  }
+
+  function updateEventReach(userLocation = currentUserLocationRef.current) {
+    const spot = campusEventSpots[activeEventIndex];
+    const distance = getDistanceMeters(userLocation, spot);
+    setEventDistance(distance);
+    setEventBearing(getBearingLabel(userLocation, spot));
+    setEventReached(distance <= eventReachRadiusMeters && !eventCompleted);
+  }
+
+  function moveEventMarker() {
+    setActiveEventIndex((previous) => (previous + 2) % campusEventSpots.length);
+    setEventEndsAt(Date.now() + eventDurationMs);
+    setEventRemainingMs(eventDurationMs);
+    setEventReached(false);
+    setEventCompleted(false);
+    setBirdLocked(false);
+    setCanOpenMission(false);
+  }
+
   function renderUserRadar(lat: number, lng: number, map = kakaoMapInstanceRef.current) {
     if (!window.kakao || !map) return;
+    currentUserLocationRef.current = { lat, lng };
+    updateEventReach({ lat, lng });
     const latLng = new window.kakao.maps.LatLng(lat, lng);
     const marker = document.createElement("div");
     marker.className = "my-location-marker";
@@ -379,6 +480,24 @@ export default function Home() {
       }
     };
   }, [kakaoReady, step]);
+
+  useEffect(() => {
+    if (!kakaoReady) return;
+    renderEventMarker();
+    updateEventReach();
+  }, [activeEventIndex, eventCompleted, kakaoReady]);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      const remaining = eventEndsAt - Date.now();
+      if (remaining <= 0) {
+        moveEventMarker();
+        return;
+      }
+      setEventRemainingMs(remaining);
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [eventEndsAt]);
 
   function requestMyLocation() {
     const now = Date.now();
@@ -435,6 +554,10 @@ export default function Home() {
           videoRef.current.srcObject = stream;
           await videoRef.current.play();
         }
+        if (arMode === "bird") {
+          setScanState("found");
+          return;
+        }
         setScanState("searching");
         scanForMarker();
       } catch {
@@ -450,7 +573,7 @@ export default function Home() {
       cancelled = true;
       stopCamera();
     };
-  }, [step]);
+  }, [arMode, step]);
 
   useEffect(() => {
     if (step !== "success") return;
@@ -463,6 +586,10 @@ export default function Home() {
     setCanOpenMission(false);
     setTypedDialogue("");
     if (scanState !== "found") return;
+    if (arMode === "bird") {
+      const timer = window.setTimeout(() => setBirdLocked(true), 1600);
+      return () => window.clearTimeout(timer);
+    }
 
     let index = 0;
     let interval: number | undefined;
@@ -483,7 +610,7 @@ export default function Home() {
       if (interval) window.clearInterval(interval);
       if (readyTimer) window.clearTimeout(readyTimer);
     };
-  }, [scanState]);
+  }, [arMode, scanState]);
 
   function stopCamera() {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -617,14 +744,25 @@ export default function Home() {
     tick();
   }
 
-  function beginScan() {
+  function beginScan(mode: ArMode = "marker") {
     if (step === "scan") return;
+    setArMode(mode);
     setStep("scan");
     setScanState("idle");
     setCanOpenMission(false);
+    setBirdLocked(false);
     setTypedDialogue("");
     setFrozenFrame("");
     foundFramesRef.current = 0;
+  }
+
+  function completeBirdEvent() {
+    if (!birdLocked) return;
+    stopCamera();
+    setEventCompleted(true);
+    setEventReached(false);
+    setBirdLocked(false);
+    setStep("success");
   }
 
   function openMission() {
@@ -963,9 +1101,16 @@ export default function Home() {
             <p className="map-visible-count">표시 거점 {visibleMapSpotCount}개</p>
           </div>
           <div className="map-quest-hud" aria-label="현재 진행중인 퀘스트">
-            <span>진행 중인 퀘스트</span>
-            <strong>시계탑 정령을 깨워라</strong>
-            <p>지도 안내판을 스캔하고 3자리 암호를 풀기</p>
+            <span>AR 탐색 이벤트</span>
+            <strong>{campusEventSpots[activeEventIndex].name}</strong>
+            <p>
+              {eventCompleted
+                ? "이번 좌표 완료. 다음 이동을 기다려주세요."
+                : eventReached
+                  ? "도달 완료. 파랑새 AR을 열 수 있어요."
+                  : `${eventDistance === null ? "거리 확인 중" : `${Math.round(eventDistance)}m`} · ${eventBearing}쪽`}
+            </p>
+            <em>이동까지 {formatEventTime(eventRemainingMs)}</em>
           </div>
           {selectedMapSpot && (
             <aside className="map-spot-sheet bg-slate-900/70 backdrop-blur-md border border-white/20 animate-fade-in-up" aria-live="polite">
@@ -993,20 +1138,23 @@ export default function Home() {
             {locationStatus}
           </button>
           <button
-            className="map-ar-quest-button"
+            className={`map-ar-quest-button ${eventReached ? "is-ready" : "is-locked"}`}
             type="button"
-            aria-label="비밀 퀘스트 탐험 시작"
+            aria-label={eventReached ? "파랑새 AR 탐색 시작" : "이벤트 좌표에 도달해야 합니다"}
+            disabled={!eventReached}
             onPointerDown={(event) => {
               event.preventDefault();
+              if (!eventReached) return;
               setMapMenuOpen(false);
-              beginScan();
+              beginScan("bird");
             }}
             onClick={() => {
+              if (!eventReached) return;
               setMapMenuOpen(false);
-              beginScan();
+              beginScan("bird");
             }}
           >
-            <span aria-hidden="true">AR</span>
+            <span aria-hidden="true">{eventReached ? "BIRD" : "LOCK"}</span>
           </button>
           <MapMenu />
         </section>
@@ -1157,7 +1305,7 @@ export default function Home() {
             <button className="ghost-button" onClick={goToMap}>
               닫기
             </button>
-            <span>캠퍼스 드랍 스캔</span>
+            <span>{arMode === "bird" ? "파랑새 AR 탐색" : "캠퍼스 드랍 스캔"}</span>
           </div>
           <div className={`scan-frame ${scanState === "found" ? "is-found" : ""}`}>
             <span />
@@ -1172,15 +1320,46 @@ export default function Home() {
                   ? "카메라를 준비하고 있어요"
                   : scanState === "error"
                     ? "카메라를 열 수 없어요"
-                    : "지도 안내판이나 포스터를 중앙에 맞춰주세요"}
+                    : arMode === "bird"
+                      ? "주변을 천천히 둘러보세요"
+                      : "지도 안내판이나 포스터를 중앙에 맞춰주세요"}
               </strong>
               <p>
                 {cameraError ||
-                  "세종대 지도 안내판의 낮/야간 지도 영역 또는 전용 포스터의 초록/노랑 표식이 프레임 안에 들어오면 기린이 나타납니다."}
+                  (arMode === "bird"
+                    ? "파랑새는 처음부터 중앙에 보이지 않아요. 화면 중앙에 1~2초 붙잡은 뒤 터치하세요."
+                    : "세종대 지도 안내판의 낮/야간 지도 영역 또는 전용 포스터의 초록/노랑 표식이 프레임 안에 들어오면 기린이 나타납니다.")}
               </p>
             </div>
           )}
-          {scanState === "found" && (
+          {scanState === "found" && arMode === "bird" && (
+            <>
+              <button
+                className={`bird-hit-area ${birdLocked ? "is-locked" : ""}`}
+                type="button"
+                onClick={completeBirdEvent}
+                aria-label="파랑새 발견 완료"
+              />
+              <div className="bird-ar-reticle" aria-hidden="true" />
+              <div className="bird-stage" aria-hidden="true">
+                <model-viewer
+                  src={blueBirdModelUrl}
+                  camera-orbit="65deg 72deg 3.4m"
+                  field-of-view="30deg"
+                  exposure="1.2"
+                  shadow-intensity="0"
+                  interaction-prompt="none"
+                  disable-zoom
+                  alt="파랑새"
+                />
+              </div>
+              <div className={`bird-guide ${birdLocked ? "is-ready" : ""}`}>
+                <strong>{birdLocked ? "파랑새 포착!" : "파랑새 신호 추적 중"}</strong>
+                <p>{birdLocked ? "파랑새를 터치해 이벤트를 완료하세요." : "휴대폰을 돌려 파랑새를 중앙 영역에 붙잡아 보세요."}</p>
+              </div>
+            </>
+          )}
+          {scanState === "found" && arMode === "marker" && (
             <>
               <button
                 className="ar-hit-area"

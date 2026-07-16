@@ -163,9 +163,10 @@
           <p class="map-visible-count">표시 거점 <b id="visibleSpotCount">3</b>개</p>
         </div>
         <div class="map-quest-hud" aria-label="현재 진행중인 퀘스트">
-          <span>진행 중인 퀘스트</span>
-          <strong>시계탑 정령을 깨워라</strong>
-          <p>지도 안내판을 스캔하고 3자리 암호를 풀기</p>
+          <span>AR 탐색 이벤트</span>
+          <strong id="eventSpotName">대양AI센터</strong>
+          <p id="eventSpotMeta">거리 확인 중</p>
+          <em id="eventTimer">이동까지 5:00</em>
         </div>
         <aside id="mapSpotSheet" class="map-spot-sheet bg-slate-900/70 backdrop-blur-md border border-white/20 animate-fade-in-up" aria-live="polite">
           <button id="closeMapSpot" type="button" aria-label="거점 상세 닫기">×</button>
@@ -178,8 +179,8 @@
           <p id="mapSpotReward" class="map-spot-reward">보상 신호: 시계탑 정령 단서</p>
         </aside>
         <button class="map-location-button" type="button" id="showMyLocation"><span></span><em>내 위치 표시</em></button>
-        <button class="map-ar-quest-button" type="button" id="startScanMap" aria-label="비밀 퀘스트 탐험 시작">
-          <span aria-hidden="true">AR</span>
+        <button class="map-ar-quest-button is-locked" type="button" id="startScanMap" aria-label="이벤트 좌표에 도달해야 합니다" disabled>
+          <span aria-hidden="true">LOCK</span>
         </button>
         <div class="map-action-menu">
           <div class="map-menu-panel" aria-hidden="true">
@@ -264,7 +265,7 @@
         <div class="scan-vignette"></div>
         <div class="scan-topbar">
           <button class="ghost-button" id="closeScan">닫기</button>
-          <span>캠퍼스 드랍 스캔</span>
+          <span id="scanTitle">캠퍼스 드랍 스캔</span>
         </div>
         <div class="scan-frame" id="scanFrame"><span></span><span></span><span></span><span></span></div>
         <div class="scan-hint" id="scanHint">
@@ -297,6 +298,24 @@
           <strong>세종 기린</strong>
           <p id="npcDialogueText"></p>
           <span>기린을 탭해 퀘스트 시작</span>
+        </div>
+        <button class="bird-hit-area" id="completeBirdEvent" type="button" aria-label="파랑새 발견 완료"></button>
+        <div class="bird-ar-reticle" aria-hidden="true"></div>
+        <div class="bird-stage" aria-hidden="true">
+          <model-viewer
+            src="./blueBird.glb"
+            camera-orbit="65deg 72deg 3.4m"
+            field-of-view="30deg"
+            exposure="1.2"
+            shadow-intensity="0"
+            interaction-prompt="none"
+            disable-zoom
+            alt="파랑새"
+          ></model-viewer>
+        </div>
+        <div class="bird-guide" id="birdGuide">
+          <strong>파랑새 신호 추적 중</strong>
+          <p>휴대폰을 돌려 파랑새를 중앙 영역에 붙잡아 보세요.</p>
         </div>
       </section>
 

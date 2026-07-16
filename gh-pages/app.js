@@ -26,12 +26,27 @@ const mapSpotName = document.querySelector("#mapSpotName");
 const mapSpotStatus = document.querySelector("#mapSpotStatus");
 const mapSpotMembers = document.querySelector("#mapSpotMembers");
 const mapSpotReward = document.querySelector("#mapSpotReward");
+const eventSpotName = document.querySelector("#eventSpotName");
+const eventSpotMeta = document.querySelector("#eventSpotMeta");
+const eventTimer = document.querySelector("#eventTimer");
+const scanTitle = document.querySelector("#scanTitle");
+const completeBirdEventButton = document.querySelector("#completeBirdEvent");
+const birdGuide = document.querySelector("#birdGuide");
 const npcDialogueText = "지도 앞까지 왔구나. 오늘의 캠퍼스 퀘스트를 받을 준비 됐어?";
 const dialogueStartMs = 4300;
 const typingIntervalMs = 46;
 const sejongCenter = { lat: 37.550944, lng: 127.073765 };
 const defaultUserLocation = { lat: 37.497952, lng: 127.027619 };
 const interactionRadiusMeters = 100;
+const eventDurationMs = 5 * 60 * 1000;
+const eventReachRadiusMeters = 40;
+const campusEventSpots = [
+  { name: "대양AI센터", lat: 37.550944, lng: 127.073765 },
+  { name: "학생회관 앞", lat: 37.54992, lng: 127.07436 },
+  { name: "중앙광장", lat: 37.55054, lng: 127.07508 },
+  { name: "도서관 길목", lat: 37.55134, lng: 127.07456 },
+  { name: "세종관 산책로", lat: 37.5511, lng: 127.07298 },
+];
 const personalBeaconMarkup = `
   <span class="personal-beacon" aria-hidden="true">
     <span class="beacon-pulse beacon-pulse-a"></span>
@@ -68,6 +83,12 @@ let stream = null;
 let raf = null;
 let foundFrames = 0;
 let canOpenMission = false;
+let arMode = "marker";
+let birdLocked = false;
+let activeEventIndex = 0;
+let eventEndsAt = Date.now() + eventDurationMs;
+let eventReached = false;
+let eventCompleted = false;
 let missionReadyTimer = null;
 let dialogueStartTimer = null;
 let dialogueTypingTimer = null;
@@ -78,10 +99,12 @@ let collectionIndex = 0;
 let kakaoMapInstance = null;
 let mapSpotOverlays = [];
 let mapClusterOverlay = null;
+let eventMarkerOverlay = null;
 let mapRenderDebounce = null;
 let myLocationOverlay = null;
 let interactionCircle = null;
 let locationWatchId = null;
+let currentUserLocation = defaultUserLocation;
 let lastLocationRequestAt = 0;
 
 todayLabel.textContent = new Intl.DateTimeFormat("ko-KR", {
@@ -90,12 +113,43 @@ todayLabel.textContent = new Intl.DateTimeFormat("ko-KR", {
   weekday: "short",
 }).format(new Date());
 
+function getDistanceMeters(from, to) {
+  const earthRadius = 6371000;
+  const toRad = (value) => (value * Math.PI) / 180;
+  const dLat = toRad(to.lat - from.lat);
+  const dLng = toRad(to.lng - from.lng);
+  const lat1 = toRad(from.lat);
+  const lat2 = toRad(to.lat);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+  return earthRadius * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function getBearingLabel(from, to) {
+  const toRad = (value) => (value * Math.PI) / 180;
+  const toDeg = (value) => (value * 180) / Math.PI;
+  const lat1 = toRad(from.lat);
+  const lat2 = toRad(to.lat);
+  const dLng = toRad(to.lng - from.lng);
+  const y = Math.sin(dLng) * Math.cos(lat2);
+  const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng);
+  const bearing = (toDeg(Math.atan2(y, x)) + 360) % 360;
+  return ["북", "북동", "동", "남동", "남", "남서", "서", "북서"][Math.round(bearing / 45) % 8];
+}
+
+function formatEventTime(ms) {
+  const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+}
+
 const mapScanButton = document.querySelector("#startScanMap");
 function beginScanFromMap(event) {
   event?.preventDefault();
+  if (!eventReached) return;
   setMapMenuOpen(false);
   if (app.dataset.step === "scan") return;
-  beginScan();
+  beginScan("bird");
 }
 mapScanButton?.addEventListener("pointerdown", beginScanFromMap);
 mapScanButton?.addEventListener("touchstart", beginScanFromMap, { passive: false });
@@ -197,6 +251,17 @@ document.querySelector("#restartDemo").addEventListener("click", () => {
   missionError.textContent = "";
   setStep("map");
 });
+completeBirdEventButton?.addEventListener("click", () => {
+  if (!birdLocked) return;
+  stopCamera();
+  eventCompleted = true;
+  eventReached = false;
+  birdLocked = false;
+  completeBirdEventButton.classList.remove("is-locked");
+  renderEventMarker();
+  updateEventReach();
+  setStep("success");
+});
 document.querySelector("#closeMapSpot")?.addEventListener("click", () => {
   mapSpotSheet?.classList.remove("is-visible");
 });
@@ -284,6 +349,7 @@ function initKakaoMap() {
       kakaoFallback?.classList.add("is-hidden");
       kakaoMapElement.closest(".kakao-map-shell")?.classList.add("is-kakao-ready");
       renderUserRadar(defaultUserLocation.lat, defaultUserLocation.lng, map);
+      renderEventMarker(map);
       const syncMapPointScale = () => {
         const zoomLevel = Math.max(1, Math.min(7, map.getLevel()));
         const scale = mapZoomScaleByLevel[zoomLevel] ?? 0.32;
@@ -403,8 +469,77 @@ function renderVisibleMapSpots(map) {
   visibleSpots.forEach((crew) => createSpotOverlay(crew, map));
 }
 
+function renderEventMarker(map = kakaoMapInstance) {
+  if (!window.kakao || !map) return;
+  if (eventMarkerOverlay) eventMarkerOverlay.setMap(null);
+  const spot = campusEventSpots[activeEventIndex];
+  const marker = document.createElement("button");
+  marker.type = "button";
+  marker.className = `event-red-marker${eventCompleted ? " is-complete" : ""}`;
+  marker.setAttribute("aria-label", `${spot.name} AR 탐색 이벤트`);
+  marker.innerHTML = `<span></span><strong>${eventCompleted ? "완료" : "AR"}</strong>`;
+  marker.addEventListener("click", () => {
+    const center = new window.kakao.maps.LatLng(spot.lat, spot.lng);
+    if (map.panTo) map.panTo(center);
+    else map.setCenter(center);
+  });
+  eventMarkerOverlay = new window.kakao.maps.CustomOverlay({
+    position: new window.kakao.maps.LatLng(spot.lat, spot.lng),
+    content: marker,
+    xAnchor: 0.5,
+    yAnchor: 1,
+    zIndex: 30,
+  });
+  eventMarkerOverlay.setMap(map);
+}
+
+function updateEventReach(userLocation = currentUserLocation) {
+  const spot = campusEventSpots[activeEventIndex];
+  const distance = getDistanceMeters(userLocation, spot);
+  const bearing = getBearingLabel(userLocation, spot);
+  eventReached = distance <= eventReachRadiusMeters && !eventCompleted;
+  if (eventSpotName) eventSpotName.textContent = spot.name;
+  if (eventSpotMeta) {
+    eventSpotMeta.textContent = eventCompleted
+      ? "이번 좌표 완료. 다음 이동을 기다려주세요."
+      : eventReached
+        ? "도달 완료. 파랑새 AR을 열 수 있어요."
+        : `${Math.round(distance)}m · ${bearing}쪽`;
+  }
+  mapScanButton?.classList.toggle("is-ready", eventReached);
+  mapScanButton?.classList.toggle("is-locked", !eventReached);
+  if (mapScanButton) {
+    mapScanButton.disabled = !eventReached;
+    mapScanButton.setAttribute("aria-label", eventReached ? "파랑새 AR 탐색 시작" : "이벤트 좌표에 도달해야 합니다");
+    const label = mapScanButton.querySelector("span");
+    if (label) label.textContent = eventReached ? "BIRD" : "LOCK";
+  }
+}
+
+function moveEventMarker() {
+  activeEventIndex = (activeEventIndex + 2) % campusEventSpots.length;
+  eventEndsAt = Date.now() + eventDurationMs;
+  eventReached = false;
+  eventCompleted = false;
+  birdLocked = false;
+  canOpenMission = false;
+  renderEventMarker();
+  updateEventReach();
+}
+
+window.setInterval(() => {
+  const remaining = eventEndsAt - Date.now();
+  if (remaining <= 0) {
+    moveEventMarker();
+    return;
+  }
+  if (eventTimer) eventTimer.textContent = `이동까지 ${formatEventTime(remaining)}`;
+}, 1000);
+
 function renderUserRadar(lat, lng, map = kakaoMapInstance) {
   if (!window.kakao || !map) return;
+  currentUserLocation = { lat, lng };
+  updateEventReach(currentUserLocation);
   const latLng = new window.kakao.maps.LatLng(lat, lng);
   const marker = document.createElement("div");
   marker.className = "my-location-marker";
@@ -479,15 +614,19 @@ function requestMyLocation() {
   );
 }
 
-async function beginScan() {
+async function beginScan(mode = "marker") {
+  arMode = mode;
   setStep("scan");
   foundFrames = 0;
   canOpenMission = false;
+  birdLocked = false;
   resetDialogue();
   frozenFrame.removeAttribute("src");
   frozenFrame.classList.remove("is-visible");
   scanScreen.classList.remove("is-found");
+  scanScreen.classList.toggle("is-bird", arMode === "bird");
   scanFrame.classList.remove("is-found");
+  scanTitle.textContent = arMode === "bird" ? "파랑새 AR 탐색" : "캠퍼스 드랍 스캔";
   scanHint.querySelector("strong").textContent = "카메라를 준비하고 있어요";
   scanHint.querySelector("p").textContent = "권한 요청이 뜨면 카메라 접근을 허용해주세요.";
 
@@ -502,6 +641,20 @@ async function beginScan() {
     });
     video.srcObject = stream;
     await video.play();
+    if (arMode === "bird") {
+      scanScreen.classList.add("is-found");
+      scanFrame.classList.add("is-found");
+      scanHint.querySelector("strong").textContent = "주변을 천천히 둘러보세요";
+      scanHint.querySelector("p").textContent = "파랑새를 중앙에 1~2초 붙잡은 뒤 터치하세요.";
+      window.setTimeout(() => {
+        birdLocked = true;
+        completeBirdEventButton?.classList.add("is-locked");
+        birdGuide?.classList.add("is-ready");
+        birdGuide.querySelector("strong").textContent = "파랑새 포착!";
+        birdGuide.querySelector("p").textContent = "파랑새를 터치해 이벤트를 완료하세요.";
+      }, 1600);
+      return;
+    }
     scanHint.querySelector("strong").textContent = "지도 안내판이나 포스터를 중앙에 맞춰주세요";
     scanHint.querySelector("p").textContent =
       "세종대 지도 안내판의 낮/야간 지도 영역 또는 전용 포스터의 초록/노랑 표식이 프레임 안에 들어오면 기린이 나타납니다.";
