@@ -130,7 +130,7 @@ button { -webkit-tap-highlight-color: transparent; }
   box-shadow: none;
 }
 .kakao-map-canvas { position: absolute; inset: 0; z-index: 0; opacity: 1; filter: invert(90%) hue-rotate(180deg) brightness(80%) contrast(85%) saturate(35%); }
-.kakao-map-canvas .kakao-crew-overlay, .kakao-map-canvas .my-location-marker { filter: invert(90%) hue-rotate(180deg) brightness(125%) contrast(118%) saturate(160%); }
+.kakao-map-canvas .kakao-crew-overlay { filter: invert(90%) hue-rotate(180deg) brightness(125%) contrast(118%) saturate(160%); }
 .game-map-layer {
   position: absolute; inset: 0; z-index: 1; display: none; overflow: hidden; pointer-events: none;
   background: radial-gradient(circle at 18% 16%, rgba(255,230,120,.18), transparent 22%), radial-gradient(circle at 84% 78%, rgba(58,207,161,.16), transparent 25%), linear-gradient(135deg, rgba(215,248,216,.2), rgba(255,246,191,.18));
@@ -248,9 +248,36 @@ button { -webkit-tap-highlight-color: transparent; }
 .map-location-button span::after { width: 36px; height: 2px; }
 .map-location-button:active { transform: translateY(1px) scale(.96); }
 .map-location-button em { font-style: normal; }
-.my-location-marker { display: grid; place-items: center; filter: drop-shadow(0 0 12px rgba(0,255,255,.72)); pointer-events: none; }
-.my-location-marker span { width: 18px; aspect-ratio: 1; border: 3px solid white; border-radius: 999px; background: #2f7dff; box-shadow: 0 0 0 8px rgba(0,255,255,.16), 0 0 28px rgba(0,255,255,.68); }
+.my-location-marker { display: grid; place-items: center; pointer-events: none; }
+.personal-beacon { position: relative; display: grid; place-items: center; width: 74px; height: 86px; filter: drop-shadow(0 0 16px rgba(0,230,254,.82)); }
+.beacon-core {
+  position: relative; z-index: 4; width: 14px; aspect-ratio: 1; border: 2px solid rgba(255,255,255,.9); border-radius: 999px;
+  background: #00e6fe; box-shadow: 0 0 12px rgba(0,230,254,.96), 0 0 24px rgba(188,19,254,.42);
+}
+.beacon-ring {
+  position: absolute; top: 13px; z-index: 3; border: 1px solid rgba(0,230,254,.62); border-radius: 999px;
+  box-shadow: inset 0 0 12px rgba(0,230,254,.22), 0 0 10px rgba(188,19,254,.48);
+}
+.beacon-ring::before, .beacon-ring::after {
+  position: absolute; width: 5px; aspect-ratio: 1; border-radius: 999px; background: rgba(0,230,254,.86);
+  box-shadow: 0 0 8px rgba(188,19,254,.8); content: "";
+}
+.beacon-ring::before { top: -3px; left: 50%; }
+.beacon-ring::after { right: -3px; top: 50%; }
+.beacon-ring-a { width: 42px; height: 42px; animation: beacon-spin 8s linear infinite; }
+.beacon-ring-b { width: 56px; height: 56px; border-style: dashed; opacity: .78; animation: beacon-spin-reverse 12s linear infinite; }
+.beacon-pulse {
+  position: absolute; top: 10px; z-index: 1; width: 60px; height: 60px; border: 1px solid rgba(0,230,254,.3);
+  border-radius: 999px; background: rgba(0,230,254,.1);
+}
+.beacon-pulse-a { animation: beacon-pulse 1.45s ease-out infinite; }
+.beacon-pulse-b { animation: beacon-ping 1.1s cubic-bezier(0,0,.2,1) infinite; animation-delay: .28s; }
+.beacon-shadow { position: absolute; bottom: 5px; width: 38px; height: 10px; border-radius: 999px; background: rgba(0,8,14,.64); filter: blur(3px); transform: scaleX(1.35); }
 .my-location-marker strong { display: none; }
+@keyframes beacon-spin { to { transform: rotate(360deg); } }
+@keyframes beacon-spin-reverse { to { transform: rotate(-360deg); } }
+@keyframes beacon-pulse { 0%, 100% { opacity: .32; transform: scale(.92); } 50% { opacity: .68; transform: scale(1.1); } }
+@keyframes beacon-ping { 80%, 100% { opacity: 0; transform: scale(1.65); } }
 .map-ar-quest-button {
   position: absolute; left: 50%; right: auto; bottom: max(20px, calc(env(safe-area-inset-bottom) + 14px)); z-index: 48;
   display: grid; width: 78px; min-height: 78px; place-items: center;
