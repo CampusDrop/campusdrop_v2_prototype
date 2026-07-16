@@ -858,148 +858,34 @@ button {
   position: relative;
   display: grid;
   place-items: center;
-  width: 70px;
-  height: 82px;
-  filter: drop-shadow(0 0 14px rgba(80, 190, 255, 0.54));
+  width: 26px;
+  height: 26px;
+  filter: drop-shadow(0 2px 7px rgba(0, 0, 0, 0.35));
 }
 
 .beacon-core {
   position: relative;
   z-index: 4;
-  width: 22px;
+  width: 16px;
   aspect-ratio: 1;
-  border: 4px solid rgba(255, 255, 255, 0.96);
+  border: 3px solid rgba(255, 255, 255, 0.95);
   border-radius: 999px;
-  background:
-    radial-gradient(circle at 35% 30%, #ffffff 0 10%, transparent 12%),
-    #1f8cff;
+  background: #050505;
   box-shadow:
-    0 0 0 7px rgba(31, 140, 255, 0.18),
-    0 0 18px rgba(80, 190, 255, 0.72);
+    0 0 0 2px rgba(0, 0, 0, 0.22),
+    0 2px 8px rgba(0, 0, 0, 0.35);
 }
 
-.beacon-ring {
-  position: absolute;
-  z-index: 3;
-  width: 6px;
-  aspect-ratio: 1;
-  border: 0;
-  border-radius: 2px;
-  background: #ffeaa6;
-  box-shadow:
-    0 0 8px rgba(255, 234, 166, 0.9),
-    0 0 16px rgba(131, 220, 255, 0.5);
-  transform: rotate(45deg);
-}
-
+.beacon-ring,
 .beacon-ring::before,
-.beacon-ring::after {
-  display: none;
-}
-
-.beacon-ring::before {
-  top: -3px;
-  left: 50%;
-}
-
-.beacon-ring::after {
-  right: -3px;
-  top: 50%;
-}
-
-.beacon-ring-a {
-  left: 12px;
-  top: 20px;
-  animation: fairy-spark-a 2.8s ease-in-out infinite;
-}
-
-.beacon-ring-b {
-  right: 10px;
-  top: 30px;
-  opacity: 0.82;
-  animation: fairy-spark-b 3.4s ease-in-out infinite;
-}
-
-.beacon-pulse {
-  position: absolute;
-  top: 17px;
-  z-index: 1;
-  width: 44px;
-  height: 44px;
-  border: 0;
-  border-radius: 999px;
-  background:
-    radial-gradient(circle, rgba(151, 222, 255, 0.28), transparent 62%);
-}
-
-.beacon-pulse-a {
-  animation: beacon-pulse 1.45s ease-out infinite;
-}
-
-.beacon-pulse-b {
-  background:
-    radial-gradient(circle, rgba(255, 234, 166, 0.24), transparent 60%);
-  animation: beacon-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
-  animation-delay: 0.28s;
-}
-
+.beacon-ring::after,
+.beacon-pulse,
 .beacon-shadow {
-  position: absolute;
-  bottom: 6px;
-  width: 34px;
-  height: 9px;
-  border-radius: 999px;
-  background: rgba(41, 30, 64, 0.38);
-  filter: blur(3px);
-  transform: scaleX(1.25);
+  display: none;
 }
 
 .my-location-marker strong {
   display: none;
-}
-
-@keyframes fairy-spark-a {
-  0%,
-  100% {
-    opacity: 0.42;
-    transform: translateY(0) rotate(45deg) scale(0.8);
-  }
-  50% {
-    opacity: 1;
-    transform: translateY(-7px) rotate(45deg) scale(1.18);
-  }
-}
-
-@keyframes fairy-spark-b {
-  0%,
-  100% {
-    opacity: 0.38;
-    transform: translateY(2px) rotate(45deg) scale(0.72);
-  }
-  50% {
-    opacity: 0.92;
-    transform: translateY(-5px) rotate(45deg) scale(1.06);
-  }
-}
-
-@keyframes beacon-pulse {
-  0%,
-  100% {
-    opacity: 0.22;
-    transform: scale(0.86);
-  }
-  50% {
-    opacity: 0.5;
-    transform: scale(1.16);
-  }
-}
-
-@keyframes beacon-ping {
-  80%,
-  100% {
-    opacity: 0;
-    transform: scale(1.42);
-  }
 }
 
 .map-ar-quest-button {
