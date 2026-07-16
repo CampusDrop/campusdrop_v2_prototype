@@ -90,6 +90,13 @@ button {
   background: linear-gradient(160deg, #f9fff2 0%, #e8fbf1 50%, #fff8df 100%);
 }
 
+.map-screen {
+  gap: 0;
+  overflow: hidden;
+  padding: 0 0 max(80px, calc(env(safe-area-inset-bottom) + 74px));
+  background: #e8f4ef;
+}
+
 .settings-button {
   position: absolute;
   top: max(18px, env(safe-area-inset-top));
@@ -305,11 +312,13 @@ button {
   position: relative;
   z-index: 1;
   min-height: 360px;
+  flex: 1;
+  width: 100%;
   overflow: hidden;
-  border: 3px solid var(--ink);
-  border-radius: 28px;
+  border: 0;
+  border-radius: 0;
   background: #e8f4ef;
-  box-shadow: 10px 10px 0 rgba(32, 214, 163, 0.24);
+  box-shadow: none;
 }
 
 .kakao-map-canvas {

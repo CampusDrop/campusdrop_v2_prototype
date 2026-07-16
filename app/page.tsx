@@ -692,8 +692,6 @@ export default function Home() {
 
       {step === "map" && (
         <section className="screen map-screen app-tab-screen">
-          <SettingsButton />
-          <div className="app-header"><p className="eyebrow">캠퍼스 지도</p><h2>크루들이 캠퍼스를 움직이고 있어요</h2></div>
           <div ref={kakaoShellRef} className={`kakao-map-shell${kakaoReady ? " is-kakao-ready" : ""}`}>
             <div ref={kakaoMapRef} className="kakao-map-canvas" aria-label="카카오 캠퍼스 지도" />
             {!kakaoReady && (
@@ -715,12 +713,6 @@ export default function Home() {
               <strong>노바</strong>
             </button>
           </div>
-          <div className="map-detail-card">
-            <span>활동 중인 크루 3팀</span>
-            <strong>크루 기린 · 캠퍼스 퀘스트 대기 중</strong>
-            <p>카카오맵 위의 주요 크루를 3D 기린으로 표시합니다. 가까운 크루를 만나 AR 미션을 시작할 수 있어요.</p>
-          </div>
-          <button className="primary-action" onClick={beginScan}>AR 스캔 시작</button>
           <BottomNav />
         </section>
       )}
