@@ -33,6 +33,7 @@ declare global {
         LatLng: new (lat: number, lng: number) => unknown;
         Map: new (container: HTMLElement, options: { center: unknown; level: number }) => {
           getLevel: () => number;
+          getBounds: () => { contain: (latLng: unknown) => boolean };
           setLevel: (level: number) => void;
           setCenter: (latLng: unknown) => void;
           panTo?: (latLng: unknown) => void;
@@ -136,10 +137,14 @@ export default function Home() {
   const kakaoMapRef = useRef<HTMLDivElement | null>(null);
   const kakaoMapInstanceRef = useRef<{
     getLevel: () => number;
+    getBounds: () => { contain: (latLng: unknown) => boolean };
     setLevel: (level: number) => void;
     setCenter: (latLng: unknown) => void;
     panTo?: (latLng: unknown) => void;
   } | null>(null);
+  const mapSpotOverlaysRef = useRef<{ setMap: (map: unknown) => void }[]>([]);
+  const mapClusterOverlayRef = useRef<{ setMap: (map: unknown) => void } | null>(null);
+  const mapRenderDebounceRef = useRef<number | null>(null);
   const myLocationOverlayRef = useRef<{ setMap: (map: unknown) => void } | null>(null);
   const interactionCircleRef = useRef<{ setMap: (map: unknown) => void } | null>(null);
   const lastLocationRequestRef = useRef(0);
@@ -147,6 +152,7 @@ export default function Home() {
   const rafRef = useRef<number | null>(null);
   const foundFramesRef = useRef(0);
   const [kakaoReady, setKakaoReady] = useState(false);
+  const [visibleMapSpotCount, setVisibleMapSpotCount] = useState(mapCrewPoints.length);
   const [locationStatus, setLocationStatus] = useState("내 위치 표시");
   const [classSearch, setClassSearch] = useState("");
   const [classSlots, setClassSlots] = useState<Record<string, string>>({
@@ -196,38 +202,23 @@ export default function Home() {
         kakaoMapInstanceRef.current = map;
         setKakaoReady(true);
         renderUserRadar(defaultUserLocation.lat, defaultUserLocation.lng, map);
-        mapCrewPoints.forEach((crew) => {
-          const marker = document.createElement("button");
-          marker.type = "button";
-          marker.className = "kakao-crew-overlay";
-          marker.setAttribute("aria-label", `${crew.name} 거점 상세 보기`);
-          marker.innerHTML = `
-            <span class="crew-marker">
-              <span class="crew-marker-ping animate-ping" aria-hidden="true"></span>
-              <span class="crew-marker-core" aria-hidden="true">
-                <span class="crew-marker-sigil">${crew.sigil}</span>
-              </span>
-              <span class="crew-marker-shadow" aria-hidden="true"></span>
-            </span>
-            <strong>${crew.name}</strong>
-          `;
-          marker.addEventListener("click", () => setSelectedMapSpot(crew));
-          new window.kakao.maps.CustomOverlay({
-            position: new window.kakao.maps.LatLng(crew.lat, crew.lng),
-            content: marker,
-            xAnchor: 0.5,
-            yAnchor: 1,
-            zIndex: 12,
-          }).setMap(map);
-        });
         const syncMapPointScale = () => {
           const zoomLevel = Math.max(1, Math.min(7, map.getLevel()));
           const scale = mapZoomScaleByLevel[zoomLevel] ?? 0.32;
           kakaoShellRef.current?.style.setProperty("--map-zoom-scale", scale.toFixed(3));
           kakaoMapRef.current?.style.setProperty("--map-zoom-scale", scale.toFixed(3));
         };
+        const scheduleVisibleSpotRender = () => {
+          if (mapRenderDebounceRef.current) window.clearTimeout(mapRenderDebounceRef.current);
+          mapRenderDebounceRef.current = window.setTimeout(() => renderVisibleMapSpots(map), 160);
+        };
         syncMapPointScale();
-        window.kakao.maps.event.addListener(map, "zoom_changed", syncMapPointScale);
+        renderVisibleMapSpots(map);
+        window.kakao.maps.event.addListener(map, "dragend", scheduleVisibleSpotRender);
+        window.kakao.maps.event.addListener(map, "zoom_changed", () => {
+          syncMapPointScale();
+          scheduleVisibleSpotRender();
+        });
       });
     };
 
@@ -244,6 +235,84 @@ export default function Home() {
     script.onload = renderMap;
     document.head.appendChild(script);
   }, [kakaoReady, step]);
+
+  function clearMapSpotOverlays() {
+    mapSpotOverlaysRef.current.forEach((overlay) => overlay.setMap(null));
+    mapSpotOverlaysRef.current = [];
+    if (mapClusterOverlayRef.current) {
+      mapClusterOverlayRef.current.setMap(null);
+      mapClusterOverlayRef.current = null;
+    }
+  }
+
+  function createSpotOverlay(crew: MapCrewPoint, map: NonNullable<typeof kakaoMapInstanceRef.current>) {
+    if (!window.kakao) return;
+    const marker = document.createElement("button");
+    marker.type = "button";
+    marker.className = "kakao-crew-overlay";
+    marker.setAttribute("aria-label", `${crew.name} 거점 상세 보기`);
+    marker.innerHTML = `
+      <span class="crew-marker">
+        <span class="crew-marker-ping animate-ping" aria-hidden="true"></span>
+        <span class="crew-marker-core" aria-hidden="true">
+          <span class="crew-marker-sigil">${crew.sigil}</span>
+        </span>
+        <span class="crew-marker-shadow" aria-hidden="true"></span>
+      </span>
+      <strong>${crew.name}</strong>
+    `;
+    marker.addEventListener("click", () => setSelectedMapSpot(crew));
+    const overlay = new window.kakao.maps.CustomOverlay({
+      position: new window.kakao.maps.LatLng(crew.lat, crew.lng),
+      content: marker,
+      xAnchor: 0.5,
+      yAnchor: 1,
+      zIndex: 12,
+    });
+    overlay.setMap(map);
+    mapSpotOverlaysRef.current.push(overlay);
+  }
+
+  function renderClusterOverlay(visibleSpots: MapCrewPoint[], map: NonNullable<typeof kakaoMapInstanceRef.current>) {
+    if (!window.kakao) return;
+    const lat = visibleSpots.reduce((sum, spot) => sum + spot.lat, 0) / visibleSpots.length;
+    const lng = visibleSpots.reduce((sum, spot) => sum + spot.lng, 0) / visibleSpots.length;
+    const cluster = document.createElement("button");
+    cluster.type = "button";
+    cluster.className = "kakao-cluster-overlay";
+    cluster.setAttribute("aria-label", `${visibleSpots.length}개 거점 보기`);
+    cluster.innerHTML = `<span>${visibleSpots.length}</span><strong>거점</strong>`;
+    cluster.addEventListener("click", () => {
+      const center = new window.kakao!.maps.LatLng(lat, lng);
+      map.setLevel(Math.max(3, map.getLevel() - 2));
+      if (map.panTo) map.panTo(center);
+      else map.setCenter(center);
+    });
+    const overlay = new window.kakao.maps.CustomOverlay({
+      position: new window.kakao.maps.LatLng(lat, lng),
+      content: cluster,
+      xAnchor: 0.5,
+      yAnchor: 0.5,
+      zIndex: 18,
+    });
+    overlay.setMap(map);
+    mapClusterOverlayRef.current = overlay;
+  }
+
+  function renderVisibleMapSpots(map: NonNullable<typeof kakaoMapInstanceRef.current>) {
+    if (!window.kakao) return;
+    const bounds = map.getBounds();
+    const visibleSpots = mapCrewPoints.filter((crew) =>
+      bounds.contain(new window.kakao!.maps.LatLng(crew.lat, crew.lng)),
+    );
+    clearMapSpotOverlays();
+    setVisibleMapSpotCount(visibleSpots.length);
+    if (map.getLevel() >= 5 && visibleSpots.length > 1) {
+      renderClusterOverlay(visibleSpots, map);
+      return;
+    }
+    visibleSpots.forEach((crew) => createSpotOverlay(crew, map));
+  }
 
   function renderUserRadar(lat: number, lng: number, map = kakaoMapInstanceRef.current) {
     if (!window.kakao || !map) return;
@@ -852,6 +921,7 @@ export default function Home() {
               <b>82%</b>
             </div>
             <div className="map-hud-xp-bar"><span style={{ width: "82%" }} /></div>
+            <p className="map-visible-count">표시 거점 {visibleMapSpotCount}개</p>
           </div>
           <div className="map-quest-hud" aria-label="현재 진행중인 퀘스트">
             <span>진행 중인 퀘스트</span>
