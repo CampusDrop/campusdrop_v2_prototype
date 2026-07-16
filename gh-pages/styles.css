@@ -246,9 +246,9 @@ button { -webkit-tap-highlight-color: transparent; }
 .map-location-button span::after { width: 36px; height: 2px; }
 .map-location-button:active { transform: translateY(1px) scale(.96); }
 .map-location-button em { font-style: normal; }
-.my-location-marker { display: grid; place-items: center; gap: 5px; filter: drop-shadow(0 10px 14px rgba(15,35,35,.25)); pointer-events: none; }
-.my-location-marker span { width: 22px; aspect-ratio: 1; border: 4px solid white; box-shadow: 0 0 0 9px rgba(47,125,255,.22), 0 0 24px rgba(47,125,255,.38); }
-.my-location-marker strong { border-radius: 999px; background: white; color: var(--ink); padding: 5px 9px; font-size: 11px; font-weight: 950; white-space: nowrap; }
+.my-location-marker { display: grid; place-items: center; filter: drop-shadow(0 0 12px rgba(0,255,255,.72)); pointer-events: none; }
+.my-location-marker span { width: 18px; aspect-ratio: 1; border: 3px solid white; border-radius: 999px; background: #2f7dff; box-shadow: 0 0 0 8px rgba(0,255,255,.16), 0 0 28px rgba(0,255,255,.68); }
+.my-location-marker strong { display: none; }
 .map-ar-quest-button {
   position: absolute; left: 50%; right: auto; bottom: max(20px, calc(env(safe-area-inset-bottom) + 14px)); z-index: 48;
   display: grid; width: 78px; min-height: 78px; place-items: center;

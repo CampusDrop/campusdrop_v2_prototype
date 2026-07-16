@@ -30,6 +30,8 @@ const npcDialogueText = "지도 앞까지 왔구나. 오늘의 캠퍼스 퀘스�
 const dialogueStartMs = 4300;
 const typingIntervalMs = 46;
 const sejongCenter = { lat: 37.550944, lng: 127.073765 };
+const defaultUserLocation = { lat: 37.497952, lng: 127.027619 };
+const interactionRadiusMeters = 100;
 const mapCrewPoints = [
   { name: "피닉스", lat: 37.550944, lng: 127.073765, sigil: "P", status: "점령 중", members: 18, reward: "시계탑 정령 단서" },
   { name: "오로라", lat: 37.55135, lng: 127.07432, sigil: "A", status: "경합 중", members: 12, reward: "카페 라운지 쿠폰" },
@@ -64,6 +66,7 @@ let mapMenuOpen = false;
 let collectionIndex = 0;
 let kakaoMapInstance = null;
 let myLocationOverlay = null;
+let interactionCircle = null;
 let lastLocationRequestAt = 0;
 
 todayLabel.textContent = new Intl.DateTimeFormat("ko-KR", {
@@ -265,6 +268,7 @@ function initKakaoMap() {
       kakaoMapLoaded = true;
       kakaoFallback?.classList.add("is-hidden");
       kakaoMapElement.closest(".kakao-map-shell")?.classList.add("is-kakao-ready");
+      renderUserRadar(defaultUserLocation.lat, defaultUserLocation.lng, map);
       mapCrewPoints.forEach((crew) => {
         const content = document.createElement("button");
         content.type = "button";
@@ -323,6 +327,34 @@ function renderMapSpotPanel(spot) {
   mapSpotSheet.classList.add("is-visible");
 }
 
+function renderUserRadar(lat, lng, map = kakaoMapInstance) {
+  if (!window.kakao || !map) return;
+  const latLng = new window.kakao.maps.LatLng(lat, lng);
+  const marker = document.createElement("div");
+  marker.className = "my-location-marker";
+  marker.innerHTML = "<span></span><strong>내 위치</strong>";
+  if (myLocationOverlay) myLocationOverlay.setMap(null);
+  if (interactionCircle) interactionCircle.setMap(null);
+  interactionCircle = new window.kakao.maps.Circle({
+    center: latLng,
+    radius: interactionRadiusMeters,
+    strokeWeight: 2,
+    strokeColor: "#00ffff",
+    strokeOpacity: 0.95,
+    fillColor: "#00ffff",
+    fillOpacity: 0.14,
+  });
+  interactionCircle.setMap(map);
+  myLocationOverlay = new window.kakao.maps.CustomOverlay({
+    position: latLng,
+    content: marker,
+    xAnchor: 0.5,
+    yAnchor: 0.5,
+    zIndex: 20,
+  });
+  myLocationOverlay.setMap(map);
+}
+
 function requestMyLocation() {
   const now = Date.now();
   if (now - lastLocationRequestAt < 900) return;
@@ -343,18 +375,7 @@ function requestMyLocation() {
       kakaoMapInstance.setLevel(3);
       if (kakaoMapInstance.panTo) kakaoMapInstance.panTo(latLng);
       else kakaoMapInstance.setCenter(latLng);
-      const marker = document.createElement("div");
-      marker.className = "my-location-marker";
-      marker.innerHTML = "<span></span><strong>내 위치</strong>";
-      if (myLocationOverlay) myLocationOverlay.setMap(null);
-      myLocationOverlay = new window.kakao.maps.CustomOverlay({
-        position: latLng,
-        content: marker,
-        xAnchor: 0.5,
-        yAnchor: 1,
-        zIndex: 20,
-      });
-      myLocationOverlay.setMap(kakaoMapInstance);
+      renderUserRadar(position.coords.latitude, position.coords.longitude);
       if (label) label.textContent = "내 위치 표시됨";
     },
     () => {

@@ -38,6 +38,15 @@ declare global {
           panTo?: (latLng: unknown) => void;
         };
         Marker: new (options: { position: unknown }) => { setMap: (map: unknown) => void };
+        Circle: new (options: {
+          center: unknown;
+          radius: number;
+          strokeWeight: number;
+          strokeColor: string;
+          strokeOpacity: number;
+          fillColor: string;
+          fillOpacity: number;
+        }) => { setMap: (map: unknown) => void };
         CustomOverlay: new (options: {
           position: unknown;
           content: HTMLElement;
@@ -61,6 +70,8 @@ const npcDialogueText = "지도 앞까지 왔구나. 오늘의 캠퍼스 퀘스�
 const dialogueStartMs = 4300;
 const typingIntervalMs = 46;
 const sejongCenter = { lat: 37.550944, lng: 127.073765 };
+const defaultUserLocation = { lat: 37.497952, lng: 127.027619 };
+const interactionRadiusMeters = 100;
 const mapCrewPoints = [
   { name: "피닉스", lat: 37.550944, lng: 127.073765, sigil: "P", status: "점령 중", members: 18, reward: "시계탑 정령 단서" },
   { name: "오로라", lat: 37.55135, lng: 127.07432, sigil: "A", status: "경합 중", members: 12, reward: "카페 라운지 쿠폰" },
@@ -130,6 +141,7 @@ export default function Home() {
     panTo?: (latLng: unknown) => void;
   } | null>(null);
   const myLocationOverlayRef = useRef<{ setMap: (map: unknown) => void } | null>(null);
+  const interactionCircleRef = useRef<{ setMap: (map: unknown) => void } | null>(null);
   const lastLocationRequestRef = useRef(0);
   const streamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -183,6 +195,7 @@ export default function Home() {
         const map = new window.kakao.maps.Map(kakaoMapRef.current, { center, level: 3 });
         kakaoMapInstanceRef.current = map;
         setKakaoReady(true);
+        renderUserRadar(defaultUserLocation.lat, defaultUserLocation.lng, map);
         mapCrewPoints.forEach((crew) => {
           const marker = document.createElement("button");
           marker.type = "button";
@@ -232,6 +245,34 @@ export default function Home() {
     document.head.appendChild(script);
   }, [kakaoReady, step]);
 
+  function renderUserRadar(lat: number, lng: number, map = kakaoMapInstanceRef.current) {
+    if (!window.kakao || !map) return;
+    const latLng = new window.kakao.maps.LatLng(lat, lng);
+    const marker = document.createElement("div");
+    marker.className = "my-location-marker";
+    marker.innerHTML = "<span></span><strong>내 위치</strong>";
+    if (myLocationOverlayRef.current) myLocationOverlayRef.current.setMap(null);
+    if (interactionCircleRef.current) interactionCircleRef.current.setMap(null);
+    interactionCircleRef.current = new window.kakao.maps.Circle({
+      center: latLng,
+      radius: interactionRadiusMeters,
+      strokeWeight: 2,
+      strokeColor: "#00ffff",
+      strokeOpacity: 0.95,
+      fillColor: "#00ffff",
+      fillOpacity: 0.14,
+    });
+    interactionCircleRef.current.setMap(map);
+    myLocationOverlayRef.current = new window.kakao.maps.CustomOverlay({
+      position: latLng,
+      content: marker,
+      xAnchor: 0.5,
+      yAnchor: 0.5,
+      zIndex: 20,
+    });
+    myLocationOverlayRef.current.setMap(map);
+  }
+
   function requestMyLocation() {
     const now = Date.now();
     if (now - lastLocationRequestRef.current < 900) return;
@@ -251,18 +292,7 @@ export default function Home() {
         kakaoMapInstanceRef.current.setLevel(3);
         if (kakaoMapInstanceRef.current.panTo) kakaoMapInstanceRef.current.panTo(latLng);
         else kakaoMapInstanceRef.current.setCenter(latLng);
-        const marker = document.createElement("div");
-        marker.className = "my-location-marker";
-        marker.innerHTML = "<span></span><strong>내 위치</strong>";
-        if (myLocationOverlayRef.current) myLocationOverlayRef.current.setMap(null);
-        myLocationOverlayRef.current = new window.kakao.maps.CustomOverlay({
-          position: latLng,
-          content: marker,
-          xAnchor: 0.5,
-          yAnchor: 1,
-          zIndex: 20,
-        });
-        myLocationOverlayRef.current.setMap(kakaoMapInstanceRef.current);
+        renderUserRadar(position.coords.latitude, position.coords.longitude);
         setLocationStatus("내 위치 표시됨");
       },
       () => {
