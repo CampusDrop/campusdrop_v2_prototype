@@ -77,6 +77,7 @@ const defaultUserLocation = { lat: 37.497952, lng: 127.027619 };
 const eventDurationMs = 5 * 60 * 1000;
 const eventReachRadiusMeters = 40;
 const currentLocationIconUrl = "/current-location-signal.svg";
+const blueBirdEncounterSignalUrl = "/bluebird-encounter-signal.svg";
 const campusEventSpots = [
   { name: "대양AI센터", lat: 37.550944, lng: 127.073765 },
   { name: "학생회관 앞", lat: 37.54992, lng: 127.07436 },
@@ -384,7 +385,7 @@ export default function Home() {
     marker.type = "button";
     marker.className = `event-red-marker${eventCompleted ? " is-complete" : ""}`;
     marker.setAttribute("aria-label", `${spot.name} AR 탐색 이벤트`);
-    marker.innerHTML = `<span></span><strong>${eventCompleted ? "완료" : "AR"}</strong>`;
+    marker.innerHTML = `<img src="${blueBirdEncounterSignalUrl}" alt="" aria-hidden="true" /><strong>${eventCompleted ? "완료" : "출현"}</strong>`;
     marker.addEventListener("click", () => {
       const center = new window.kakao!.maps.LatLng(spot.lat, spot.lng);
       if (map.panTo) map.panTo(center);

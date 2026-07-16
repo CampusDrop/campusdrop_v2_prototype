@@ -616,41 +616,28 @@ button {
   background: transparent;
   color: white;
   cursor: pointer;
-  filter: drop-shadow(0 12px 16px rgba(120, 0, 0, 0.35));
+  filter: drop-shadow(0 10px 14px rgba(82, 0, 32, 0.34));
 }
 
-.event-red-marker span {
-  width: 34px;
-  aspect-ratio: 1;
-  border: 3px solid white;
-  border-radius: 999px 999px 999px 8px;
-  background: #ff3434;
-  box-shadow:
-    0 0 0 10px rgba(255, 52, 52, 0.16),
-    0 0 28px rgba(255, 52, 52, 0.72);
-  transform: rotate(-45deg);
-}
-
-.event-red-marker span::after {
-  position: absolute;
-  inset: 8px;
-  border-radius: 999px;
-  background: white;
-  content: "";
+.event-red-marker img {
+  display: block;
+  width: 52px;
+  height: 52px;
+  pointer-events: none;
 }
 
 .event-red-marker strong {
   border-radius: 999px;
-  background: rgba(35, 5, 7, 0.92);
-  color: #ffdddd;
+  background: rgba(42, 5, 24, 0.86);
+  color: #ffd8e8;
   padding: 4px 8px;
   font-size: 10px;
   font-weight: 950;
 }
 
-.event-red-marker.is-complete span {
-  background: #7c8794;
-  box-shadow: 0 0 0 8px rgba(124, 135, 148, 0.16);
+.event-red-marker.is-complete {
+  opacity: 0.58;
+  filter: grayscale(0.65) drop-shadow(0 8px 12px rgba(0, 0, 0, 0.22));
 }
 
 .map-spot-sheet {
