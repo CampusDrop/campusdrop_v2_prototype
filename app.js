@@ -33,6 +33,7 @@ let dialogueStartTimer = null;
 let dialogueTypingTimer = null;
 let kakaoMapLoaded = false;
 let classDragMode = "add";
+let mapMenuOpen = false;
 
 todayLabel.textContent = new Intl.DateTimeFormat("ko-KR", {
   month: "long",
@@ -41,7 +42,7 @@ todayLabel.textContent = new Intl.DateTimeFormat("ko-KR", {
 }).format(new Date());
 
 document.querySelector("#startScanMap")?.addEventListener("click", beginScan);
-document.querySelector("#closeSettings").addEventListener("click", () => setStep("start"));
+document.querySelector("#closeSettings").addEventListener("click", () => setStep("map"));
 document.querySelectorAll(".open-settings").forEach((button) => {
   button.addEventListener("click", () => setStep("settings"));
 });
@@ -97,9 +98,18 @@ classGrid?.addEventListener("pointerover", (event) => {
 document.querySelectorAll(".tab-link").forEach((button) => {
   button.addEventListener("click", () => setStep(button.dataset.tab));
 });
+document.querySelectorAll("[data-menu-step]").forEach((button) => {
+  button.addEventListener("click", () => {
+    setMapMenuOpen(false);
+    setStep(button.dataset.menuStep);
+  });
+});
+document.querySelector(".map-menu-trigger")?.addEventListener("click", () => {
+  setMapMenuOpen(!mapMenuOpen);
+});
 document.querySelector("#closeScan").addEventListener("click", () => {
   stopCamera();
-  setStep("start");
+  setStep("map");
 });
 document.querySelector("#openMission").addEventListener("click", () => {
   if (!canOpenMission) return;
@@ -109,7 +119,7 @@ document.querySelector("#openMission").addEventListener("click", () => {
 document.querySelector("#restartDemo").addEventListener("click", () => {
   codeInput.value = "";
   missionError.textContent = "";
-  setStep("start");
+  setStep("map");
 });
 
 document.querySelector("#codeForm").addEventListener("submit", (event) => {
@@ -129,11 +139,19 @@ codeInput.addEventListener("input", () => {
 });
 
 function setStep(step) {
+  if (step !== "map") setMapMenuOpen(false);
   app.dataset.step = step;
-  document.querySelectorAll(".bottom-nav .tab-link").forEach((button) => {
-    button.classList.toggle("is-active", button.dataset.tab === step);
-  });
   if (step === "map") initKakaoMap();
+}
+
+function setMapMenuOpen(open) {
+  mapMenuOpen = open;
+  const menu = document.querySelector(".map-action-menu");
+  const trigger = document.querySelector(".map-menu-trigger");
+  const panel = document.querySelector(".map-menu-panel");
+  menu?.classList.toggle("is-open", mapMenuOpen);
+  trigger?.setAttribute("aria-expanded", mapMenuOpen ? "true" : "false");
+  panel?.setAttribute("aria-hidden", mapMenuOpen ? "false" : "true");
 }
 
 function paintClassCell(cell) {
