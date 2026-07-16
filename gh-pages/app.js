@@ -30,6 +30,15 @@ const mapCrewPoints = [
   { name: "오로라", lat: 37.55135, lng: 127.07432 },
   { name: "노바", lat: 37.55052, lng: 127.07318 },
 ];
+const mapZoomScaleByLevel = {
+  1: 2.25,
+  2: 1.78,
+  3: 1.24,
+  4: 0.92,
+  5: 0.68,
+  6: 0.5,
+  7: 0.38,
+};
 const collectionModels = [
   { season: "황금말 시즌", name: "세종 기린", title: "시계탑 정령", unlocked: true, src: "./sejongGF.glb" },
   { season: "황금말 시즌", name: "달빛 여우", title: "야간 탐험 보상", unlocked: false, src: "" },
@@ -252,7 +261,7 @@ function initKakaoMap() {
       });
       const syncMapPointScale = () => {
         const level = map.getLevel();
-        const scale = Math.min(2.05, Math.max(0.36, Math.pow(1.34, 3 - level)));
+        const scale = mapZoomScaleByLevel[level] ?? (level < 1 ? mapZoomScaleByLevel[1] : 0.32);
         kakaoMapElement.closest(".kakao-map-shell")?.style.setProperty("--map-zoom-scale", scale.toFixed(3));
         kakaoMapElement.style.setProperty("--map-zoom-scale", scale.toFixed(3));
         crewOverlayContents.forEach((content) => {

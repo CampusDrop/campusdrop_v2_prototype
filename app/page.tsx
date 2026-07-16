@@ -64,6 +64,15 @@ const mapCrewPoints = [
   { name: "오로라", lat: 37.55135, lng: 127.07432 },
   { name: "노바", lat: 37.55052, lng: 127.07318 },
 ];
+const mapZoomScaleByLevel: Record<number, number> = {
+  1: 2.25,
+  2: 1.78,
+  3: 1.24,
+  4: 0.92,
+  5: 0.68,
+  6: 0.5,
+  7: 0.38,
+};
 const scheduleDays = ["월", "화", "수", "목", "금"];
 const schedulePeriods = ["1", "2", "3", "4", "5", "6", "7", "8"];
 const classPresets = [
@@ -187,7 +196,7 @@ export default function Home() {
         });
         const syncMapPointScale = () => {
           const level = map.getLevel();
-          const scale = Math.min(2.05, Math.max(0.36, Math.pow(1.34, 3 - level)));
+          const scale = mapZoomScaleByLevel[level] ?? (level < 1 ? mapZoomScaleByLevel[1] : 0.32);
           kakaoShellRef.current?.style.setProperty("--map-zoom-scale", scale.toFixed(3));
           kakaoMapRef.current?.style.setProperty("--map-zoom-scale", scale.toFixed(3));
           crewOverlayContents.forEach((content) => {
