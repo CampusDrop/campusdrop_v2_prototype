@@ -619,7 +619,28 @@ button {
   filter: drop-shadow(0 10px 14px rgba(82, 0, 32, 0.34));
 }
 
+.event-red-marker::before {
+  position: absolute;
+  left: 50%;
+  top: 78px;
+  z-index: 2;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.92);
+  border-radius: 3px;
+  background: linear-gradient(135deg, #88fbff, #1c8cff 62%, #7d5cff);
+  box-shadow:
+    0 0 12px rgba(72, 225, 255, 0.85),
+    0 0 24px rgba(63, 112, 255, 0.46);
+  content: "";
+  pointer-events: none;
+  transform: translate(-50%, -50%) rotate(0deg) translateY(-58px) rotate(45deg);
+  animation: encounter-diamond-orbit 2.6s linear infinite;
+}
+
 .event-red-marker img {
+  position: relative;
+  z-index: 1;
   display: block;
   width: 156px;
   height: 156px;
@@ -638,6 +659,12 @@ button {
 .event-red-marker.is-complete {
   opacity: 0.58;
   filter: grayscale(0.65) drop-shadow(0 8px 12px rgba(0, 0, 0, 0.22));
+}
+
+@keyframes encounter-diamond-orbit {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg) translateY(-58px) rotate(45deg);
+  }
 }
 
 .map-spot-sheet {
