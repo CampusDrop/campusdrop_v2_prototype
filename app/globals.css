@@ -622,11 +622,11 @@ button {
 .event-red-marker::before {
   position: absolute;
   left: 50%;
-  top: 78px;
+  top: 52px;
   z-index: 2;
-  width: 14px;
-  height: 14px;
-  border: 2px solid rgba(255, 255, 255, 0.92);
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid rgba(255, 255, 255, 0.92);
   border-radius: 3px;
   background: linear-gradient(135deg, #88fbff, #1c8cff 62%, #7d5cff);
   box-shadow:
@@ -634,7 +634,7 @@ button {
     0 0 24px rgba(63, 112, 255, 0.46);
   content: "";
   pointer-events: none;
-  transform: translate(-50%, -50%) rotate(0deg) translateY(-58px) rotate(45deg);
+  transform: translate(-50%, -50%) rotate(0deg) translateY(-39px) rotate(45deg);
   animation: encounter-diamond-orbit 2.6s linear infinite;
 }
 
@@ -642,8 +642,8 @@ button {
   position: relative;
   z-index: 1;
   display: block;
-  width: 156px;
-  height: 156px;
+  width: 104px;
+  height: 104px;
   pointer-events: none;
 }
 
@@ -663,7 +663,7 @@ button {
 
 @keyframes encounter-diamond-orbit {
   to {
-    transform: translate(-50%, -50%) rotate(360deg) translateY(-58px) rotate(45deg);
+    transform: translate(-50%, -50%) rotate(360deg) translateY(-39px) rotate(45deg);
   }
 }
 
@@ -869,8 +869,8 @@ button {
 
 .personal-beacon {
   display: block;
-  width: 132px;
-  height: 132px;
+  width: 88px;
+  height: 88px;
   pointer-events: none;
 }
 

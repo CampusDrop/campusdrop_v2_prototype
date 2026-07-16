@@ -445,6 +445,9 @@ export default function Home() {
     locationWatchIdRef.current = navigator.geolocation.watchPosition(
       (position) => {
         if (!window.kakao || !kakaoMapInstanceRef.current) return;
+        const latLng = new window.kakao.maps.LatLng(position.coords.latitude, position.coords.longitude);
+        if (kakaoMapInstanceRef.current.panTo) kakaoMapInstanceRef.current.panTo(latLng);
+        else kakaoMapInstanceRef.current.setCenter(latLng);
         renderUserRadar(position.coords.latitude, position.coords.longitude);
         setLocationStatus("실시간 위치 추적 중");
       },
