@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 
 type Step =
   | "signup-basic"
@@ -171,6 +172,26 @@ function formatEventTime(ms: number) {
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 }
 
+function normalizeDegrees(degrees: number) {
+  return ((degrees % 360) + 360) % 360;
+}
+
+function shortestAngleDelta(from: number, to: number) {
+  return ((to - from + 540) % 360) - 180;
+}
+
+async function requestOrientationAccess() {
+  const orientationEvent = window.DeviceOrientationEvent as typeof DeviceOrientationEvent & {
+    requestPermission?: () => Promise<PermissionState>;
+  };
+  if (typeof orientationEvent?.requestPermission !== "function") return true;
+  try {
+    return (await orientationEvent.requestPermission()) === "granted";
+  } catch {
+    return false;
+  }
+}
+
 export default function Home() {
   const [step, setStep] = useState<Step>("signup-basic");
   const [scanState, setScanState] = useState<ScanState>("idle");
@@ -192,6 +213,8 @@ export default function Home() {
   const [eventDistance, setEventDistance] = useState<number | null>(null);
   const [eventBearing, setEventBearing] = useState("확인 중");
   const [birdLocked, setBirdLocked] = useState(false);
+  const [birdSensorReady, setBirdSensorReady] = useState(false);
+  const [birdScreenPosition, setBirdScreenPosition] = useState({ x: -28, y: 44, scale: 0.72, opacity: 0 });
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const kakaoShellRef = useRef<HTMLDivElement | null>(null);
@@ -212,6 +235,9 @@ export default function Home() {
   const locationWatchIdRef = useRef<number | null>(null);
   const currentUserLocationRef = useRef(defaultUserLocation);
   const lastLocationRequestRef = useRef(0);
+  const birdTargetOffsetRef = useRef(180);
+  const birdTargetHeadingRef = useRef<number | null>(null);
+  const birdCenterStartRef = useRef<number | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number | null>(null);
   const foundFramesRef = useRef(0);
@@ -576,10 +602,7 @@ export default function Home() {
     setCanOpenMission(false);
     setTypedDialogue("");
     if (scanState !== "found") return;
-    if (arMode === "bird") {
-      const timer = window.setTimeout(() => setBirdLocked(true), 1600);
-      return () => window.clearTimeout(timer);
-    }
+    if (arMode === "bird") return;
 
     let index = 0;
     let interval: number | undefined;
@@ -601,6 +624,47 @@ export default function Home() {
       if (readyTimer) window.clearTimeout(readyTimer);
     };
   }, [arMode, scanState]);
+
+  useEffect(() => {
+    if (step !== "scan" || scanState !== "found" || arMode !== "bird") return;
+    setBirdLocked(false);
+    setBirdScreenPosition({ x: -28, y: 44, scale: 0.72, opacity: 0 });
+    birdTargetHeadingRef.current = null;
+    birdCenterStartRef.current = null;
+
+    const handleOrientation = (event: DeviceOrientationEvent & { webkitCompassHeading?: number }) => {
+      const rawHeading =
+        typeof event.webkitCompassHeading === "number"
+          ? event.webkitCompassHeading
+          : typeof event.alpha === "number"
+            ? 360 - event.alpha
+            : null;
+      if (rawHeading === null) return;
+      const heading = normalizeDegrees(rawHeading);
+      if (birdTargetHeadingRef.current === null) {
+        birdTargetHeadingRef.current = normalizeDegrees(heading + birdTargetOffsetRef.current);
+      }
+      const delta = shortestAngleDelta(heading, birdTargetHeadingRef.current);
+      const absDelta = Math.abs(delta);
+      const visibleRange = 88;
+      const x = 50 + (delta / visibleRange) * 58;
+      const y = 42 + Math.sin((delta / visibleRange) * Math.PI) * 8;
+      const opacity = Math.max(0, Math.min(1, 1 - (absDelta - 18) / 56));
+      const scale = Math.max(0.58, 1 - absDelta / 260);
+      setBirdScreenPosition({ x, y, scale, opacity });
+
+      if (absDelta <= 13) {
+        if (birdCenterStartRef.current === null) birdCenterStartRef.current = Date.now();
+        if (Date.now() - birdCenterStartRef.current > 1300) setBirdLocked(true);
+      } else {
+        birdCenterStartRef.current = null;
+        setBirdLocked(false);
+      }
+    };
+
+    window.addEventListener("deviceorientation", handleOrientation as EventListener, true);
+    return () => window.removeEventListener("deviceorientation", handleOrientation as EventListener, true);
+  }, [arMode, scanState, step]);
 
   function stopCamera() {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -736,11 +800,19 @@ export default function Home() {
 
   function beginScan(mode: ArMode = "marker") {
     if (step === "scan") return;
+    if (mode === "bird") {
+      birdTargetOffsetRef.current = 120 + Math.random() * 120;
+      setBirdSensorReady(false);
+      void requestOrientationAccess().then((granted) => setBirdSensorReady(granted));
+    }
     setArMode(mode);
     setStep("scan");
     setScanState("idle");
     setCanOpenMission(false);
     setBirdLocked(false);
+    setBirdScreenPosition({ x: -28, y: 44, scale: 0.72, opacity: 0 });
+    birdTargetHeadingRef.current = null;
+    birdCenterStartRef.current = null;
     setTypedDialogue("");
     setFrozenFrame("");
     foundFramesRef.current = 0;
@@ -1331,7 +1403,16 @@ export default function Home() {
                 aria-label="파랑새 발견 완료"
               />
               <div className="bird-ar-reticle" aria-hidden="true" />
-              <div className="bird-stage" aria-hidden="true">
+              <div
+                className="bird-stage"
+                style={{
+                  "--bird-x": `${birdScreenPosition.x}%`,
+                  "--bird-y": `${birdScreenPosition.y}%`,
+                  "--bird-scale": birdScreenPosition.scale,
+                  "--bird-opacity": birdScreenPosition.opacity,
+                } as CSSProperties}
+                aria-hidden="true"
+              >
                 <model-viewer
                   src={blueBirdModelUrl}
                   camera-orbit="65deg 72deg 3.4m"
@@ -1345,7 +1426,13 @@ export default function Home() {
               </div>
               <div className={`bird-guide ${birdLocked ? "is-ready" : ""}`}>
                 <strong>{birdLocked ? "파랑새 포착!" : "파랑새 신호 추적 중"}</strong>
-                <p>{birdLocked ? "파랑새를 터치해 이벤트를 완료하세요." : "휴대폰을 돌려 파랑새를 중앙 영역에 붙잡아 보세요."}</p>
+                <p>
+                  {birdLocked
+                    ? "파랑새를 터치해 이벤트를 완료하세요."
+                    : birdSensorReady
+                      ? "사용자 뒤쪽 어딘가에 파랑새가 숨어 있어요. 휴대폰을 천천히 돌려 중앙에 붙잡아 보세요."
+                      : "방향 센서 권한이 필요해요. 권한 요청이 뜨면 허용해주세요."}
+                </p>
               </div>
             </>
           )}

@@ -2064,13 +2064,19 @@ h2 {
 
 .bird-stage {
   position: absolute;
-  left: 50%;
-  top: 42%;
+  left: var(--bird-x, -28%);
+  top: var(--bird-y, 44%);
   z-index: 7;
   width: min(46vw, 220px);
   height: min(46vw, 220px);
   transform-origin: 50% 50%;
-  animation: bird-flight-path 8.5s ease-in-out infinite;
+  opacity: var(--bird-opacity, 0);
+  transform: translate(-50%, -50%) scale(var(--bird-scale, 0.72));
+  transition:
+    left 0.22s ease-out,
+    top 0.22s ease-out,
+    opacity 0.18s ease-out,
+    transform 0.22s ease-out;
 }
 
 .bird-stage model-viewer {
