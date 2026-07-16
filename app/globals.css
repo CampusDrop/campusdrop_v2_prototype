@@ -858,22 +858,19 @@ button {
   position: relative;
   display: grid;
   place-items: center;
-  width: 26px;
-  height: 26px;
-  filter: drop-shadow(0 2px 7px rgba(0, 0, 0, 0.35));
+  width: 18px;
+  height: 18px;
 }
 
 .beacon-core {
   position: relative;
   z-index: 4;
-  width: 16px;
+  width: 18px;
   aspect-ratio: 1;
-  border: 3px solid rgba(255, 255, 255, 0.95);
+  border: 0;
   border-radius: 999px;
-  background: #050505;
-  box-shadow:
-    0 0 0 2px rgba(0, 0, 0, 0.22),
-    0 2px 8px rgba(0, 0, 0, 0.35);
+  background: #000;
+  box-shadow: none;
 }
 
 .beacon-ring,

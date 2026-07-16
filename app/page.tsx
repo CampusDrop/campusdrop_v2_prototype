@@ -74,7 +74,6 @@ const dialogueStartMs = 4300;
 const typingIntervalMs = 46;
 const sejongCenter = { lat: 37.550944, lng: 127.073765 };
 const defaultUserLocation = { lat: 37.497952, lng: 127.027619 };
-const interactionRadiusMeters = 100;
 const eventDurationMs = 5 * 60 * 1000;
 const eventReachRadiusMeters = 40;
 const campusEventSpots = [
@@ -435,16 +434,7 @@ export default function Home() {
     marker.innerHTML = personalBeaconMarkup;
     if (myLocationOverlayRef.current) myLocationOverlayRef.current.setMap(null);
     if (interactionCircleRef.current) interactionCircleRef.current.setMap(null);
-    interactionCircleRef.current = new window.kakao.maps.Circle({
-      center: latLng,
-      radius: interactionRadiusMeters,
-      strokeWeight: 2,
-      strokeColor: "#00ffff",
-      strokeOpacity: 0.95,
-      fillColor: "#00ffff",
-      fillOpacity: 0.14,
-    });
-    interactionCircleRef.current.setMap(map);
+    interactionCircleRef.current = null;
     myLocationOverlayRef.current = new window.kakao.maps.CustomOverlay({
       position: latLng,
       content: marker,

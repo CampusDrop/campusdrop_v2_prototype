@@ -255,10 +255,10 @@ button { -webkit-tap-highlight-color: transparent; }
 .map-location-button:active { transform: translateY(1px) scale(.96); }
 .map-location-button em { font-style: normal; }
 .my-location-marker { display: grid; place-items: center; pointer-events: none; }
-.personal-beacon { position: relative; display: grid; place-items: center; width: 26px; height: 26px; filter: drop-shadow(0 2px 7px rgba(0,0,0,.35)); }
+.personal-beacon { position: relative; display: grid; place-items: center; width: 18px; height: 18px; }
 .beacon-core {
-  position: relative; z-index: 4; width: 16px; aspect-ratio: 1; border: 3px solid rgba(255,255,255,.95); border-radius: 999px;
-  background: #050505; box-shadow: 0 0 0 2px rgba(0,0,0,.22), 0 2px 8px rgba(0,0,0,.35);
+  position: relative; z-index: 4; width: 18px; aspect-ratio: 1; border: 0; border-radius: 999px;
+  background: #000; box-shadow: none;
 }
 .beacon-ring, .beacon-ring::before, .beacon-ring::after, .beacon-pulse, .beacon-shadow { display: none; }
 .my-location-marker strong { display: none; }
