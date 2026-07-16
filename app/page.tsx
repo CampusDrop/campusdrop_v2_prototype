@@ -76,6 +76,7 @@ const sejongCenter = { lat: 37.550944, lng: 127.073765 };
 const defaultUserLocation = { lat: 37.497952, lng: 127.027619 };
 const eventDurationMs = 5 * 60 * 1000;
 const eventReachRadiusMeters = 40;
+const currentLocationIconUrl = "/current-location-signal.svg";
 const campusEventSpots = [
   { name: "대양AI센터", lat: 37.550944, lng: 127.073765 },
   { name: "학생회관 앞", lat: 37.54992, lng: 127.07436 },
@@ -84,14 +85,7 @@ const campusEventSpots = [
   { name: "세종관 산책로", lat: 37.5511, lng: 127.07298 },
 ];
 const personalBeaconMarkup = `
-  <span class="personal-beacon" aria-hidden="true">
-    <span class="beacon-pulse beacon-pulse-a"></span>
-    <span class="beacon-pulse beacon-pulse-b"></span>
-    <span class="beacon-ring beacon-ring-a"></span>
-    <span class="beacon-ring beacon-ring-b"></span>
-    <span class="beacon-core"></span>
-    <span class="beacon-shadow"></span>
-  </span>
+  <img class="personal-beacon" src="${currentLocationIconUrl}" alt="" aria-hidden="true" />
   <strong>내 위치</strong>
 `;
 const mapCrewPoints = [

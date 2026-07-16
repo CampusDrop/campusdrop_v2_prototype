@@ -1,0 +1,21 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g opacity="0.92" filter="url(#soft-glow)">
+    <path d="M24 7.2C28.45 7.2 32.44 8.92 35.47 11.76" stroke="#7DF8FF" stroke-width="1.6" stroke-linecap="round" opacity="0.44" />
+    <path d="M39.4 22.8C39.77 27.34 38.24 31.65 35.52 34.82" stroke="#7DF8FF" stroke-width="1.6" stroke-linecap="round" opacity="0.34" />
+    <path d="M27.4 40.25C22.96 41.13 18.45 40.05 15.03 37.55" stroke="#BCB8FF" stroke-width="1.35" stroke-linecap="round" opacity="0.28" />
+    <path d="M8.92 26.4C8.12 21.93 9.28 17.53 11.86 14.2" stroke="#FFFFFF" stroke-width="1.2" stroke-linecap="round" opacity="0.26" />
+  </g>
+  <circle cx="24" cy="24" r="9.4" fill="#0DDDF2" opacity="0.12" />
+  <circle cx="24" cy="24" r="7.2" fill="#0F8BFF" opacity="0.18" />
+  <circle cx="24" cy="24" r="5.4" fill="white" opacity="0.92" />
+  <circle cx="24" cy="24" r="3.7" fill="#10D9F4" />
+  <circle cx="22.7" cy="22.5" r="1.15" fill="white" opacity="0.88" />
+  <path d="M17.1 13.15C18.07 12.53 19.1 12.05 20.19 11.72" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round" opacity="0.38" />
+  <path d="M31.2 36.1C32.1 35.56 32.91 34.89 33.63 34.11" stroke="#BCB8FF" stroke-width="1" stroke-linecap="round" opacity="0.34" />
+  <defs>
+    <filter id="soft-glow" x="2" y="1" width="44" height="46" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="0" stdDeviation="1.4" flood-color="#20DFF6" flood-opacity="0.34" />
+      <feDropShadow dx="0" dy="1" stdDeviation="1.2" flood-color="#000000" flood-opacity="0.2" />
+    </filter>
+  </defs>
+</svg>

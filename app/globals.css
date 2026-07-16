@@ -800,8 +800,7 @@ button {
   touch-action: manipulation;
 }
 
-.map-location-button span,
-.my-location-marker span {
+.map-location-button span {
   display: block;
   border-radius: 50%;
   background: #2f7dff;
@@ -855,30 +854,10 @@ button {
 }
 
 .personal-beacon {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 18px;
-  height: 18px;
-}
-
-.beacon-core {
-  position: relative;
-  z-index: 4;
-  width: 18px;
-  aspect-ratio: 1;
-  border: 0;
-  border-radius: 999px;
-  background: #000;
-  box-shadow: none;
-}
-
-.beacon-ring,
-.beacon-ring::before,
-.beacon-ring::after,
-.beacon-pulse,
-.beacon-shadow {
-  display: none;
+  display: block;
+  width: 44px;
+  height: 44px;
+  pointer-events: none;
 }
 
 .my-location-marker strong {
