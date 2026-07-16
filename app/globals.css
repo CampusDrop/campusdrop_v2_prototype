@@ -598,10 +598,14 @@ button {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border: 2px solid rgba(19, 32, 31, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.78);
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 14px 30px rgba(15, 35, 35, 0.16);
+  background:
+    radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.18) 36%, transparent 37%),
+    linear-gradient(145deg, rgba(20, 28, 34, 0.96), rgba(34, 96, 128, 0.88));
+  box-shadow:
+    0 16px 34px rgba(0, 0, 0, 0.34),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.16);
   color: var(--ink);
   cursor: pointer;
   padding: 0;
@@ -620,9 +624,40 @@ button {
 }
 
 .map-location-button span {
-  width: 16px;
+  position: relative;
+  width: 28px;
   aspect-ratio: 1;
-  box-shadow: 0 0 0 7px rgba(47, 125, 255, 0.14);
+  border: 2px solid rgba(135, 215, 255, 0.95);
+  background:
+    radial-gradient(circle, #b9f7ff 0 18%, transparent 20%),
+    radial-gradient(circle, rgba(47, 170, 255, 0.26), transparent 58%);
+  box-shadow:
+    0 0 0 7px rgba(47, 125, 255, 0.14),
+    0 0 22px rgba(72, 190, 255, 0.6);
+}
+
+.map-location-button span::before,
+.map-location-button span::after {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  background: rgba(185, 247, 255, 0.95);
+  content: "";
+  transform: translate(-50%, -50%);
+}
+
+.map-location-button span::before {
+  width: 2px;
+  height: 36px;
+}
+
+.map-location-button span::after {
+  width: 36px;
+  height: 2px;
+}
+
+.map-location-button:active {
+  transform: translateY(1px) scale(0.96);
 }
 
 .map-location-button {

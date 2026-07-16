@@ -143,7 +143,9 @@ export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const kakaoShellRef = useRef<HTMLDivElement | null>(null);
   const kakaoMapRef = useRef<HTMLDivElement | null>(null);
-  const mapboxMapInstanceRef = useRef<{ flyTo: (options: { center: [number, number]; zoom?: number; essential?: boolean }) => void } | null>(null);
+  const mapboxMapInstanceRef = useRef<{
+    flyTo: (options: { center: [number, number]; zoom?: number; duration?: number; essential?: boolean }) => void;
+  } | null>(null);
   const myLocationOverlayRef = useRef<{ remove: () => void } | null>(null);
   const lastLocationRequestRef = useRef(0);
   const streamRef = useRef<MediaStream | null>(null);
@@ -263,7 +265,12 @@ export default function Home() {
           return;
         }
         const lngLat: [number, number] = [position.coords.longitude, position.coords.latitude];
-        mapboxMapInstanceRef.current.flyTo({ center: lngLat, zoom: 17, essential: true });
+        mapboxMapInstanceRef.current.flyTo({
+          center: lngLat,
+          zoom: 17.8,
+          duration: 1200,
+          essential: true,
+        });
         if (!myLocationOverlayRef.current) {
           const marker = document.createElement("div");
           marker.className = "my-location-marker";

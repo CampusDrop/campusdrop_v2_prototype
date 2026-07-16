@@ -323,7 +323,7 @@ function requestMyLocation() {
         return;
       }
       const lngLat = [position.coords.longitude, position.coords.latitude];
-      mapboxMapInstance.flyTo({ center: lngLat, zoom: 17, essential: true });
+      mapboxMapInstance.flyTo({ center: lngLat, zoom: 17.8, duration: 1200, essential: true });
       const marker = document.createElement("div");
       marker.className = "my-location-marker";
       marker.innerHTML = "<span></span><strong>내 위치</strong>";
