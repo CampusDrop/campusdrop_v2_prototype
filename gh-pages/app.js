@@ -57,7 +57,7 @@ let kakaoMapLoaded = false;
 let classDragMode = "add";
 let mapMenuOpen = false;
 let collectionIndex = 0;
-let mapboxMapInstance = null;
+let kakaoMapInstance = null;
 let myLocationOverlay = null;
 let lastLocationRequestAt = 0;
 
@@ -236,71 +236,63 @@ function paintClassCell(cell) {
   cell.textContent = "";
 }
 
-function getMapboxToken() {
+function getKakaoKey() {
   const params = new URLSearchParams(window.location.search);
-  const tokenFromQuery = params.get("mapboxToken");
-  if (tokenFromQuery) window.localStorage.setItem("campusDropMapboxToken", tokenFromQuery);
-  return tokenFromQuery || window.localStorage.getItem("campusDropMapboxToken") || window.CAMPUS_DROP_MAPBOX_TOKEN || "";
+  const keyFromQuery = params.get("kakaoKey");
+  if (keyFromQuery) window.localStorage.setItem("campusDropKakaoKey", keyFromQuery);
+  return keyFromQuery || window.localStorage.getItem("campusDropKakaoKey") || "";
 }
 
 function initKakaoMap() {
   if (kakaoMapLoaded || !kakaoMapElement) return;
-  const mapboxToken = getMapboxToken();
-  if (!mapboxToken) return;
+  const kakaoKey = getKakaoKey();
+  if (!kakaoKey) return;
 
   const renderMap = () => {
-    if (!window.mapboxgl) return;
-    window.mapboxgl.accessToken = mapboxToken;
-    const map = new window.mapboxgl.Map({
-      container: kakaoMapElement,
-      style: "mapbox://styles/mapbox/dark-v11",
-      center: [sejongCenter.lng, sejongCenter.lat],
-      zoom: 16,
-      pitch: 0,
-    });
-    mapboxMapInstance = map;
-    map.on("load", () => {
+    if (!window.kakao) return;
+    window.kakao.maps.load(() => {
+      const center = new window.kakao.maps.LatLng(sejongCenter.lat, sejongCenter.lng);
+      const map = new window.kakao.maps.Map(kakaoMapElement, { center, level: 3 });
+      kakaoMapInstance = map;
       kakaoMapLoaded = true;
       kakaoFallback?.classList.add("is-hidden");
       kakaoMapElement.closest(".kakao-map-shell")?.classList.add("is-kakao-ready");
+      mapCrewPoints.forEach((crew) => {
+        const content = document.createElement("button");
+        content.type = "button";
+        content.className = "kakao-crew-overlay";
+        content.innerHTML = `
+          <model-viewer src="./sejongGF.glb" camera-orbit="90deg 76deg 3.2m" field-of-view="28deg" exposure="1.1" auto-rotate interaction-prompt="none" disable-zoom alt="${crew.name} 크루 기린"></model-viewer>
+          <strong>${crew.name}</strong>
+        `;
+        new window.kakao.maps.CustomOverlay({
+          position: new window.kakao.maps.LatLng(crew.lat, crew.lng),
+          content,
+          xAnchor: 0.5,
+          yAnchor: 1,
+          zIndex: 12,
+        }).setMap(map);
+      });
+      const syncMapPointScale = () => {
+        const zoomLevel = Math.max(1, Math.min(7, map.getLevel()));
+        const scale = mapZoomScaleByLevel[zoomLevel] ?? 0.32;
+        kakaoMapElement.closest(".kakao-map-shell")?.style.setProperty("--map-zoom-scale", scale.toFixed(3));
+        kakaoMapElement.style.setProperty("--map-zoom-scale", scale.toFixed(3));
+      };
+      syncMapPointScale();
+      window.kakao.maps.event.addListener(map, "zoom_changed", syncMapPointScale);
     });
-    mapCrewPoints.forEach((crew) => {
-      const content = document.createElement("button");
-      content.type = "button";
-      content.className = "kakao-crew-overlay";
-      content.innerHTML = `
-        <model-viewer src="./sejongGF.glb" camera-orbit="90deg 76deg 3.2m" field-of-view="28deg" exposure="1.1" auto-rotate interaction-prompt="none" disable-zoom alt="${crew.name} 크루 기린"></model-viewer>
-        <strong>${crew.name}</strong>
-      `;
-      new window.mapboxgl.Marker({ element: content, anchor: "bottom" }).setLngLat([crew.lng, crew.lat]).addTo(map);
-    });
-    const syncMapPointScale = () => {
-      const zoomLevel = Math.max(1, Math.min(7, Math.round(19 - map.getZoom())));
-      const scale = mapZoomScaleByLevel[zoomLevel] ?? 0.32;
-      kakaoMapElement.closest(".kakao-map-shell")?.style.setProperty("--map-zoom-scale", scale.toFixed(3));
-      kakaoMapElement.style.setProperty("--map-zoom-scale", scale.toFixed(3));
-    };
-    syncMapPointScale();
-    map.on("zoom", syncMapPointScale);
   };
 
-  if (!document.querySelector("link[data-campus-drop-mapbox-css]")) {
-    const link = document.createElement("link");
-    link.dataset.campusDropMapboxCss = "true";
-    link.rel = "stylesheet";
-    link.href = "https://api.mapbox.com/mapbox-gl-js/v3.9.4/mapbox-gl.css";
-    document.head.appendChild(link);
-  }
-
-  const existingScript = document.querySelector("script[data-campus-drop-mapbox]");
+  const existingScript = document.querySelector("script[data-campus-drop-kakao]");
   if (existingScript) {
     renderMap();
     return;
   }
 
   const script = document.createElement("script");
-  script.dataset.campusDropMapbox = "true";
-  script.src = "https://api.mapbox.com/mapbox-gl-js/v3.9.4/mapbox-gl.js";
+  script.dataset.campusDropKakao = "true";
+  script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${encodeURIComponent(kakaoKey)}&autoload=false`;
   script.async = true;
   script.onload = renderMap;
   document.head.appendChild(script);
@@ -318,17 +310,26 @@ function requestMyLocation() {
   if (label) label.textContent = "위치 확인 중";
   navigator.geolocation.getCurrentPosition(
     (position) => {
-      if (!window.mapboxgl || !mapboxMapInstance) {
+      if (!window.kakao || !kakaoMapInstance) {
         if (label) label.textContent = "지도 준비 필요";
         return;
       }
-      const lngLat = [position.coords.longitude, position.coords.latitude];
-      mapboxMapInstance.flyTo({ center: lngLat, zoom: 17.8, duration: 1200, essential: true });
+      const latLng = new window.kakao.maps.LatLng(position.coords.latitude, position.coords.longitude);
+      kakaoMapInstance.setLevel(3);
+      if (kakaoMapInstance.panTo) kakaoMapInstance.panTo(latLng);
+      else kakaoMapInstance.setCenter(latLng);
       const marker = document.createElement("div");
       marker.className = "my-location-marker";
       marker.innerHTML = "<span></span><strong>내 위치</strong>";
-      if (myLocationOverlay) myLocationOverlay.remove();
-      myLocationOverlay = new window.mapboxgl.Marker({ element: marker }).setLngLat(lngLat).addTo(mapboxMapInstance);
+      if (myLocationOverlay) myLocationOverlay.setMap(null);
+      myLocationOverlay = new window.kakao.maps.CustomOverlay({
+        position: latLng,
+        content: marker,
+        xAnchor: 0.5,
+        yAnchor: 1,
+        zIndex: 20,
+      });
+      myLocationOverlay.setMap(kakaoMapInstance);
       if (label) label.textContent = "내 위치 표시됨";
     },
     () => {

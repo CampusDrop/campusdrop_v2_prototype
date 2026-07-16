@@ -27,34 +27,13 @@ declare global {
   }
 
   interface Window {
-    CAMPUS_DROP_MAPBOX_TOKEN?: string;
-    mapboxgl?: {
-      accessToken: string;
-      Map: new (options: {
-        container: HTMLElement;
-        style: string;
-        center: [number, number];
-        zoom: number;
-        pitch?: number;
-      }) => {
-        on: (type: string, callback: () => void) => void;
-        getZoom: () => number;
-        flyTo: (options: { center: [number, number]; zoom?: number; essential?: boolean }) => void;
-        remove: () => void;
-      };
-      Marker: new (options?: { element?: HTMLElement; anchor?: string }) => {
-        setLngLat: (lngLat: [number, number]) => {
-          addTo: (map: unknown) => { remove: () => void };
-        };
-        remove: () => void;
-      };
-    };
     kakao?: {
       maps: {
         load: (callback: () => void) => void;
         LatLng: new (lat: number, lng: number) => unknown;
         Map: new (container: HTMLElement, options: { center: unknown; level: number }) => {
           getLevel: () => number;
+          setLevel: (level: number) => void;
           setCenter: (latLng: unknown) => void;
           panTo?: (latLng: unknown) => void;
         };
@@ -82,7 +61,6 @@ const npcDialogueText = "지도 앞까지 왔구나. 오늘의 캠퍼스 퀘스�
 const dialogueStartMs = 4300;
 const typingIntervalMs = 46;
 const sejongCenter = { lat: 37.550944, lng: 127.073765 };
-const mapboxStyle = "mapbox://styles/mapbox/dark-v11";
 const mapCrewPoints = [
   { name: "피닉스", lat: 37.550944, lng: 127.073765 },
   { name: "오로라", lat: 37.55135, lng: 127.07432 },
@@ -143,10 +121,13 @@ export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const kakaoShellRef = useRef<HTMLDivElement | null>(null);
   const kakaoMapRef = useRef<HTMLDivElement | null>(null);
-  const mapboxMapInstanceRef = useRef<{
-    flyTo: (options: { center: [number, number]; zoom?: number; duration?: number; essential?: boolean }) => void;
+  const kakaoMapInstanceRef = useRef<{
+    getLevel: () => number;
+    setLevel: (level: number) => void;
+    setCenter: (latLng: unknown) => void;
+    panTo?: (latLng: unknown) => void;
   } | null>(null);
-  const myLocationOverlayRef = useRef<{ remove: () => void } | null>(null);
+  const myLocationOverlayRef = useRef<{ setMap: (map: unknown) => void } | null>(null);
   const lastLocationRequestRef = useRef(0);
   const streamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -184,66 +165,58 @@ export default function Home() {
   useEffect(() => {
     if (step !== "map" || !kakaoMapRef.current || kakaoReady) return;
     const params = new URLSearchParams(window.location.search);
-    const tokenFromQuery = params.get("mapboxToken");
-    if (tokenFromQuery) window.localStorage.setItem("campusDropMapboxToken", tokenFromQuery);
-    const mapboxToken =
-      tokenFromQuery ||
-      window.localStorage.getItem("campusDropMapboxToken") ||
-      window.CAMPUS_DROP_MAPBOX_TOKEN ||
+    const keyFromQuery = params.get("kakaoKey");
+    if (keyFromQuery) window.localStorage.setItem("campusDropKakaoKey", keyFromQuery);
+    const kakaoKey =
+      keyFromQuery ||
+      window.localStorage.getItem("campusDropKakaoKey") ||
       "";
-    if (!mapboxToken) return;
+    if (!kakaoKey) return;
 
     const renderMap = () => {
-      if (!window.mapboxgl || !kakaoMapRef.current) return;
-      window.mapboxgl.accessToken = mapboxToken;
-      const map = new window.mapboxgl.Map({
-        container: kakaoMapRef.current,
-        style: mapboxStyle,
-        center: [sejongCenter.lng, sejongCenter.lat],
-        zoom: 16,
-        pitch: 0,
-      });
-      mapboxMapInstanceRef.current = map;
-      map.on("load", () => setKakaoReady(true));
-      map.on("error", () => setKakaoReady(false));
-      mapCrewPoints.forEach((crew) => {
-        const marker = document.createElement("button");
-        marker.type = "button";
-        marker.className = "kakao-crew-overlay";
-        marker.innerHTML = `
-          <model-viewer src="${npcModelUrl}" camera-orbit="90deg 76deg 3.2m" field-of-view="28deg" exposure="1.1" auto-rotate interaction-prompt="none" disable-zoom alt="${crew.name} 크루 기린"></model-viewer>
-          <strong>${crew.name}</strong>
-        `;
-        new window.mapboxgl!.Marker({ element: marker, anchor: "bottom" }).setLngLat([crew.lng, crew.lat]).addTo(map);
-      });
+      if (!window.kakao || !kakaoMapRef.current) return;
+      window.kakao.maps.load(() => {
+        if (!window.kakao || !kakaoMapRef.current) return;
+        const center = new window.kakao.maps.LatLng(sejongCenter.lat, sejongCenter.lng);
+        const map = new window.kakao.maps.Map(kakaoMapRef.current, { center, level: 3 });
+        kakaoMapInstanceRef.current = map;
+        setKakaoReady(true);
+        mapCrewPoints.forEach((crew) => {
+          const marker = document.createElement("button");
+          marker.type = "button";
+          marker.className = "kakao-crew-overlay";
+          marker.innerHTML = `
+            <model-viewer src="${npcModelUrl}" camera-orbit="90deg 76deg 3.2m" field-of-view="28deg" exposure="1.1" auto-rotate interaction-prompt="none" disable-zoom alt="${crew.name} 크루 기린"></model-viewer>
+            <strong>${crew.name}</strong>
+          `;
+          new window.kakao.maps.CustomOverlay({
+            position: new window.kakao.maps.LatLng(crew.lat, crew.lng),
+            content: marker,
+            xAnchor: 0.5,
+            yAnchor: 1,
+            zIndex: 12,
+          }).setMap(map);
+        });
         const syncMapPointScale = () => {
-          const zoomLevel = Math.max(1, Math.min(7, Math.round(19 - map.getZoom())));
+          const zoomLevel = Math.max(1, Math.min(7, map.getLevel()));
           const scale = mapZoomScaleByLevel[zoomLevel] ?? 0.32;
           kakaoShellRef.current?.style.setProperty("--map-zoom-scale", scale.toFixed(3));
           kakaoMapRef.current?.style.setProperty("--map-zoom-scale", scale.toFixed(3));
         };
         syncMapPointScale();
-        map.on("zoom", syncMapPointScale);
+        window.kakao.maps.event.addListener(map, "zoom_changed", syncMapPointScale);
+      });
     };
 
-    const existingLink = document.querySelector<HTMLLinkElement>("link[data-campus-drop-mapbox-css]");
-    if (!existingLink) {
-      const link = document.createElement("link");
-      link.dataset.campusDropMapboxCss = "true";
-      link.rel = "stylesheet";
-      link.href = "https://api.mapbox.com/mapbox-gl-js/v3.9.4/mapbox-gl.css";
-      document.head.appendChild(link);
-    }
-
-    const existingScript = document.querySelector<HTMLScriptElement>("script[data-campus-drop-mapbox]");
+    const existingScript = document.querySelector<HTMLScriptElement>("script[data-campus-drop-kakao]");
     if (existingScript) {
       renderMap();
       return;
     }
 
     const script = document.createElement("script");
-    script.dataset.campusDropMapbox = "true";
-    script.src = "https://api.mapbox.com/mapbox-gl-js/v3.9.4/mapbox-gl.js";
+    script.dataset.campusDropKakao = "true";
+    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${encodeURIComponent(kakaoKey)}&autoload=false`;
     script.async = true;
     script.onload = renderMap;
     document.head.appendChild(script);
@@ -260,29 +233,26 @@ export default function Home() {
     setLocationStatus("위치 확인 중");
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        if (!window.mapboxgl || !mapboxMapInstanceRef.current) {
+        if (!window.kakao || !kakaoMapInstanceRef.current) {
           setLocationStatus("지도 준비 필요");
           return;
         }
-        const lngLat: [number, number] = [position.coords.longitude, position.coords.latitude];
-        mapboxMapInstanceRef.current.flyTo({
-          center: lngLat,
-          zoom: 17.8,
-          duration: 1200,
-          essential: true,
+        const latLng = new window.kakao.maps.LatLng(position.coords.latitude, position.coords.longitude);
+        kakaoMapInstanceRef.current.setLevel(3);
+        if (kakaoMapInstanceRef.current.panTo) kakaoMapInstanceRef.current.panTo(latLng);
+        else kakaoMapInstanceRef.current.setCenter(latLng);
+        const marker = document.createElement("div");
+        marker.className = "my-location-marker";
+        marker.innerHTML = "<span></span><strong>내 위치</strong>";
+        if (myLocationOverlayRef.current) myLocationOverlayRef.current.setMap(null);
+        myLocationOverlayRef.current = new window.kakao.maps.CustomOverlay({
+          position: latLng,
+          content: marker,
+          xAnchor: 0.5,
+          yAnchor: 1,
+          zIndex: 20,
         });
-        if (!myLocationOverlayRef.current) {
-          const marker = document.createElement("div");
-          marker.className = "my-location-marker";
-          marker.innerHTML = "<span></span><strong>내 위치</strong>";
-          myLocationOverlayRef.current = new window.mapboxgl.Marker({ element: marker }).setLngLat(lngLat).addTo(mapboxMapInstanceRef.current);
-        } else {
-          myLocationOverlayRef.current.remove();
-          const marker = document.createElement("div");
-          marker.className = "my-location-marker";
-          marker.innerHTML = "<span></span><strong>내 위치</strong>";
-          myLocationOverlayRef.current = new window.mapboxgl.Marker({ element: marker }).setLngLat(lngLat).addTo(mapboxMapInstanceRef.current);
-        }
+        myLocationOverlayRef.current.setMap(kakaoMapInstanceRef.current);
         setLocationStatus("내 위치 표시됨");
       },
       () => {
@@ -813,7 +783,7 @@ export default function Home() {
       {step === "map" && (
         <section className="screen map-screen app-tab-screen">
           <div ref={kakaoShellRef} className={`kakao-map-shell${kakaoReady ? " is-kakao-ready" : ""}`}>
-            <div ref={kakaoMapRef} className="kakao-map-canvas" aria-label="Mapbox 캠퍼스 지도" />
+            <div ref={kakaoMapRef} className="kakao-map-canvas" aria-label="카카오 캠퍼스 지도" />
             <div className="game-map-layer" aria-hidden="true">
               <span className="game-map-grass grass-a" />
               <span className="game-map-grass grass-b" />
@@ -829,8 +799,8 @@ export default function Home() {
             </div>
             {!kakaoReady && (
               <div className="kakao-map-fallback">
-                <strong>Mapbox 지도 준비됨</strong>
-                <p>URL 뒤에 <span>?mapboxToken=액세스토큰</span>을 붙이면 다크 테마 지도가 표시됩니다.</p>
+                <strong>카카오 지도 준비됨</strong>
+                <p>URL 뒤에 <span>?kakaoKey=JavaScript키</span>를 붙이면 필터 다크모드 지도가 표시됩니다.</p>
               </div>
             )}
           </div>
