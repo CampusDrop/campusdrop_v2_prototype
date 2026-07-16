@@ -28,10 +28,13 @@ todayLabel.textContent = new Intl.DateTimeFormat("ko-KR", {
   weekday: "short",
 }).format(new Date());
 
-document.querySelector("#startScan").addEventListener("click", beginScan);
+document.querySelector("#startScanMap").addEventListener("click", beginScan);
 document.querySelector("#openSignup").addEventListener("click", () => setStep("signup"));
 document.querySelector("#closeSignup").addEventListener("click", () => setStep("start"));
 document.querySelector("#finishSignup").addEventListener("click", () => setStep("start"));
+document.querySelectorAll(".tab-link").forEach((button) => {
+  button.addEventListener("click", () => setStep(button.dataset.tab));
+});
 document.querySelector("#closeScan").addEventListener("click", () => {
   stopCamera();
   setStep("start");
@@ -65,6 +68,9 @@ codeInput.addEventListener("input", () => {
 
 function setStep(step) {
   app.dataset.step = step;
+  document.querySelectorAll(".bottom-nav .tab-link").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.tab === step);
+  });
 }
 
 async function beginScan() {

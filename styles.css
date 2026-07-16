@@ -34,6 +34,7 @@ input { font: inherit; }
 button { -webkit-tap-highlight-color: transparent; }
 
 .app {
+  position: relative;
   min-height: 100svh;
   overflow: hidden;
   background:
@@ -53,12 +54,94 @@ button { -webkit-tap-highlight-color: transparent; }
 
 .app[data-step="start"] [data-screen="start"],
 .app[data-step="signup"] [data-screen="signup"],
+.app[data-step="map"] [data-screen="map"],
+.app[data-step="explore"] [data-screen="explore"],
+.app[data-step="crew"] [data-screen="crew"],
+.app[data-step="collection"] [data-screen="collection"],
 .app[data-step="scan"] [data-screen="scan"],
 .app[data-step="mission"] [data-screen="mission"],
 .app[data-step="success"] [data-screen="success"],
 .app[data-step="coupon"] [data-screen="coupon"] { display: flex; }
 
 .start-screen { align-items: flex-start; justify-content: flex-end; gap: 12px; }
+.app-tab-screen { overflow-y: auto; padding-bottom: max(98px, calc(env(safe-area-inset-bottom) + 92px)); }
+.home-screen, .map-screen, .explore-screen, .crew-screen, .collection-screen {
+  gap: 16px; justify-content: flex-start; background: linear-gradient(160deg, #f9fff2 0%, #e8fbf1 50%, #fff8df 100%);
+}
+.season-badge {
+  z-index: 1; width: fit-content; border-radius: 999px; background: #13201f; color: white;
+  padding: 10px 13px; font-size: 13px; font-weight: 950;
+}
+.crew-hero-card, .event-strip, .map-detail-card, .treasure-card, .store-card, .crew-profile, .crew-chat, .vote-card, .season-record {
+  z-index: 1; border: 2px solid var(--line); border-radius: 24px; background: rgba(255,255,255,.78);
+  box-shadow: 0 16px 40px rgba(15,35,35,.1); padding: 18px;
+}
+.crew-hero-card { display: grid; grid-template-columns: 96px 1fr; gap: 16px; align-items: center; }
+.crew-model-bubble {
+  display: grid; width: 96px; aspect-ratio: 1; place-items: center; border: 4px solid var(--ink);
+  border-radius: 32px; background: radial-gradient(circle at 35% 30%, #fff, #dff8ff 62%, #baf1dc);
+  box-shadow: 8px 8px 0 rgba(255,204,77,.65); font-size: 48px;
+}
+.crew-model-bubble.large { width: 132px; margin: 0 auto 12px; font-size: 64px; }
+.crew-hero-card h1 { max-width: none; font-size: 38px; line-height: 1; }
+.crew-hero-card p { margin: 8px 0 0; color: var(--muted); font-weight: 760; line-height: 1.35; }
+.xp-bar { overflow: hidden; height: 12px; margin-top: 10px; border-radius: 999px; background: rgba(19,32,31,.12); }
+.xp-bar span { display: block; width: 82%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--mint), var(--sun)); }
+.event-strip { display: grid; grid-template-columns: 1fr auto auto; gap: 12px; align-items: center; }
+.event-strip button { border: 0; border-radius: 999px; background: var(--ink); color: white; padding: 10px 13px; font-weight: 950; }
+.section-block { z-index: 1; }
+.section-block h2 { margin-bottom: 10px; font-size: 24px; }
+.mission-pills, .title-strip { display: flex; flex-wrap: wrap; gap: 8px; }
+.mission-pills span, .title-strip span {
+  border-radius: 999px; background: white; color: var(--leaf); padding: 10px 12px; font-size: 13px; font-weight: 950;
+}
+.activity-line { z-index: 1; border-left: 5px solid var(--mint); color: var(--muted); font-weight: 850; padding: 6px 0 6px 12px; }
+.app-header { z-index: 1; display: grid; gap: 8px; }
+.app-header h2 { font-size: 31px; }
+.campus-map-board {
+  position: relative; z-index: 1; min-height: 360px; overflow: hidden; border: 3px solid var(--ink); border-radius: 28px;
+  background:
+    linear-gradient(90deg, rgba(17,134,108,.16) 1px, transparent 1px),
+    linear-gradient(rgba(17,134,108,.16) 1px, transparent 1px),
+    linear-gradient(150deg, #f8f2da, #dbf5eb 48%, #fef8df);
+  background-size: 34px 34px, 34px 34px, auto;
+  box-shadow: 10px 10px 0 rgba(32,214,163,.24);
+}
+.map-path { position: absolute; height: 12px; border-radius: 999px; background: rgba(255,204,77,.72); transform-origin: left center; }
+.path-a { left: 20px; top: 160px; width: 280px; rotate: -18deg; }
+.path-b { left: 70px; top: 250px; width: 260px; rotate: 22deg; }
+.crew-marker {
+  position: absolute; display: grid; place-items: center; border: 0; background: transparent; cursor: pointer;
+  font-size: 54px; filter: drop-shadow(0 10px 12px rgba(19,32,31,.22));
+}
+.crew-marker strong { margin-top: -6px; border-radius: 999px; background: white; padding: 5px 9px; font-size: 12px; }
+.phoenix { left: 38px; top: 84px; scale: 1.18; }
+.aurora { right: 34px; top: 128px; scale: .96; }
+.nova { left: 138px; bottom: 40px; scale: .82; }
+.treasure-dot, .store-dot { position: absolute; display: grid; width: 44px; aspect-ratio: 1; place-items: center; border-radius: 50%; background: white; box-shadow: 0 8px 18px rgba(19,32,31,.16); }
+.treasure-dot { right: 32px; bottom: 52px; }
+.store-dot { left: 52px; bottom: 64px; }
+.map-detail-card span, .treasure-card p, .store-card p, .crew-profile p, .vote-card p { color: var(--muted); font-weight: 760; }
+.treasure-card, .store-card { display: grid; grid-template-columns: 52px 1fr; gap: 6px 14px; align-items: center; }
+.treasure-card span, .store-card span { grid-row: span 2; font-size: 38px; }
+.treasure-card p, .store-card p { margin: 0; }
+.crew-profile { text-align: center; }
+.member-grid { z-index: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.member-grid div { border-radius: 18px; background: white; padding: 12px; text-align: center; }
+.member-grid span { display: block; margin-top: 5px; color: var(--muted); font-size: 11px; font-weight: 850; }
+.collection-grid { z-index: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.collection-grid button { min-height: 104px; border: 2px solid var(--line); border-radius: 22px; background: white; font-size: 36px; font-weight: 950; }
+.collection-grid span { display: block; color: var(--leaf); font-size: 11px; }
+.collection-grid .is-locked { color: rgba(19,32,31,.28); background: rgba(255,255,255,.45); }
+.bottom-nav {
+  position: absolute; left: 12px; right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); z-index: 20;
+  display: none; grid-template-columns: repeat(5, 1fr); gap: 5px; border: 2px solid rgba(19,32,31,.08);
+  border-radius: 24px; background: rgba(255,255,255,.88); box-shadow: 0 16px 42px rgba(15,35,35,.18); padding: 8px; backdrop-filter: blur(18px);
+}
+.app[data-step="start"] .bottom-nav, .app[data-step="map"] .bottom-nav, .app[data-step="explore"] .bottom-nav, .app[data-step="crew"] .bottom-nav, .app[data-step="collection"] .bottom-nav { display: grid; }
+.bottom-nav button { border: 0; border-radius: 17px; background: transparent; color: var(--muted); padding: 8px 4px; font-size: 18px; font-weight: 950; }
+.bottom-nav span { display: block; margin-top: 2px; font-size: 10px; }
+.bottom-nav button.is-active { background: var(--ink); color: white; }
 .campus-sky { position: absolute; inset: 0; overflow: hidden; }
 .campus-sky::before {
   position: absolute; right: -24vw; bottom: 28vh; width: 78vw; max-width: 390px;
