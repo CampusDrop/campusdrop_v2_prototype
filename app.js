@@ -32,6 +32,17 @@ const typingIntervalMs = 46;
 const sejongCenter = { lat: 37.550944, lng: 127.073765 };
 const defaultUserLocation = { lat: 37.497952, lng: 127.027619 };
 const interactionRadiusMeters = 100;
+const personalBeaconMarkup = `
+  <span class="personal-beacon" aria-hidden="true">
+    <span class="beacon-pulse beacon-pulse-a"></span>
+    <span class="beacon-pulse beacon-pulse-b"></span>
+    <span class="beacon-ring beacon-ring-a"></span>
+    <span class="beacon-ring beacon-ring-b"></span>
+    <span class="beacon-core"></span>
+    <span class="beacon-shadow"></span>
+  </span>
+  <strong>내 위치</strong>
+`;
 const mapCrewPoints = [
   { name: "피닉스", lat: 37.550944, lng: 127.073765, sigil: "P", status: "점령 중", members: 18, reward: "시계탑 정령 단서" },
   { name: "오로라", lat: 37.55135, lng: 127.07432, sigil: "A", status: "경합 중", members: 12, reward: "카페 라운지 쿠폰" },
@@ -397,7 +408,7 @@ function renderUserRadar(lat, lng, map = kakaoMapInstance) {
   const latLng = new window.kakao.maps.LatLng(lat, lng);
   const marker = document.createElement("div");
   marker.className = "my-location-marker";
-  marker.innerHTML = "<span></span><strong>내 위치</strong>";
+  marker.innerHTML = personalBeaconMarkup;
   if (myLocationOverlay) myLocationOverlay.setMap(null);
   if (interactionCircle) interactionCircle.setMap(null);
   interactionCircle = new window.kakao.maps.Circle({
