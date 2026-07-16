@@ -3,13 +3,16 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type Step =
+  | "signup-basic"
+  | "signup-schedule"
+  | "signup-interests"
+  | "signup-hobbies"
   | "start"
   | "map"
   | "explore"
   | "crew"
   | "collection"
   | "settings"
-  | "signup"
   | "scan"
   | "mission"
   | "success"
@@ -45,7 +48,7 @@ const typingIntervalMs = 46;
 const sejongCenter = { lat: 37.550944, lng: 127.073765 };
 
 export default function Home() {
-  const [step, setStep] = useState<Step>("start");
+  const [step, setStep] = useState<Step>("signup-basic");
   const [scanState, setScanState] = useState<ScanState>("idle");
   const [cameraError, setCameraError] = useState("");
   const [code, setCode] = useState("");
@@ -356,8 +359,98 @@ export default function Home() {
     </button>
   );
 
+  const SignupProgress = ({ current }: { current: number }) => (
+    <div className="signup-progress" aria-label={`회원가입 ${current}단계`}>
+      {[1, 2, 3, 4].map((item) => (
+        <span key={item} className={item <= current ? "is-active" : ""} />
+      ))}
+    </div>
+  );
+
   return (
     <main className={`app step-${step}`}>
+      {step === "signup-basic" && (
+        <section className="screen signup-screen">
+          <div className="signup-header">
+            <p className="eyebrow">회원가입 1/4</p>
+            <h2>기본정보</h2>
+            <p>캠퍼스 드랍에서 사용할 내 정보를 입력합니다.</p>
+          </div>
+          <SignupProgress current={1} />
+          <div className="signup-panel form-panel">
+            <label>이름<input placeholder="김세종" /></label>
+            <label>성별<select defaultValue=""><option value="" disabled>선택</option><option>여성</option><option>남성</option><option>응답하지 않음</option></select></label>
+            <label>나이<input inputMode="numeric" placeholder="22" /></label>
+            <label>전화번호<input inputMode="tel" placeholder="010-1234-5678" /></label>
+            <label>학과<input placeholder="컴퓨터공학과" /></label>
+          </div>
+          <button className="primary-action" onClick={() => setStep("signup-schedule")}>다음</button>
+        </section>
+      )}
+
+      {step === "signup-schedule" && (
+        <section className="screen signup-screen">
+          <div className="signup-header">
+            <button className="ghost-light-button" onClick={() => setStep("signup-basic")}>이전</button>
+            <p className="eyebrow">회원가입 2/4</p>
+            <h2>시간표</h2>
+            <p>같이 움직일 수 있는 캠퍼스 시간을 등록합니다.</p>
+          </div>
+          <SignupProgress current={2} />
+          <div className="signup-panel schedule-panel">
+            <strong>이번 주 빈 시간</strong>
+            <div className="time-grid" aria-label="시간표 선택">
+              <button type="button">월 3-4교시</button><button type="button">화 5-6교시</button>
+              <button type="button">수 점심</button><button type="button">목 7-8교시</button>
+              <button type="button">금 오후</button><button type="button">주말 가능</button>
+            </div>
+          </div>
+          <button className="primary-action" onClick={() => setStep("signup-interests")}>다음</button>
+        </section>
+      )}
+
+      {step === "signup-interests" && (
+        <section className="screen signup-screen">
+          <div className="signup-header">
+            <button className="ghost-light-button" onClick={() => setStep("signup-schedule")}>이전</button>
+            <p className="eyebrow">회원가입 3/4</p>
+            <h2>관심사</h2>
+            <p>처음 만난 크루와 이야기하기 좋은 주제를 고릅니다.</p>
+          </div>
+          <SignupProgress current={3} />
+          <div className="signup-panel">
+            <strong>이야기 거리</strong>
+            <div className="chip-grid" aria-label="관심사 선택">
+              <button type="button">신작 영화</button><button type="button">맛집</button>
+              <button type="button">전공 이야기</button><button type="button">취업/인턴</button>
+              <button type="button">공연/전시</button><button type="button">여행</button>
+            </div>
+          </div>
+          <button className="primary-action" onClick={() => setStep("signup-hobbies")}>다음</button>
+        </section>
+      )}
+
+      {step === "signup-hobbies" && (
+        <section className="screen signup-screen">
+          <div className="signup-header">
+            <button className="ghost-light-button" onClick={() => setStep("signup-interests")}>이전</button>
+            <p className="eyebrow">회원가입 4/4</p>
+            <h2>취미</h2>
+            <p>같이 놀거나 미션을 돌 때 어울리는 활동을 고릅니다.</p>
+          </div>
+          <SignupProgress current={4} />
+          <div className="signup-panel">
+            <strong>같이 놀거리</strong>
+            <div className="chip-grid" aria-label="취미 선택">
+              <button type="button">보드게임</button><button type="button">산책</button>
+              <button type="button">카페 탐방</button><button type="button">운동</button>
+              <button type="button">사진 찍기</button><button type="button">방탈출</button>
+            </div>
+          </div>
+          <button className="primary-action" onClick={() => setStep("start")}>가입 완료</button>
+        </section>
+      )}
+
       {step === "start" && (
         <section className="screen home-screen app-tab-screen">
           <SettingsButton />
@@ -382,9 +475,6 @@ export default function Home() {
             <div className="mission-pills"><span>보물 찾기</span><span>제휴 매장 방문</span></div>
           </div>
           <div className="activity-line">민수가 새로운 캐릭터를 획득했습니다.</div>
-          <button className="secondary-action" onClick={() => setStep("signup")}>
-            회원가입
-          </button>
           <BottomNav />
         </section>
       )}
@@ -508,52 +598,6 @@ export default function Home() {
             <p>전화번호 010-1234-5678</p>
             <p>소속 크루 피닉스 · 황금말 시즌 참여 중</p>
           </div>
-        </section>
-      )}
-
-      {step === "signup" && (
-        <section className="screen signup-screen">
-          <div className="signup-header">
-            <button className="ghost-light-button" onClick={() => setStep("start")}>
-              뒤로
-            </button>
-            <p className="eyebrow">캠퍼스 프로필</p>
-            <h2>회원가입</h2>
-            <p>웹 데모에서는 기본정보와 시간표를 카카오 로그인으로 대체합니다.</p>
-          </div>
-          <div className="signup-panel kakao-panel">
-            <span>1 · 기본정보</span>
-            <strong>이름, 성별, 나이, 전화번호, 학과</strong>
-            <button type="button">카카오로 불러오기</button>
-          </div>
-          <div className="signup-panel kakao-panel">
-            <span>2 · 시간표</span>
-            <strong>수업 시간과 캠퍼스 체류 패턴</strong>
-            <button type="button">카카오로 대체하기</button>
-          </div>
-          <div className="signup-panel">
-            <span>3 · 관심사</span>
-            <strong>이야기 거리</strong>
-            <div className="chip-grid" aria-label="관심사 예시">
-              <button type="button">신작 영화</button>
-              <button type="button">맛집</button>
-              <button type="button">전공 이야기</button>
-              <button type="button">취업/인턴</button>
-            </div>
-          </div>
-          <div className="signup-panel">
-            <span>4 · 취미</span>
-            <strong>같이 놀거리</strong>
-            <div className="chip-grid" aria-label="취미 예시">
-              <button type="button">보드게임</button>
-              <button type="button">산책</button>
-              <button type="button">카페 탐방</button>
-              <button type="button">운동</button>
-            </div>
-          </div>
-          <button className="primary-action" onClick={() => setStep("start")}>
-            가입 데모 완료
-          </button>
         </section>
       )}
 
