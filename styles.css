@@ -515,10 +515,28 @@ h2 { margin: 0; font-size: clamp(34px, 10vw, 52px); font-weight: 950; line-heigh
   min-height: 48px; width: 100%; border: 2px solid rgba(19,32,31,.14); border-radius: 15px;
   background: white; color: var(--ink); outline: none; padding: 0 13px; font-weight: 850;
 }
-.time-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-.time-grid button {
-  min-height: 48px; border: 2px solid rgba(17,134,108,.2); border-radius: 15px; background: white;
-  color: var(--ink); cursor: pointer; font-size: 13px; font-weight: 900;
+.class-search input {
+  min-height: 48px; width: 100%; border: 2px solid rgba(19,32,31,.14); border-radius: 15px;
+  background: white; color: var(--ink); outline: none; padding: 0 13px; font-weight: 850;
+}
+.class-result-list { display: grid; gap: 8px; }
+.class-result-list button {
+  display: flex; min-height: 48px; align-items: center; justify-content: space-between;
+  border: 2px solid rgba(17,134,108,.18); border-radius: 15px; background: white; color: var(--ink);
+  cursor: pointer; padding: 0 12px;
+}
+.class-result-list span, .schedule-caption { margin: 0; color: var(--muted); font-size: 12px; font-weight: 850; }
+.class-grid {
+  display: grid; grid-template-columns: 34px repeat(5, minmax(46px, 1fr)); gap: 4px;
+  touch-action: none; user-select: none;
+}
+.class-grid span, .class-grid button { min-height: 34px; border-radius: 10px; font-size: 11px; font-weight: 900; }
+.grid-corner, .grid-day, .grid-period { display: grid; place-items: center; background: rgba(19,32,31,.08); color: var(--muted); }
+.class-grid button {
+  border: 1px solid rgba(19,32,31,.1); background: white; color: transparent; cursor: pointer; overflow: hidden;
+}
+.class-grid button.is-class {
+  border-color: rgba(17,134,108,.34); background: linear-gradient(135deg, var(--mint), var(--sun)); color: var(--ink);
 }
 .kakao-panel button {
   border: 0; border-radius: 14px; background: #fee500; color: #191600; cursor: pointer;

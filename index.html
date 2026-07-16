@@ -38,8 +38,28 @@
         </div>
         <div class="signup-progress" aria-label="회원가입 2단계"><span class="is-active"></span><span class="is-active"></span><span></span><span></span></div>
         <div class="signup-panel schedule-panel">
-          <strong>이번 주 빈 시간</strong>
-          <div class="time-grid" aria-label="시간표 선택"><button type="button">월 3-4교시</button><button type="button">화 5-6교시</button><button type="button">수 점심</button><button type="button">목 7-8교시</button><button type="button">금 오후</button><button type="button">주말 가능</button></div>
+          <strong>수업 검색</strong>
+          <label class="class-search"><input id="classSearch" placeholder="수업명 검색 예: 자료구조" /></label>
+          <div class="class-result-list" aria-label="수업 검색 결과">
+            <button type="button" class="class-preset" data-name="자료구조" data-short="자료" data-slots="mon-2,mon-3,wed-2,wed-3"><strong>자료구조</strong><span>4칸 채우기</span></button>
+            <button type="button" class="class-preset" data-name="서비스 디자인" data-short="디자인" data-slots="tue-5,tue-6,thu-5,thu-6"><strong>서비스 디자인</strong><span>4칸 채우기</span></button>
+            <button type="button" class="class-preset" data-name="인공지능 입문" data-short="AI" data-slots="wed-6,wed-7,fri-4"><strong>인공지능 입문</strong><span>3칸 채우기</span></button>
+          </div>
+        </div>
+        <div class="signup-panel schedule-panel">
+          <strong>수업 시간표</strong>
+          <p class="schedule-caption">수업이 있는 칸을 드래그해서 체크하세요.</p>
+          <div class="class-grid" id="classGrid" aria-label="수업 시간표">
+            <span class="grid-corner">교시</span><span class="grid-day">월</span><span class="grid-day">화</span><span class="grid-day">수</span><span class="grid-day">목</span><span class="grid-day">금</span>
+            <span class="grid-period">1</span><button type="button" data-slot="mon-1"></button><button type="button" data-slot="tue-1"></button><button type="button" data-slot="wed-1"></button><button type="button" data-slot="thu-1"></button><button type="button" data-slot="fri-1"></button>
+            <span class="grid-period">2</span><button type="button" data-slot="mon-2" class="is-class">자료</button><button type="button" data-slot="tue-2"></button><button type="button" data-slot="wed-2" class="is-class">자료</button><button type="button" data-slot="thu-2"></button><button type="button" data-slot="fri-2"></button>
+            <span class="grid-period">3</span><button type="button" data-slot="mon-3" class="is-class">자료</button><button type="button" data-slot="tue-3"></button><button type="button" data-slot="wed-3" class="is-class">자료</button><button type="button" data-slot="thu-3"></button><button type="button" data-slot="fri-3"></button>
+            <span class="grid-period">4</span><button type="button" data-slot="mon-4"></button><button type="button" data-slot="tue-4"></button><button type="button" data-slot="wed-4"></button><button type="button" data-slot="thu-4"></button><button type="button" data-slot="fri-4"></button>
+            <span class="grid-period">5</span><button type="button" data-slot="mon-5"></button><button type="button" data-slot="tue-5" class="is-class">디자인</button><button type="button" data-slot="wed-5"></button><button type="button" data-slot="thu-5" class="is-class">디자인</button><button type="button" data-slot="fri-5"></button>
+            <span class="grid-period">6</span><button type="button" data-slot="mon-6"></button><button type="button" data-slot="tue-6" class="is-class">디자인</button><button type="button" data-slot="wed-6"></button><button type="button" data-slot="thu-6" class="is-class">디자인</button><button type="button" data-slot="fri-6"></button>
+            <span class="grid-period">7</span><button type="button" data-slot="mon-7"></button><button type="button" data-slot="tue-7"></button><button type="button" data-slot="wed-7"></button><button type="button" data-slot="thu-7"></button><button type="button" data-slot="fri-7"></button>
+            <span class="grid-period">8</span><button type="button" data-slot="mon-8"></button><button type="button" data-slot="tue-8"></button><button type="button" data-slot="wed-8"></button><button type="button" data-slot="thu-8"></button><button type="button" data-slot="fri-8"></button>
+          </div>
         </div>
         <button class="primary-action signup-next" data-next="signup-interests">다음</button>
       </section>
