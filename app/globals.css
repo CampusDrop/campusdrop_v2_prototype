@@ -660,7 +660,7 @@ button {
   left: 50%;
   right: auto;
   bottom: max(20px, calc(env(safe-area-inset-bottom) + 14px));
-  z-index: 23;
+  z-index: 48;
   display: grid;
   width: 78px;
   min-height: 78px;
@@ -676,6 +676,8 @@ button {
   padding: 0;
   text-align: center;
   transform: translateX(-50%);
+  pointer-events: auto;
+  touch-action: manipulation;
   backdrop-filter: blur(18px);
 }
 

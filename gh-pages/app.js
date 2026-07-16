@@ -66,7 +66,16 @@ todayLabel.textContent = new Intl.DateTimeFormat("ko-KR", {
   weekday: "short",
 }).format(new Date());
 
-document.querySelector("#startScanMap")?.addEventListener("click", beginScan);
+const mapScanButton = document.querySelector("#startScanMap");
+function beginScanFromMap(event) {
+  event?.preventDefault();
+  setMapMenuOpen(false);
+  if (app.dataset.step === "scan") return;
+  beginScan();
+}
+mapScanButton?.addEventListener("pointerdown", beginScanFromMap);
+mapScanButton?.addEventListener("touchstart", beginScanFromMap, { passive: false });
+mapScanButton?.addEventListener("click", beginScanFromMap);
 myLocationButton?.addEventListener("click", requestMyLocation);
 document.querySelector("#startScanExplore")?.addEventListener("click", beginScan);
 document.querySelector("#startScanExploreAlt")?.addEventListener("click", beginScan);

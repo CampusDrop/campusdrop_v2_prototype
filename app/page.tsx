@@ -479,6 +479,7 @@ export default function Home() {
   }
 
   function beginScan() {
+    if (step === "scan") return;
     setStep("scan");
     setScanState("idle");
     setCanOpenMission(false);
@@ -846,6 +847,11 @@ export default function Home() {
             className="map-ar-quest-button"
             type="button"
             aria-label="비밀 퀘스트 탐험 시작"
+            onPointerDown={(event) => {
+              event.preventDefault();
+              setMapMenuOpen(false);
+              beginScan();
+            }}
             onClick={() => {
               setMapMenuOpen(false);
               beginScan();
