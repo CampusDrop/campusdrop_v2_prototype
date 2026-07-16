@@ -21,14 +21,19 @@ const collectionPrevPreview = document.querySelector("#collectionPrevPreview");
 const collectionNextPreview = document.querySelector("#collectionNextPreview");
 const collectionName = document.querySelector("#collectionName");
 const collectionTitle = document.querySelector("#collectionTitle");
+const mapSpotSheet = document.querySelector("#mapSpotSheet");
+const mapSpotName = document.querySelector("#mapSpotName");
+const mapSpotStatus = document.querySelector("#mapSpotStatus");
+const mapSpotMembers = document.querySelector("#mapSpotMembers");
+const mapSpotReward = document.querySelector("#mapSpotReward");
 const npcDialogueText = "지도 앞까지 왔구나. 오늘의 캠퍼스 퀘스트를 받을 준비 됐어?";
 const dialogueStartMs = 4300;
 const typingIntervalMs = 46;
 const sejongCenter = { lat: 37.550944, lng: 127.073765 };
 const mapCrewPoints = [
-  { name: "피닉스", lat: 37.550944, lng: 127.073765, sigil: "P" },
-  { name: "오로라", lat: 37.55135, lng: 127.07432, sigil: "A" },
-  { name: "노바", lat: 37.55052, lng: 127.07318, sigil: "N" },
+  { name: "피닉스", lat: 37.550944, lng: 127.073765, sigil: "P", status: "점령 중", members: 18, reward: "시계탑 정령 단서" },
+  { name: "오로라", lat: 37.55135, lng: 127.07432, sigil: "A", status: "경합 중", members: 12, reward: "카페 라운지 쿠폰" },
+  { name: "노바", lat: 37.55052, lng: 127.07318, sigil: "N", status: "미점령", members: 7, reward: "도감 조각" },
 ];
 const mapZoomScaleByLevel = {
   1: 2.25,
@@ -174,6 +179,9 @@ document.querySelector("#restartDemo").addEventListener("click", () => {
   missionError.textContent = "";
   setStep("map");
 });
+document.querySelector("#closeMapSpot")?.addEventListener("click", () => {
+  mapSpotSheet?.classList.remove("is-visible");
+});
 
 document.querySelector("#codeForm").addEventListener("submit", (event) => {
   event.preventDefault();
@@ -261,6 +269,7 @@ function initKakaoMap() {
         const content = document.createElement("button");
         content.type = "button";
         content.className = "kakao-crew-overlay";
+        content.setAttribute("aria-label", `${crew.name} 거점 상세 보기`);
         content.innerHTML = `
           <span class="crew-marker">
             <span class="crew-marker-ping animate-ping" aria-hidden="true"></span>
@@ -271,6 +280,7 @@ function initKakaoMap() {
           </span>
           <strong>${crew.name}</strong>
         `;
+        content.addEventListener("click", () => renderMapSpotPanel(crew));
         new window.kakao.maps.CustomOverlay({
           position: new window.kakao.maps.LatLng(crew.lat, crew.lng),
           content,
@@ -302,6 +312,15 @@ function initKakaoMap() {
   script.async = true;
   script.onload = renderMap;
   document.head.appendChild(script);
+}
+
+function renderMapSpotPanel(spot) {
+  if (!mapSpotSheet) return;
+  mapSpotName.textContent = spot.name;
+  mapSpotStatus.textContent = spot.status;
+  mapSpotMembers.textContent = `${spot.members}명`;
+  mapSpotReward.textContent = `보상 신호: ${spot.reward}`;
+  mapSpotSheet.classList.add("is-visible");
 }
 
 function requestMyLocation() {
