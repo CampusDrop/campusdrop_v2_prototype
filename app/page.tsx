@@ -741,6 +741,18 @@ export default function Home() {
               <strong>노바</strong>
             </button>
           </div>
+          <button
+            className="map-ar-quest-button"
+            type="button"
+            onClick={() => {
+              setMapMenuOpen(false);
+              beginScan();
+            }}
+          >
+            <span>AR</span>
+            <strong>비밀 퀘스트 탐험 시작</strong>
+            <em>카메라로 캠퍼스 표식을 찾아보세요</em>
+          </button>
           <MapMenu />
         </section>
       )}
