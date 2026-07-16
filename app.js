@@ -14,6 +14,7 @@ const kakaoMapElement = document.querySelector("#kakaoMap");
 const kakaoFallback = document.querySelector("#kakaoFallback");
 const classSearch = document.querySelector("#classSearch");
 const classGrid = document.querySelector("#classGrid");
+const myLocationButton = document.querySelector("#showMyLocation");
 const collectionSeason = document.querySelector("#collectionSeason");
 const collectionModel = document.querySelector("#collectionModel");
 const collectionPrevPreview = document.querySelector("#collectionPrevPreview");
@@ -47,6 +48,8 @@ let kakaoMapLoaded = false;
 let classDragMode = "add";
 let mapMenuOpen = false;
 let collectionIndex = 0;
+let kakaoMapInstance = null;
+let myLocationOverlay = null;
 
 todayLabel.textContent = new Intl.DateTimeFormat("ko-KR", {
   month: "long",
@@ -55,6 +58,7 @@ todayLabel.textContent = new Intl.DateTimeFormat("ko-KR", {
 }).format(new Date());
 
 document.querySelector("#startScanMap")?.addEventListener("click", beginScan);
+myLocationButton?.addEventListener("click", requestMyLocation);
 document.querySelector("#startScanExplore")?.addEventListener("click", beginScan);
 document.querySelector("#startScanExploreAlt")?.addEventListener("click", beginScan);
 document.querySelector("#collectionPrev")?.addEventListener("click", () => {
@@ -224,6 +228,7 @@ function initKakaoMap() {
     window.kakao.maps.load(() => {
       const center = new window.kakao.maps.LatLng(sejongCenter.lat, sejongCenter.lng);
       const map = new window.kakao.maps.Map(kakaoMapElement, { center, level: 3 });
+      kakaoMapInstance = map;
       const marker = new window.kakao.maps.Marker({ position: center });
       marker.setMap(map);
       mapCrewPoints.forEach((crew) => {
@@ -268,6 +273,42 @@ function initKakaoMap() {
   script.async = true;
   script.onload = renderMap;
   document.head.appendChild(script);
+}
+
+function requestMyLocation() {
+  const label = myLocationButton?.querySelector("em");
+  if (!navigator.geolocation) {
+    if (label) label.textContent = "위치 사용 불가";
+    return;
+  }
+  if (label) label.textContent = "위치 확인 중";
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      if (!window.kakao || !kakaoMapInstance) {
+        if (label) label.textContent = "지도 준비 필요";
+        return;
+      }
+      const latLng = new window.kakao.maps.LatLng(position.coords.latitude, position.coords.longitude);
+      kakaoMapInstance.setCenter(latLng);
+      if (myLocationOverlay) myLocationOverlay.setMap(null);
+      const marker = document.createElement("div");
+      marker.className = "my-location-marker";
+      marker.innerHTML = "<span></span><strong>내 위치</strong>";
+      myLocationOverlay = new window.kakao.maps.CustomOverlay({
+        position: latLng,
+        content: marker,
+        xAnchor: 0.5,
+        yAnchor: 0.5,
+        zIndex: 30,
+      });
+      myLocationOverlay.setMap(kakaoMapInstance);
+      if (label) label.textContent = "내 위치 표시됨";
+    },
+    () => {
+      if (label) label.textContent = "위치 권한 필요";
+    },
+    { enableHighAccuracy: true, timeout: 8000, maximumAge: 30000 },
+  );
 }
 
 async function beginScan() {
