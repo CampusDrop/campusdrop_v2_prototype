@@ -156,6 +156,7 @@ export default function Home() {
       ctx.drawImage(video, 0, 0, 120, 120);
       const posterImage = ctx.getImageData(18, 18, 60, 60).data;
       const fixtureImage = ctx.getImageData(20, 35, 80, 60).data;
+      const dayFixtureImage = ctx.getImageData(6, 28, 108, 68).data;
       let green = 0;
       let yellow = 0;
       let dark = 0;
@@ -163,6 +164,10 @@ export default function Home() {
       let pink = 0;
       let bright = 0;
       let fixtureDark = 0;
+      let dayCyan = 0;
+      let dayPink = 0;
+      let dayParchment = 0;
+      let dayInk = 0;
       for (let i = 0; i < posterImage.length; i += 4) {
         const r = posterImage[i];
         const g = posterImage[i + 1];
@@ -180,6 +185,15 @@ export default function Home() {
         if (r > 165 && g > 145 && b > 110) bright += 1;
         if (r < 58 && g < 58 && b < 68) fixtureDark += 1;
       }
+      for (let i = 0; i < dayFixtureImage.length; i += 4) {
+        const r = dayFixtureImage[i];
+        const g = dayFixtureImage[i + 1];
+        const b = dayFixtureImage[i + 2];
+        if (g > 92 && b > 78 && r < 178 && g > r * 1.04 && b > r * 0.88) dayCyan += 1;
+        if (r > 112 && b > 60 && g < 150 && r > g * 1.04 && r > b * 0.92) dayPink += 1;
+        if (r > 122 && g > 104 && b > 70 && r > b * 1.04 && g > b * 0.96) dayParchment += 1;
+        if (r < 118 && g < 112 && b < 118) dayInk += 1;
+      }
       const posterDetected = green > 130 && yellow > 70 && dark > 60;
       const fixtureDetected =
         cyan > 260 &&
@@ -187,7 +201,14 @@ export default function Home() {
         bright > 1350 &&
         fixtureDark > 900 &&
         cyan + pink + bright + fixtureDark > 3300;
-      const detected = posterDetected || fixtureDetected;
+      const daylightFixtureDetected =
+        dayCyan > 420 &&
+        dayPink > 28 &&
+        dayParchment > 900 &&
+        dayInk > 220 &&
+        dayParchment < 5600 &&
+        dayCyan + dayPink + dayParchment + dayInk > 2300;
+      const detected = posterDetected || fixtureDetected || daylightFixtureDetected;
       foundFramesRef.current = detected ? foundFramesRef.current + 1 : 0;
       if (foundFramesRef.current > 10) {
         freezeCameraFrame(video);
@@ -284,7 +305,7 @@ export default function Home() {
               </strong>
               <p>
                 {cameraError ||
-                  "세종대 지도 안내판의 밝은 지도 영역 또는 전용 포스터의 초록/노랑 표식이 프레임 안에 들어오면 기린이 나타납니다."}
+                  "세종대 지도 안내판의 낮/야간 지도 영역 또는 전용 포스터의 초록/노랑 표식이 프레임 안에 들어오면 기린이 나타납니다."}
               </p>
             </div>
           )}
