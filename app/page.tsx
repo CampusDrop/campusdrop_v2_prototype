@@ -165,6 +165,7 @@ export default function Home() {
         kakaoMapInstanceRef.current = map;
         const marker = new window.kakao.maps.Marker({ position: center });
         marker.setMap(map);
+        const crewOverlayContents: HTMLElement[] = [];
         mapCrewPoints.forEach((crew) => {
           if (!window.kakao) return;
           const content = document.createElement("button");
@@ -174,6 +175,7 @@ export default function Home() {
             <model-viewer src="${npcModelUrl}" camera-orbit="90deg 76deg 3.2m" field-of-view="28deg" exposure="1.1" auto-rotate interaction-prompt="none" disable-zoom alt="${crew.name} 크루 기린"></model-viewer>
             <strong>${crew.name}</strong>
           `;
+          crewOverlayContents.push(content);
           const overlay = new window.kakao.maps.CustomOverlay({
             position: new window.kakao.maps.LatLng(crew.lat, crew.lng),
             content,
@@ -185,8 +187,12 @@ export default function Home() {
         });
         const syncMapPointScale = () => {
           const level = map.getLevel();
-          const scale = Math.min(1.8, Math.max(0.62, Math.pow(1.18, 3 - level)));
+          const scale = Math.min(2.05, Math.max(0.36, Math.pow(1.34, 3 - level)));
           kakaoShellRef.current?.style.setProperty("--map-zoom-scale", scale.toFixed(3));
+          kakaoMapRef.current?.style.setProperty("--map-zoom-scale", scale.toFixed(3));
+          crewOverlayContents.forEach((content) => {
+            content.style.setProperty("--map-zoom-scale", scale.toFixed(3));
+          });
         };
         syncMapPointScale();
         window.kakao.maps.event.addListener(map, "zoom_changed", syncMapPointScale);
