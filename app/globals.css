@@ -368,10 +368,94 @@ button {
   display: none;
 }
 
+.map-crew-hud,
+.map-quest-hud {
+  position: absolute;
+  top: max(16px, env(safe-area-inset-top));
+  z-index: 24;
+  display: grid;
+  gap: 6px;
+  min-height: 92px;
+  border: 2px solid rgba(255, 255, 255, 0.88);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 14px 34px rgba(15, 35, 35, 0.16);
+  color: var(--ink);
+  padding: 12px;
+  backdrop-filter: blur(18px);
+}
+
+.map-crew-hud {
+  left: 14px;
+  width: min(44vw, 178px);
+}
+
+.map-quest-hud {
+  right: 14px;
+  width: min(45vw, 190px);
+}
+
+.map-crew-hud span,
+.map-quest-hud span {
+  color: var(--leaf);
+  font-size: 11px;
+  font-weight: 950;
+}
+
+.map-crew-hud strong,
+.map-quest-hud strong {
+  font-size: 17px;
+  line-height: 1.05;
+}
+
+.map-crew-level {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.map-crew-level em,
+.map-crew-level b {
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 950;
+}
+
+.map-crew-level em {
+  color: var(--ink);
+}
+
+.map-crew-level b {
+  color: var(--leaf);
+}
+
+.map-hud-xp-bar {
+  overflow: hidden;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(19, 32, 31, 0.12);
+}
+
+.map-hud-xp-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--mint), var(--sun));
+}
+
+.map-quest-hud p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 850;
+  line-height: 1.35;
+}
+
 .map-location-button {
   position: absolute;
   right: 18px;
-  top: max(18px, env(safe-area-inset-top));
+  top: max(154px, calc(env(safe-area-inset-top) + 138px));
   z-index: 24;
   display: inline-flex;
   min-height: 46px;

@@ -802,6 +802,20 @@ export default function Home() {
               <strong>노바</strong>
             </button>
           </div>
+          <div className="map-crew-hud" aria-label="내 크루 상태">
+            <span>내 크루</span>
+            <strong>피닉스</strong>
+            <div className="map-crew-level">
+              <em>Lv. 8</em>
+              <b>82%</b>
+            </div>
+            <div className="map-hud-xp-bar"><span style={{ width: "82%" }} /></div>
+          </div>
+          <div className="map-quest-hud" aria-label="현재 진행중인 퀘스트">
+            <span>진행 중인 퀘스트</span>
+            <strong>시계탑 정령을 깨워라</strong>
+            <p>지도 안내판을 스캔하고 3자리 암호를 풀기</p>
+          </div>
           <button className="map-location-button" type="button" onClick={requestMyLocation}>
             <span></span>
             {locationStatus}
