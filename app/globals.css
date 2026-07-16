@@ -626,8 +626,8 @@ button {
   position: relative;
   z-index: 1;
   display: block;
-  width: 104px;
-  height: 104px;
+  width: 52px;
+  height: 52px;
   pointer-events: none;
 }
 

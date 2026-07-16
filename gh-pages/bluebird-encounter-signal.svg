@@ -1,27 +1,37 @@
 <svg width="104" height="104" viewBox="0 0 104 104" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .outer-signal { animation: outer-signal-spin 18s linear infinite; transform-box: fill-box; transform-origin: center; }
+    .inner-signal { animation: inner-signal-spin 24s linear infinite; transform-box: fill-box; transform-origin: center; }
+    @keyframes outer-signal-spin { to { transform: rotate(360deg); } }
+    @keyframes inner-signal-spin { to { transform: rotate(-360deg); } }
+  </style>
   <circle cx="52" cy="52" r="41" fill="#2B2030" opacity="0.42"/>
   <circle cx="52" cy="52" r="39" stroke="#FFFFFF" stroke-width="3.5" opacity="0.95"/>
   <circle cx="52" cy="52" r="35" fill="url(#outer-red)" opacity="0.2"/>
-  <circle cx="52" cy="52" r="30" stroke="#FF6B86" stroke-width="1.1" opacity="0.22"/>
-  <circle cx="52" cy="52" r="25" stroke="#FF3E67" stroke-width="1.2" opacity="0.28"/>
-  <g filter="url(#red-glow)">
-    <path d="M52 23.5C58.1 23.5 63.75 25.42 68.38 28.68" stroke="#FF5A78" stroke-width="2.6" stroke-linecap="round" opacity="0.82"/>
-    <path d="M77.1 44.8C79.14 52.4 77.88 60.02 74.22 66.08" stroke="#FF4A6B" stroke-width="2.9" stroke-linecap="round" opacity="0.88"/>
-    <path d="M60.3 77.9C51.6 80.7 42.5 78.96 35.67 73.8" stroke="#FF7A95" stroke-width="2.1" stroke-linecap="round" opacity="0.64"/>
-    <path d="M27.05 60.48C24.42 51.7 26.16 42.82 31.38 36.18" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" opacity="0.56"/>
+  <g class="outer-signal">
+    <circle cx="52" cy="52" r="30" stroke="#FF6B86" stroke-width="1.1" opacity="0.22"/>
+    <circle cx="52" cy="52" r="25" stroke="#FF3E67" stroke-width="1.2" opacity="0.28"/>
+    <g filter="url(#red-glow)">
+      <path d="M52 23.5C58.1 23.5 63.75 25.42 68.38 28.68" stroke="#FF5A78" stroke-width="2.6" stroke-linecap="round" opacity="0.82"/>
+      <path d="M77.1 44.8C79.14 52.4 77.88 60.02 74.22 66.08" stroke="#FF4A6B" stroke-width="2.9" stroke-linecap="round" opacity="0.88"/>
+      <path d="M60.3 77.9C51.6 80.7 42.5 78.96 35.67 73.8" stroke="#FF7A95" stroke-width="2.1" stroke-linecap="round" opacity="0.64"/>
+      <path d="M27.05 60.48C24.42 51.7 26.16 42.82 31.38 36.18" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" opacity="0.56"/>
+    </g>
+    <circle cx="72.2" cy="32.5" r="1.45" fill="#FF765F"/>
+    <circle cx="29.7" cy="39.5" r="0.95" fill="#FFFFFF" opacity="0.82"/>
+    <circle cx="35.8" cy="70.5" r="1.1" fill="#FF8FA4" opacity="0.8"/>
+    <circle cx="76.7" cy="63.8" r="0.9" fill="#FF8AA0" opacity="0.72"/>
+    <circle cx="71.2" cy="37.6" r="1.5" fill="#62E9FF" opacity="0.9"/>
+    <circle cx="69.1" cy="69.5" r="1.2" fill="#6FEAFF" opacity="0.82"/>
   </g>
-  <circle cx="52" cy="52" r="17.5" fill="#270C1D" opacity="0.72"/>
-  <circle cx="52" cy="52" r="16.1" stroke="#FF8AA0" stroke-width="2.4" opacity="0.7"/>
-  <circle cx="52" cy="52" r="11.3" fill="url(#core-red)" opacity="0.88"/>
+  <g class="inner-signal">
+    <circle cx="52" cy="52" r="17.5" fill="#270C1D" opacity="0.72"/>
+    <circle cx="52" cy="52" r="16.1" stroke="#FF8AA0" stroke-width="2.4" opacity="0.7"/>
+    <circle cx="52" cy="52" r="11.3" fill="url(#core-red)" opacity="0.88"/>
+    <path d="M52 41.8L54.15 49.85L62.2 52L54.15 54.15L52 62.2L49.85 54.15L41.8 52L49.85 49.85L52 41.8Z" fill="#FFFFFF" opacity="0.84"/>
+  </g>
   <circle cx="52" cy="52" r="5.5" fill="#FFFFFF" opacity="0.9"/>
   <circle cx="52" cy="52" r="3.2" fill="#FF1F5B"/>
-  <path d="M52 41.8L54.15 49.85L62.2 52L54.15 54.15L52 62.2L49.85 54.15L41.8 52L49.85 49.85L52 41.8Z" fill="#FFFFFF" opacity="0.84"/>
-  <circle cx="72.2" cy="32.5" r="1.45" fill="#FF765F"/>
-  <circle cx="29.7" cy="39.5" r="0.95" fill="#FFFFFF" opacity="0.82"/>
-  <circle cx="35.8" cy="70.5" r="1.1" fill="#FF8FA4" opacity="0.8"/>
-  <circle cx="76.7" cy="63.8" r="0.9" fill="#FF8AA0" opacity="0.72"/>
-  <circle cx="71.2" cy="37.6" r="1.5" fill="#62E9FF" opacity="0.9"/>
-  <circle cx="69.1" cy="69.5" r="1.2" fill="#6FEAFF" opacity="0.82"/>
   <defs>
     <radialGradient id="outer-red" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(52 52) rotate(90) scale(38)">
       <stop stop-color="#FF1F5B" stop-opacity="0.78"/>
