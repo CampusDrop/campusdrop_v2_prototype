@@ -79,7 +79,7 @@ const eventReachRadiusMeters = 40;
 const currentLocationIconUrl = "/current-location-signal.svg";
 const blueBirdEncounterSignalUrl = "/bluebird-encounter-signal.svg";
 const campusEventSpots = [
-  { name: "대양AI센터", lat: 37.550944, lng: 127.073765 },
+  { name: "스타벅스 세종대점", lat: 37.54942, lng: 127.07472 },
   { name: "학생회관 앞", lat: 37.54992, lng: 127.07436 },
   { name: "중앙광장", lat: 37.55054, lng: 127.07508 },
   { name: "도서관 길목", lat: 37.55134, lng: 127.07456 },
