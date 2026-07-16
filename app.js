@@ -10,9 +10,12 @@ const missionError = document.querySelector("#missionError");
 const todayLabel = document.querySelector("#todayLabel");
 const npcDialogue = document.querySelector("#npcDialogue");
 const npcDialogueTextNode = document.querySelector("#npcDialogueText");
+const kakaoMapElement = document.querySelector("#kakaoMap");
+const kakaoFallback = document.querySelector("#kakaoFallback");
 const npcDialogueText = "지도 앞까지 왔구나. 오늘의 캠퍼스 퀘스트를 받을 준비 됐어?";
 const dialogueStartMs = 4300;
 const typingIntervalMs = 46;
+const sejongCenter = { lat: 37.550944, lng: 127.073765 };
 
 let stream = null;
 let raf = null;
@@ -21,6 +24,7 @@ let canOpenMission = false;
 let missionReadyTimer = null;
 let dialogueStartTimer = null;
 let dialogueTypingTimer = null;
+let kakaoMapLoaded = false;
 
 todayLabel.textContent = new Intl.DateTimeFormat("ko-KR", {
   month: "long",
@@ -71,6 +75,45 @@ function setStep(step) {
   document.querySelectorAll(".bottom-nav .tab-link").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.tab === step);
   });
+  if (step === "map") initKakaoMap();
+}
+
+function getKakaoKey() {
+  const params = new URLSearchParams(window.location.search);
+  const keyFromQuery = params.get("kakaoKey");
+  if (keyFromQuery) window.localStorage.setItem("campusDropKakaoKey", keyFromQuery);
+  return keyFromQuery || window.localStorage.getItem("campusDropKakaoKey") || window.CAMPUS_DROP_KAKAO_KEY || "";
+}
+
+function initKakaoMap() {
+  if (kakaoMapLoaded || !kakaoMapElement) return;
+  const kakaoKey = getKakaoKey();
+  if (!kakaoKey) return;
+
+  const renderMap = () => {
+    if (!window.kakao) return;
+    window.kakao.maps.load(() => {
+      const center = new window.kakao.maps.LatLng(sejongCenter.lat, sejongCenter.lng);
+      const map = new window.kakao.maps.Map(kakaoMapElement, { center, level: 3 });
+      const marker = new window.kakao.maps.Marker({ position: center });
+      marker.setMap(map);
+      kakaoMapLoaded = true;
+      kakaoFallback?.classList.add("is-hidden");
+    });
+  };
+
+  const existingScript = document.querySelector("script[data-campus-drop-kakao]");
+  if (existingScript) {
+    renderMap();
+    return;
+  }
+
+  const script = document.createElement("script");
+  script.dataset.campusDropKakao = "true";
+  script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${encodeURIComponent(kakaoKey)}&autoload=false`;
+  script.async = true;
+  script.onload = renderMap;
+  document.head.appendChild(script);
 }
 
 async function beginScan() {
