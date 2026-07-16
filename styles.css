@@ -74,7 +74,7 @@ button { -webkit-tap-highlight-color: transparent; }
   gap: 16px; justify-content: flex-start; background: linear-gradient(160deg, #f9fff2 0%, #e8fbf1 50%, #fff8df 100%);
 }
 .map-screen {
-  gap: 0; overflow: hidden; padding: 0 0 max(80px, calc(env(safe-area-inset-bottom) + 74px)); background: #e8f4ef;
+  gap: 0; overflow: hidden; min-height: 100svh; padding: 0; background: #e8f4ef;
 }
 .settings-button {
   position: absolute; top: max(18px, env(safe-area-inset-top)); right: 18px; z-index: 12;
@@ -125,13 +125,56 @@ button { -webkit-tap-highlight-color: transparent; }
 .app-header { z-index: 1; display: grid; gap: 8px; }
 .app-header h2 { font-size: 31px; }
 .kakao-map-shell {
-  position: relative; z-index: 1; min-height: 360px; flex: 1; width: 100%; overflow: hidden; border: 0; border-radius: 0;
+  position: relative; z-index: 1; height: 100svh; min-height: 360px; flex: 1; width: 100%; overflow: hidden; border: 0; border-radius: 0;
   background: #e8f4ef;
   box-shadow: none;
 }
-.kakao-map-canvas { position: absolute; inset: 0; z-index: 0; }
+.kakao-map-canvas { position: absolute; inset: 0; z-index: 0; opacity: .18; filter: saturate(.65) contrast(.9) brightness(1.1); }
+.kakao-map-canvas .kakao-crew-overlay { display: none; }
+.game-map-layer {
+  position: absolute; inset: 0; z-index: 1; overflow: hidden; pointer-events: none;
+  background: radial-gradient(circle at 20% 16%, rgba(255,235,135,.32), transparent 21%), radial-gradient(circle at 84% 78%, rgba(112,208,182,.34), transparent 24%), linear-gradient(135deg, #dff4d8 0%, #bfe9ce 44%, #e8f6c8 100%);
+}
+.game-map-layer::before {
+  position: absolute; inset: 0; background: linear-gradient(90deg, rgba(80,145,105,.12) 1px, transparent 1px), linear-gradient(rgba(80,145,105,.12) 1px, transparent 1px);
+  background-size: 44px 44px; content: ""; mask-image: linear-gradient(to bottom, transparent, black 18%, black 82%, transparent);
+}
+.game-map-layer::after {
+  position: absolute; left: 6%; right: 4%; bottom: 12%; height: 22%; border-radius: 999px 999px 0 0;
+  background: rgba(122,207,219,.34); filter: blur(.2px); content: "";
+}
+.game-map-layer span { position: absolute; display: block; }
+.game-map-road {
+  height: 30px; border: 4px solid rgba(112,91,48,.18); border-radius: 999px;
+  background: repeating-linear-gradient(90deg, #f8d884 0, #f8d884 28px, #efc96b 28px, #efc96b 34px);
+  box-shadow: 0 10px 0 rgba(126,94,42,.12);
+}
+.road-main { left: -18%; top: 47%; width: 136%; transform: rotate(-16deg); }
+.road-branch-a { left: 16%; top: 28%; width: 74%; transform: rotate(34deg); }
+.road-branch-b { left: 8%; top: 68%; width: 70%; transform: rotate(20deg); }
+.game-map-building {
+  width: 74px; height: 58px; border: 4px solid rgba(69,91,82,.22); border-radius: 14px;
+  background: linear-gradient(135deg, rgba(255,255,255,.24), transparent 52%), #f1b48c;
+  box-shadow: 9px 10px 0 rgba(80,112,93,.18); transform: rotate(-12deg);
+}
+.game-map-building::before {
+  position: absolute; inset: 9px; border-radius: 8px;
+  background: repeating-linear-gradient(90deg, rgba(255,255,255,.44) 0 7px, transparent 7px 14px); content: "";
+}
+.building-a { left: 12%; top: 24%; background-color: #e99c86; }
+.building-b { right: 18%; top: 34%; width: 92px; height: 70px; background-color: #9fc5f8; }
+.building-c { left: 26%; bottom: 24%; width: 88px; height: 64px; background-color: #f4c36f; }
+.building-d { right: 8%; bottom: 30%; width: 76px; height: 86px; background-color: #d6b4ef; }
+.game-map-plaza {
+  left: 43%; top: 40%; width: 84px; aspect-ratio: 1; border: 5px solid rgba(255,255,255,.8); border-radius: 28px;
+  background: radial-gradient(circle, #fff6bf 0 28%, #f4d16f 29% 100%); box-shadow: 0 10px 0 rgba(126,94,42,.12); transform: rotate(-15deg);
+}
+.game-map-grass { width: 46%; height: 18%; border-radius: 999px; background: rgba(73,176,117,.24); }
+.grass-a { left: -10%; top: 14%; transform: rotate(-18deg); }
+.grass-b { right: -8%; top: 58%; transform: rotate(22deg); }
+.game-map-water { right: -16%; top: 10%; width: 42%; height: 28%; border-radius: 50%; background: rgba(89,197,223,.3); }
 .kakao-map-fallback {
-  position: absolute; inset: 0; z-index: 1; display: grid; align-content: center; gap: 10px; padding: 34px;
+  position: absolute; inset: 0; z-index: 2; display: grid; align-content: center; gap: 10px; padding: 34px;
   background:
     linear-gradient(90deg, rgba(17,134,108,.16) 1px, transparent 1px),
     linear-gradient(rgba(17,134,108,.16) 1px, transparent 1px),
@@ -143,7 +186,7 @@ button { -webkit-tap-highlight-color: transparent; }
 .kakao-map-fallback strong { font-size: 24px; }
 .kakao-map-fallback p { max-width: 250px; color: var(--muted); font-size: 13px; font-weight: 850; line-height: 1.45; }
 .kakao-map-fallback span { color: var(--leaf); }
-.kakao-map-shell.is-kakao-ready > .map-giraffe-point { display: none; }
+.kakao-map-shell.is-kakao-ready > .map-giraffe-point { display: grid; }
 .map-crew-hud, .map-quest-hud {
   position: absolute; top: max(16px, env(safe-area-inset-top)); z-index: 24; display: grid; gap: 6px; min-height: 92px;
   border: 2px solid rgba(255,255,255,.88); border-radius: 20px; background: rgba(255,255,255,.86);
@@ -189,7 +232,7 @@ button { -webkit-tap-highlight-color: transparent; }
 .path-a { left: 20px; top: 160px; width: 280px; rotate: -18deg; }
 .path-b { left: 70px; top: 250px; width: 260px; rotate: 22deg; }
 .map-giraffe-point {
-  position: absolute; z-index: 3; display: grid; place-items: center; gap: 0; border: 0; background: transparent;
+  position: absolute; z-index: 4; display: grid; place-items: center; gap: 0; border: 0; background: transparent;
   cursor: pointer; filter: drop-shadow(0 10px 12px rgba(19,32,31,.22));
   transform: scale(calc(var(--point-scale, 1) * var(--map-zoom-scale, 1)));
   transform-origin: center bottom;
