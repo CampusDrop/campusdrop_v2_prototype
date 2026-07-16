@@ -799,7 +799,15 @@ export default function Home() {
             <span>내 정보</span>
             <strong>김세종</strong>
             <p>컴퓨터공학과 · 피닉스 크루</p>
-            <div className="title-strip"><span>시계탑 탐험가</span><span>맛집 헌터</span></div>
+            <div className="equipped-title">
+              <em>장착 중인 칭호</em>
+              <strong>시계탑의 첫 목격자</strong>
+            </div>
+            <div className="title-vault" aria-label="보유 칭호">
+              <button type="button" className="is-equipped"><span>RARE</span><strong>시계탑 탐험가</strong></button>
+              <button type="button"><span>COMMON</span><strong>맛집 헌터</strong></button>
+              <button type="button"><span>LOCKED</span><strong>???</strong></button>
+            </div>
           </div>
           <div className="collection-carousel">
             <div className="app-header"><p className="eyebrow">시즌 도감</p><h2>{activeCollection.season}</h2></div>

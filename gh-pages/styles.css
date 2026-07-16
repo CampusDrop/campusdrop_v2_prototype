@@ -214,9 +214,24 @@ button { -webkit-tap-highlight-color: transparent; }
 .collection-grid button { min-height: 104px; border: 2px solid var(--line); border-radius: 22px; background: white; font-size: 36px; font-weight: 950; }
 .collection-grid span { display: block; color: var(--leaf); font-size: 11px; }
 .collection-grid .is-locked { color: rgba(19,32,31,.28); background: rgba(255,255,255,.45); }
-.collection-profile-card { display: grid; gap: 8px; }
+.collection-profile-card { display: grid; gap: 10px; }
 .collection-profile-card > span { color: var(--leaf); font-size: 12px; font-weight: 950; }
 .collection-profile-card > strong { font-size: 28px; }
+.equipped-title {
+  display: grid; gap: 4px; border: 2px solid rgba(255,204,77,.78); border-radius: 18px;
+  background: radial-gradient(circle at 92% 10%, rgba(255,204,77,.42), transparent 36%), linear-gradient(135deg, #172420, #236d5f);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.18), 0 12px 24px rgba(15,35,35,.14); color: white; padding: 14px;
+}
+.equipped-title em { color: var(--sun); font-size: 11px; font-style: normal; font-weight: 950; }
+.equipped-title strong { font-size: 20px; line-height: 1.15; }
+.title-vault { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.title-vault button {
+  display: grid; min-height: 76px; align-content: center; gap: 5px; border: 2px solid rgba(19,32,31,.1);
+  border-radius: 17px; background: white; color: var(--ink); cursor: pointer; padding: 10px 8px; text-align: left;
+}
+.title-vault button.is-equipped { border-color: rgba(255,204,77,.9); background: #fff9dc; }
+.title-vault span { color: var(--leaf); font-size: 10px; font-weight: 950; }
+.title-vault strong { font-size: 13px; line-height: 1.18; }
 .collection-carousel { display: grid; gap: 15px; }
 .carousel-stage { display: grid; grid-template-columns: 42px 1fr 42px; gap: 10px; align-items: center; }
 .carousel-stage > button {
