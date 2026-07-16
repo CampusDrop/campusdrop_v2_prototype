@@ -33,6 +33,7 @@ declare global {
         LatLng: new (lat: number, lng: number) => unknown;
         Map: new (container: HTMLElement, options: { center: unknown; level: number }) => {
           getLevel: () => number;
+          setCenter: (latLng: unknown) => void;
         };
         Marker: new (options: { position: unknown }) => { setMap: (map: unknown) => void };
         CustomOverlay: new (options: {
@@ -109,10 +110,13 @@ export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const kakaoShellRef = useRef<HTMLDivElement | null>(null);
   const kakaoMapRef = useRef<HTMLDivElement | null>(null);
+  const kakaoMapInstanceRef = useRef<{ setCenter: (latLng: unknown) => void } | null>(null);
+  const myLocationOverlayRef = useRef<{ setMap: (map: unknown | null) => void } | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number | null>(null);
   const foundFramesRef = useRef(0);
   const [kakaoReady, setKakaoReady] = useState(false);
+  const [locationStatus, setLocationStatus] = useState("내 위치 표시");
   const [classSearch, setClassSearch] = useState("");
   const [classSlots, setClassSlots] = useState<Record<string, string>>({
     "mon-2": "자료",
@@ -158,6 +162,7 @@ export default function Home() {
         if (!window.kakao || !kakaoMapRef.current) return;
         const center = new window.kakao.maps.LatLng(sejongCenter.lat, sejongCenter.lng);
         const map = new window.kakao.maps.Map(kakaoMapRef.current, { center, level: 3 });
+        kakaoMapInstanceRef.current = map;
         const marker = new window.kakao.maps.Marker({ position: center });
         marker.setMap(map);
         mapCrewPoints.forEach((crew) => {
@@ -202,6 +207,54 @@ export default function Home() {
     script.onload = renderMap;
     document.head.appendChild(script);
   }, [kakaoReady, step]);
+
+  function requestMyLocation() {
+    if (!navigator.geolocation) {
+      setLocationStatus("위치 사용 불가");
+      return;
+    }
+    setLocationStatus("위치 확인 중");
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        if (!window.kakao || !kakaoMapInstanceRef.current) {
+          setLocationStatus("지도 준비 필요");
+          return;
+        }
+        const latLng = new window.kakao.maps.LatLng(position.coords.latitude, position.coords.longitude);
+        kakaoMapInstanceRef.current.setCenter(latLng);
+        if (!myLocationOverlayRef.current) {
+          const marker = document.createElement("div");
+          marker.className = "my-location-marker";
+          marker.innerHTML = "<span></span><strong>내 위치</strong>";
+          myLocationOverlayRef.current = new window.kakao.maps.CustomOverlay({
+            position: latLng,
+            content: marker,
+            xAnchor: 0.5,
+            yAnchor: 0.5,
+            zIndex: 30,
+          });
+        } else {
+          myLocationOverlayRef.current.setMap(null);
+          const marker = document.createElement("div");
+          marker.className = "my-location-marker";
+          marker.innerHTML = "<span></span><strong>내 위치</strong>";
+          myLocationOverlayRef.current = new window.kakao.maps.CustomOverlay({
+            position: latLng,
+            content: marker,
+            xAnchor: 0.5,
+            yAnchor: 0.5,
+            zIndex: 30,
+          });
+        }
+        myLocationOverlayRef.current.setMap(kakaoMapInstanceRef.current);
+        setLocationStatus("내 위치 표시됨");
+      },
+      () => {
+        setLocationStatus("위치 권한 필요");
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 30000 },
+    );
+  }
 
   useEffect(() => {
     if (step !== "scan") return;
@@ -743,6 +796,10 @@ export default function Home() {
               <strong>노바</strong>
             </button>
           </div>
+          <button className="map-location-button" type="button" onClick={requestMyLocation}>
+            <span></span>
+            {locationStatus}
+          </button>
           <button
             className="map-ar-quest-button"
             type="button"
