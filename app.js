@@ -40,7 +40,7 @@ todayLabel.textContent = new Intl.DateTimeFormat("ko-KR", {
   weekday: "short",
 }).format(new Date());
 
-document.querySelector("#startScanMap").addEventListener("click", beginScan);
+document.querySelector("#startScanMap")?.addEventListener("click", beginScan);
 document.querySelector("#closeSettings").addEventListener("click", () => setStep("start"));
 document.querySelectorAll(".open-settings").forEach((button) => {
   button.addEventListener("click", () => setStep("settings"));

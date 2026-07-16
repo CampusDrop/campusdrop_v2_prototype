@@ -73,6 +73,9 @@ button { -webkit-tap-highlight-color: transparent; }
 .home-screen, .map-screen, .explore-screen, .crew-screen, .collection-screen, .settings-screen {
   gap: 16px; justify-content: flex-start; background: linear-gradient(160deg, #f9fff2 0%, #e8fbf1 50%, #fff8df 100%);
 }
+.map-screen {
+  gap: 0; overflow: hidden; padding: 0 0 max(80px, calc(env(safe-area-inset-bottom) + 74px)); background: #e8f4ef;
+}
 .settings-button {
   position: absolute; top: max(18px, env(safe-area-inset-top)); right: 18px; z-index: 12;
   display: grid; width: 44px; aspect-ratio: 1; place-items: center; border: 2px solid rgba(19,32,31,.1);
@@ -121,9 +124,9 @@ button { -webkit-tap-highlight-color: transparent; }
 .app-header { z-index: 1; display: grid; gap: 8px; }
 .app-header h2 { font-size: 31px; }
 .kakao-map-shell {
-  position: relative; z-index: 1; min-height: 360px; overflow: hidden; border: 3px solid var(--ink); border-radius: 28px;
+  position: relative; z-index: 1; min-height: 360px; flex: 1; width: 100%; overflow: hidden; border: 0; border-radius: 0;
   background: #e8f4ef;
-  box-shadow: 10px 10px 0 rgba(32,214,163,.24);
+  box-shadow: none;
 }
 .kakao-map-canvas { position: absolute; inset: 0; z-index: 0; }
 .kakao-map-fallback {
