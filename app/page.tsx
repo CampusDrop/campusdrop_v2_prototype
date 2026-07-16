@@ -783,6 +783,19 @@ export default function Home() {
         <section className="screen map-screen app-tab-screen">
           <div ref={kakaoShellRef} className={`kakao-map-shell${kakaoReady ? " is-kakao-ready" : ""}`}>
             <div ref={kakaoMapRef} className="kakao-map-canvas" aria-label="카카오 캠퍼스 지도" />
+            <div className="game-map-layer" aria-hidden="true">
+              <span className="game-map-grass grass-a" />
+              <span className="game-map-grass grass-b" />
+              <span className="game-map-water" />
+              <span className="game-map-road road-main" />
+              <span className="game-map-road road-branch-a" />
+              <span className="game-map-road road-branch-b" />
+              <span className="game-map-building building-a" />
+              <span className="game-map-building building-b" />
+              <span className="game-map-building building-c" />
+              <span className="game-map-building building-d" />
+              <span className="game-map-plaza" />
+            </div>
             {!kakaoReady && (
               <div className="kakao-map-fallback">
                 <strong>카카오맵 준비됨</strong>
