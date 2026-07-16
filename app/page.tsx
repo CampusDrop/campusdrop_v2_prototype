@@ -62,10 +62,11 @@ const dialogueStartMs = 4300;
 const typingIntervalMs = 46;
 const sejongCenter = { lat: 37.550944, lng: 127.073765 };
 const mapCrewPoints = [
-  { name: "피닉스", lat: 37.550944, lng: 127.073765, sigil: "P" },
-  { name: "오로라", lat: 37.55135, lng: 127.07432, sigil: "A" },
-  { name: "노바", lat: 37.55052, lng: 127.07318, sigil: "N" },
+  { name: "피닉스", lat: 37.550944, lng: 127.073765, sigil: "P", status: "점령 중", members: 18, reward: "시계탑 정령 단서" },
+  { name: "오로라", lat: 37.55135, lng: 127.07432, sigil: "A", status: "경합 중", members: 12, reward: "카페 라운지 쿠폰" },
+  { name: "노바", lat: 37.55052, lng: 127.07318, sigil: "N", status: "미점령", members: 7, reward: "도감 조각" },
 ];
+type MapCrewPoint = (typeof mapCrewPoints)[number];
 const mapZoomScaleByLevel: Record<number, number> = {
   1: 2.25,
   2: 1.78,
@@ -117,6 +118,7 @@ export default function Home() {
   const [typedDialogue, setTypedDialogue] = useState("");
   const [frozenFrame, setFrozenFrame] = useState("");
   const [mapMenuOpen, setMapMenuOpen] = useState(false);
+  const [selectedMapSpot, setSelectedMapSpot] = useState<MapCrewPoint | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const kakaoShellRef = useRef<HTMLDivElement | null>(null);
@@ -185,6 +187,7 @@ export default function Home() {
           const marker = document.createElement("button");
           marker.type = "button";
           marker.className = "kakao-crew-overlay";
+          marker.setAttribute("aria-label", `${crew.name} 거점 상세 보기`);
           marker.innerHTML = `
             <span class="crew-marker">
               <span class="crew-marker-ping animate-ping" aria-hidden="true"></span>
@@ -195,6 +198,7 @@ export default function Home() {
             </span>
             <strong>${crew.name}</strong>
           `;
+          marker.addEventListener("click", () => setSelectedMapSpot(crew));
           new window.kakao.maps.CustomOverlay({
             position: new window.kakao.maps.LatLng(crew.lat, crew.lng),
             content: marker,
@@ -824,6 +828,18 @@ export default function Home() {
             <strong>시계탑 정령을 깨워라</strong>
             <p>지도 안내판을 스캔하고 3자리 암호를 풀기</p>
           </div>
+          {selectedMapSpot && (
+            <aside className="map-spot-sheet bg-slate-900/70 backdrop-blur-md border border-white/20 animate-fade-in-up" aria-live="polite">
+              <button type="button" aria-label="거점 상세 닫기" onClick={() => setSelectedMapSpot(null)}>×</button>
+              <span>거점 신호 감지</span>
+              <strong>{selectedMapSpot.name}</strong>
+              <div className="map-spot-grid">
+                <p><em>점령 상태</em><b>{selectedMapSpot.status}</b></p>
+                <p><em>참여 인원</em><b>{selectedMapSpot.members}명</b></p>
+              </div>
+              <p className="map-spot-reward">보상 신호: {selectedMapSpot.reward}</p>
+            </aside>
+          )}
           <button
             className="map-location-button"
             type="button"

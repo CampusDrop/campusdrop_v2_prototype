@@ -166,6 +166,16 @@
           <strong>시계탑 정령을 깨워라</strong>
           <p>지도 안내판을 스캔하고 3자리 암호를 풀기</p>
         </div>
+        <aside id="mapSpotSheet" class="map-spot-sheet bg-slate-900/70 backdrop-blur-md border border-white/20 animate-fade-in-up" aria-live="polite">
+          <button id="closeMapSpot" type="button" aria-label="거점 상세 닫기">×</button>
+          <span>거점 신호 감지</span>
+          <strong id="mapSpotName">피닉스</strong>
+          <div class="map-spot-grid">
+            <p><em>점령 상태</em><b id="mapSpotStatus">점령 중</b></p>
+            <p><em>참여 인원</em><b id="mapSpotMembers">18명</b></p>
+          </div>
+          <p id="mapSpotReward" class="map-spot-reward">보상 신호: 시계탑 정령 단서</p>
+        </aside>
         <button class="map-location-button" type="button" id="showMyLocation"><span></span><em>내 위치 표시</em></button>
         <button class="map-ar-quest-button" type="button" id="startScanMap" aria-label="비밀 퀘스트 탐험 시작">
           <span aria-hidden="true">AR</span>
