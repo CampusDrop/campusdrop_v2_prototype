@@ -350,6 +350,10 @@ button {
   color: var(--leaf);
 }
 
+.kakao-map-shell.is-kakao-ready > .map-giraffe-point {
+  display: none;
+}
+
 .map-path {
   position: absolute;
   height: 12px;
@@ -376,14 +380,30 @@ button {
   transition: transform 0.18s ease;
 }
 
-.map-giraffe-point model-viewer {
+.kakao-crew-overlay {
+  position: relative;
+  display: grid;
+  place-items: center;
+  gap: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  filter: drop-shadow(0 10px 12px rgba(19, 32, 31, 0.22));
+  transform: scale(var(--map-zoom-scale, 1));
+  transform-origin: center bottom;
+  transition: transform 0.18s ease;
+}
+
+.map-giraffe-point model-viewer,
+.kakao-crew-overlay model-viewer {
   width: 92px;
   height: 116px;
   pointer-events: none;
   filter: drop-shadow(0 12px 14px rgba(15, 35, 35, 0.24));
 }
 
-.map-giraffe-point strong {
+.map-giraffe-point strong,
+.kakao-crew-overlay strong {
   margin-top: -18px;
   border: 2px solid rgba(19, 32, 31, 0.1);
   border-radius: 999px;

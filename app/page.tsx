@@ -35,6 +35,13 @@ declare global {
           getLevel: () => number;
         };
         Marker: new (options: { position: unknown }) => { setMap: (map: unknown) => void };
+        CustomOverlay: new (options: {
+          position: unknown;
+          content: HTMLElement;
+          xAnchor: number;
+          yAnchor: number;
+          zIndex: number;
+        }) => { setMap: (map: unknown) => void };
         event: {
           addListener: (target: unknown, type: string, callback: () => void) => void;
         };
@@ -51,6 +58,11 @@ const npcDialogueText = "지도 앞까지 왔구나. 오늘의 캠퍼스 퀘스�
 const dialogueStartMs = 4300;
 const typingIntervalMs = 46;
 const sejongCenter = { lat: 37.550944, lng: 127.073765 };
+const mapCrewPoints = [
+  { name: "피닉스", lat: 37.550944, lng: 127.073765 },
+  { name: "오로라", lat: 37.55135, lng: 127.07432 },
+  { name: "노바", lat: 37.55052, lng: 127.07318 },
+];
 const scheduleDays = ["월", "화", "수", "목", "금"];
 const schedulePeriods = ["1", "2", "3", "4", "5", "6", "7", "8"];
 const classPresets = [
@@ -137,6 +149,24 @@ export default function Home() {
         const map = new window.kakao.maps.Map(kakaoMapRef.current, { center, level: 3 });
         const marker = new window.kakao.maps.Marker({ position: center });
         marker.setMap(map);
+        mapCrewPoints.forEach((crew) => {
+          if (!window.kakao) return;
+          const content = document.createElement("button");
+          content.type = "button";
+          content.className = "kakao-crew-overlay";
+          content.innerHTML = `
+            <model-viewer src="${npcModelUrl}" camera-orbit="90deg 76deg 3.2m" field-of-view="28deg" exposure="1.1" auto-rotate interaction-prompt="none" disable-zoom alt="${crew.name} 크루 기린"></model-viewer>
+            <strong>${crew.name}</strong>
+          `;
+          const overlay = new window.kakao.maps.CustomOverlay({
+            position: new window.kakao.maps.LatLng(crew.lat, crew.lng),
+            content,
+            xAnchor: 0.5,
+            yAnchor: 1,
+            zIndex: 10,
+          });
+          overlay.setMap(map);
+        });
         const syncMapPointScale = () => {
           const level = map.getLevel();
           const scale = Math.min(1.8, Math.max(0.62, Math.pow(1.18, 3 - level)));
@@ -664,7 +694,7 @@ export default function Home() {
         <section className="screen map-screen app-tab-screen">
           <SettingsButton />
           <div className="app-header"><p className="eyebrow">캠퍼스 지도</p><h2>크루들이 캠퍼스를 움직이고 있어요</h2></div>
-          <div ref={kakaoShellRef} className="kakao-map-shell">
+          <div ref={kakaoShellRef} className={`kakao-map-shell${kakaoReady ? " is-kakao-ready" : ""}`}>
             <div ref={kakaoMapRef} className="kakao-map-canvas" aria-label="카카오 캠퍼스 지도" />
             {!kakaoReady && (
               <div className="kakao-map-fallback">
