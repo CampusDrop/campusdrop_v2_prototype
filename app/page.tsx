@@ -34,6 +34,7 @@ declare global {
         Map: new (container: HTMLElement, options: { center: unknown; level: number }) => {
           getLevel: () => number;
           setCenter: (latLng: unknown) => void;
+          panTo?: (latLng: unknown) => void;
         };
         Marker: new (options: { position: unknown }) => { setMap: (map: unknown) => void };
         CustomOverlay: new (options: {
@@ -119,8 +120,9 @@ export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const kakaoShellRef = useRef<HTMLDivElement | null>(null);
   const kakaoMapRef = useRef<HTMLDivElement | null>(null);
-  const kakaoMapInstanceRef = useRef<{ setCenter: (latLng: unknown) => void } | null>(null);
+  const kakaoMapInstanceRef = useRef<{ setCenter: (latLng: unknown) => void; panTo?: (latLng: unknown) => void } | null>(null);
   const myLocationOverlayRef = useRef<{ setMap: (map: unknown | null) => void } | null>(null);
+  const lastLocationRequestRef = useRef(0);
   const streamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number | null>(null);
   const foundFramesRef = useRef(0);
@@ -224,6 +226,9 @@ export default function Home() {
   }, [kakaoReady, step]);
 
   function requestMyLocation() {
+    const now = Date.now();
+    if (now - lastLocationRequestRef.current < 900) return;
+    lastLocationRequestRef.current = now;
     if (!navigator.geolocation) {
       setLocationStatus("위치 사용 불가");
       return;
@@ -236,6 +241,7 @@ export default function Home() {
           return;
         }
         const latLng = new window.kakao.maps.LatLng(position.coords.latitude, position.coords.longitude);
+        kakaoMapInstanceRef.current.panTo?.(latLng);
         kakaoMapInstanceRef.current.setCenter(latLng);
         if (!myLocationOverlayRef.current) {
           const marker = document.createElement("div");
@@ -839,7 +845,16 @@ export default function Home() {
             <strong>시계탑 정령을 깨워라</strong>
             <p>지도 안내판을 스캔하고 3자리 암호를 풀기</p>
           </div>
-          <button className="map-location-button" type="button" onClick={requestMyLocation}>
+          <button
+            className="map-location-button"
+            type="button"
+            aria-label="내 위치로 이동"
+            onPointerDown={(event) => {
+              event.preventDefault();
+              requestMyLocation();
+            }}
+            onClick={requestMyLocation}
+          >
             <span></span>
             {locationStatus}
           </button>

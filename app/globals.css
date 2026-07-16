@@ -594,7 +594,7 @@ button {
   right: auto;
   top: auto;
   bottom: max(22px, calc(env(safe-area-inset-bottom) + 16px));
-  z-index: 24;
+  z-index: 49;
   display: inline-flex;
   width: 58px;
   min-height: 58px;
@@ -611,6 +611,8 @@ button {
   font-size: 13px;
   font-weight: 950;
   backdrop-filter: blur(16px);
+  pointer-events: auto;
+  touch-action: manipulation;
 }
 
 .map-location-button span,
