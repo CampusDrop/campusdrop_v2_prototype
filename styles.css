@@ -139,6 +139,7 @@ button { -webkit-tap-highlight-color: transparent; }
 .kakao-map-fallback strong { font-size: 24px; }
 .kakao-map-fallback p { max-width: 250px; color: var(--muted); font-size: 13px; font-weight: 850; line-height: 1.45; }
 .kakao-map-fallback span { color: var(--leaf); }
+.kakao-map-shell.is-kakao-ready > .map-giraffe-point { display: none; }
 .map-path { position: absolute; height: 12px; border-radius: 999px; background: rgba(255,204,77,.72); transform-origin: left center; }
 .path-a { left: 20px; top: 160px; width: 280px; rotate: -18deg; }
 .path-b { left: 70px; top: 250px; width: 260px; rotate: 22deg; }
@@ -149,8 +150,13 @@ button { -webkit-tap-highlight-color: transparent; }
   transform-origin: center bottom;
   transition: transform .18s ease;
 }
-.map-giraffe-point model-viewer { width: 92px; height: 116px; pointer-events: none; filter: drop-shadow(0 12px 14px rgba(15,35,35,.24)); }
-.map-giraffe-point strong {
+.kakao-crew-overlay {
+  position: relative; display: grid; place-items: center; gap: 0; border: 0; background: transparent;
+  cursor: pointer; filter: drop-shadow(0 10px 12px rgba(19,32,31,.22));
+  transform: scale(var(--map-zoom-scale, 1)); transform-origin: center bottom; transition: transform .18s ease;
+}
+.map-giraffe-point model-viewer, .kakao-crew-overlay model-viewer { width: 92px; height: 116px; pointer-events: none; filter: drop-shadow(0 12px 14px rgba(15,35,35,.24)); }
+.map-giraffe-point strong, .kakao-crew-overlay strong {
   margin-top: -18px; border: 2px solid rgba(19,32,31,.1); border-radius: 999px; background: white;
   box-shadow: 0 9px 18px rgba(15,35,35,.12); color: var(--ink); padding: 6px 10px; font-size: 12px; white-space: nowrap;
 }
