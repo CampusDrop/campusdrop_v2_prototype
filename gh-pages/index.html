@@ -193,9 +193,11 @@
         <div class="collection-carousel">
           <div class="app-header"><p class="eyebrow">시즌 도감</p><h2 id="collectionSeason">황금말 시즌</h2></div>
           <div class="carousel-stage">
-            <button type="button" id="collectionPrev" aria-label="이전 도감 모델">‹</button>
+            <button class="carousel-arrow carousel-prev" type="button" id="collectionPrev" aria-label="이전 도감 모델">‹</button>
+            <div class="model-preview preview-left" id="collectionPrevPreview" aria-hidden="true"><div class="locked-model small">??</div></div>
             <div class="model-showcase" id="collectionModel"><model-viewer src="./sejongGF.glb" camera-orbit="90deg 76deg 3.2m" field-of-view="28deg" exposure="1.1" auto-rotate interaction-prompt="none" disable-zoom alt="세종 기린"></model-viewer></div>
-            <button type="button" id="collectionNext" aria-label="다음 도감 모델">›</button>
+            <div class="model-preview preview-right" id="collectionNextPreview" aria-hidden="true"><div class="locked-model small">??</div></div>
+            <button class="carousel-arrow carousel-next" type="button" id="collectionNext" aria-label="다음 도감 모델">›</button>
           </div>
           <div class="collection-caption"><strong id="collectionName">세종 기린</strong><p id="collectionTitle">시계탑 정령</p></div>
         </div>

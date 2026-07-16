@@ -233,21 +233,32 @@ button { -webkit-tap-highlight-color: transparent; }
 .title-vault span { color: var(--leaf); font-size: 10px; font-weight: 950; }
 .title-vault strong { font-size: 13px; line-height: 1.18; }
 .collection-carousel { display: grid; gap: 15px; }
-.carousel-stage { display: grid; grid-template-columns: 42px 1fr 42px; gap: 10px; align-items: center; }
-.carousel-stage > button {
-  display: grid; min-height: 58px; border: 0; border-radius: 50%; background: var(--ink); color: white;
-  cursor: pointer; place-items: center; font-size: 34px; font-weight: 950;
+.carousel-stage { position: relative; display: grid; min-height: 292px; place-items: center; }
+.carousel-arrow {
+  position: absolute; top: 50%; z-index: 4; display: grid; width: 42px; aspect-ratio: 1; border: 0; border-radius: 50%;
+  background: var(--ink); color: white; cursor: pointer; place-items: center; font-size: 34px; font-weight: 950; translate: 0 -50%;
 }
+.carousel-prev { left: -4px; }
+.carousel-next { right: -4px; }
 .model-showcase {
-  display: grid; min-height: 268px; aspect-ratio: 1; place-items: center; border: 3px solid rgba(19,32,31,.1);
+  position: relative; z-index: 2; display: grid; width: min(64vw, 252px); min-height: min(64vw, 252px); aspect-ratio: 1; place-items: center; border: 3px solid rgba(19,32,31,.1);
   border-radius: 28px; background: radial-gradient(circle at 50% 34%, rgba(255,204,77,.32), transparent 34%), linear-gradient(145deg, #fff, #ddf8ee);
   box-shadow: inset 0 0 0 10px rgba(255,255,255,.5);
 }
+.model-preview {
+  position: absolute; top: 50%; z-index: 1; display: grid; width: min(26vw, 96px); aspect-ratio: .78; place-items: center;
+  border: 2px solid rgba(19,32,31,.08); border-radius: 22px; background: rgba(255,255,255,.64);
+  box-shadow: 0 12px 24px rgba(15,35,35,.1); opacity: .72; overflow: hidden; pointer-events: none; translate: 0 -50%;
+}
+.preview-left { left: 34px; }
+.preview-right { right: 34px; }
+.model-preview model-viewer { width: 116px; height: 138px; }
 .model-showcase model-viewer { width: min(58vw, 230px); height: min(58vw, 250px); }
 .locked-model {
   display: grid; width: min(48vw, 190px); aspect-ratio: 1; place-items: center; border-radius: 26px;
   background: rgba(19,32,31,.08); color: rgba(19,32,31,.3); font-size: 58px; font-weight: 950;
 }
+.locked-model.small { width: 76px; border-radius: 18px; font-size: 28px; }
 .collection-caption { display: grid; gap: 5px; text-align: center; }
 .collection-caption strong { font-size: 21px; }
 .map-action-menu {

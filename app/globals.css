@@ -773,15 +773,19 @@ button {
 }
 
 .carousel-stage {
+  position: relative;
   display: grid;
-  grid-template-columns: 42px 1fr 42px;
-  gap: 10px;
-  align-items: center;
+  min-height: 292px;
+  place-items: center;
 }
 
-.carousel-stage > button {
+.carousel-arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 4;
   display: grid;
-  min-height: 58px;
+  width: 42px;
+  aspect-ratio: 1;
   border: 0;
   border-radius: 50%;
   background: var(--ink);
@@ -790,11 +794,23 @@ button {
   place-items: center;
   font-size: 34px;
   font-weight: 950;
+  translate: 0 -50%;
+}
+
+.carousel-prev {
+  left: -4px;
+}
+
+.carousel-next {
+  right: -4px;
 }
 
 .model-showcase {
+  position: relative;
+  z-index: 2;
   display: grid;
-  min-height: 268px;
+  width: min(64vw, 252px);
+  min-height: min(64vw, 252px);
   aspect-ratio: 1;
   place-items: center;
   border: 3px solid rgba(19, 32, 31, 0.1);
@@ -803,6 +819,37 @@ button {
     radial-gradient(circle at 50% 34%, rgba(255, 204, 77, 0.32), transparent 34%),
     linear-gradient(145deg, #ffffff, #ddf8ee);
   box-shadow: inset 0 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.model-preview {
+  position: absolute;
+  top: 50%;
+  z-index: 1;
+  display: grid;
+  width: min(26vw, 96px);
+  aspect-ratio: 0.78;
+  place-items: center;
+  border: 2px solid rgba(19, 32, 31, 0.08);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.64);
+  box-shadow: 0 12px 24px rgba(15, 35, 35, 0.1);
+  opacity: 0.72;
+  overflow: hidden;
+  pointer-events: none;
+  translate: 0 -50%;
+}
+
+.preview-left {
+  left: 34px;
+}
+
+.preview-right {
+  right: 34px;
+}
+
+.model-preview model-viewer {
+  width: 116px;
+  height: 138px;
 }
 
 .model-showcase model-viewer {
@@ -820,6 +867,12 @@ button {
   color: rgba(19, 32, 31, 0.3);
   font-size: 58px;
   font-weight: 950;
+}
+
+.locked-model.small {
+  width: 76px;
+  border-radius: 18px;
+  font-size: 28px;
 }
 
 .collection-caption {

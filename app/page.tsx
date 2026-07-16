@@ -138,6 +138,8 @@ export default function Home() {
     return formatter.format(new Date());
   }, []);
   const activeCollection = collectionModels[collectionIndex];
+  const previousCollection = collectionModels[(collectionIndex + collectionModels.length - 1) % collectionModels.length];
+  const nextCollection = collectionModels[(collectionIndex + 1) % collectionModels.length];
 
   useEffect(() => {
     if (step !== "map" || !kakaoMapRef.current || kakaoReady) return;
@@ -812,7 +814,14 @@ export default function Home() {
           <div className="collection-carousel">
             <div className="app-header"><p className="eyebrow">시즌 도감</p><h2>{activeCollection.season}</h2></div>
             <div className="carousel-stage">
-              <button type="button" aria-label="이전 도감 모델" onClick={() => setCollectionIndex((index) => (index + collectionModels.length - 1) % collectionModels.length)}>‹</button>
+              <button className="carousel-arrow carousel-prev" type="button" aria-label="이전 도감 모델" onClick={() => setCollectionIndex((index) => (index + collectionModels.length - 1) % collectionModels.length)}>‹</button>
+              <div className="model-preview preview-left" aria-hidden="true">
+                {previousCollection.unlocked ? (
+                  <model-viewer src={previousCollection.src} camera-orbit="90deg 76deg 3.2m" field-of-view="28deg" exposure="1" auto-rotate interaction-prompt="none" disable-zoom alt="" />
+                ) : (
+                  <div className="locked-model small">??</div>
+                )}
+              </div>
               <div className="model-showcase">
                 {activeCollection.unlocked ? (
                   <model-viewer src={activeCollection.src} camera-orbit="90deg 76deg 3.2m" field-of-view="28deg" exposure="1.1" auto-rotate interaction-prompt="none" disable-zoom alt={activeCollection.name} />
@@ -820,7 +829,14 @@ export default function Home() {
                   <div className="locked-model">??</div>
                 )}
               </div>
-              <button type="button" aria-label="다음 도감 모델" onClick={() => setCollectionIndex((index) => (index + 1) % collectionModels.length)}>›</button>
+              <div className="model-preview preview-right" aria-hidden="true">
+                {nextCollection.unlocked ? (
+                  <model-viewer src={nextCollection.src} camera-orbit="90deg 76deg 3.2m" field-of-view="28deg" exposure="1" auto-rotate interaction-prompt="none" disable-zoom alt="" />
+                ) : (
+                  <div className="locked-model small">??</div>
+                )}
+              </div>
+              <button className="carousel-arrow carousel-next" type="button" aria-label="다음 도감 모델" onClick={() => setCollectionIndex((index) => (index + 1) % collectionModels.length)}>›</button>
             </div>
             <div className="collection-caption">
               <strong>{activeCollection.unlocked ? activeCollection.name : "미발견 모델"}</strong>

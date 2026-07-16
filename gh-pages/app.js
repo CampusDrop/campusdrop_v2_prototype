@@ -16,6 +16,8 @@ const classSearch = document.querySelector("#classSearch");
 const classGrid = document.querySelector("#classGrid");
 const collectionSeason = document.querySelector("#collectionSeason");
 const collectionModel = document.querySelector("#collectionModel");
+const collectionPrevPreview = document.querySelector("#collectionPrevPreview");
+const collectionNextPreview = document.querySelector("#collectionNextPreview");
 const collectionName = document.querySelector("#collectionName");
 const collectionTitle = document.querySelector("#collectionTitle");
 const npcDialogueText = "지도 앞까지 왔구나. 오늘의 캠퍼스 퀘스트를 받을 준비 됐어?";
@@ -63,6 +65,7 @@ document.querySelector("#collectionNext")?.addEventListener("click", () => {
   collectionIndex = (collectionIndex + 1) % collectionModels.length;
   renderCollection();
 });
+renderCollection();
 document.querySelector("#closeSettings").addEventListener("click", () => setStep("map"));
 document.querySelectorAll(".open-settings").forEach((button) => {
   button.addEventListener("click", () => setStep("settings"));
@@ -177,6 +180,8 @@ function setMapMenuOpen(open) {
 
 function renderCollection() {
   const active = collectionModels[collectionIndex];
+  const previous = collectionModels[(collectionIndex + collectionModels.length - 1) % collectionModels.length];
+  const next = collectionModels[(collectionIndex + 1) % collectionModels.length];
   if (!active || !collectionModel) return;
   collectionSeason.textContent = active.season;
   collectionName.textContent = active.unlocked ? active.name : "미발견 모델";
@@ -184,6 +189,12 @@ function renderCollection() {
   collectionModel.innerHTML = active.unlocked
     ? `<model-viewer src="${active.src}" camera-orbit="90deg 76deg 3.2m" field-of-view="28deg" exposure="1.1" auto-rotate interaction-prompt="none" disable-zoom alt="${active.name}"></model-viewer>`
     : `<div class="locked-model">??</div>`;
+  collectionPrevPreview.innerHTML = previous.unlocked
+    ? `<model-viewer src="${previous.src}" camera-orbit="90deg 76deg 3.2m" field-of-view="28deg" exposure="1" auto-rotate interaction-prompt="none" disable-zoom alt=""></model-viewer>`
+    : `<div class="locked-model small">??</div>`;
+  collectionNextPreview.innerHTML = next.unlocked
+    ? `<model-viewer src="${next.src}" camera-orbit="90deg 76deg 3.2m" field-of-view="28deg" exposure="1" auto-rotate interaction-prompt="none" disable-zoom alt=""></model-viewer>`
+    : `<div class="locked-model small">??</div>`;
 }
 
 function paintClassCell(cell) {
