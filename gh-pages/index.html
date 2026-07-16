@@ -74,9 +74,18 @@
         <div class="signup-progress" aria-label="회원가입 3단계"><span class="is-active"></span><span class="is-active"></span><span class="is-active"></span><span></span></div>
         <div class="signup-panel">
           <strong>이야기 거리</strong>
-          <div class="chip-grid" aria-label="관심사 선택"><button type="button">신작 영화</button><button type="button">맛집</button><button type="button">전공 이야기</button><button type="button">취업/인턴</button><button type="button">공연/전시</button><button type="button">여행</button></div>
+          <div class="choice-tile-grid" aria-label="관심사 선택">
+            <button type="button" data-choice="interest"><span>FILM</span><strong>신작 영화</strong></button>
+            <button type="button" data-choice="interest"><span>FOOD</span><strong>맛집</strong></button>
+            <button type="button" data-choice="interest"><span>STUDY</span><strong>전공 이야기</strong></button>
+            <button type="button" data-choice="interest"><span>CAREER</span><strong>취업/인턴</strong></button>
+            <button type="button" data-choice="interest"><span>ART</span><strong>공연/전시</strong></button>
+            <button type="button" data-choice="interest"><span>TRIP</span><strong>여행</strong></button>
+          </div>
+          <p class="selection-hint">여러 개 선택할 수 있어요.</p>
+          <p class="form-error" data-error="interest"></p>
         </div>
-        <button class="primary-action signup-next" data-next="signup-hobbies">다음</button>
+        <button class="primary-action signup-next" data-next="signup-hobbies" data-requires="interest">다음</button>
       </section>
 
       <section class="screen signup-screen" data-screen="signup-hobbies">
@@ -89,9 +98,18 @@
         <div class="signup-progress" aria-label="회원가입 4단계"><span class="is-active"></span><span class="is-active"></span><span class="is-active"></span><span class="is-active"></span></div>
         <div class="signup-panel">
           <strong>같이 놀거리</strong>
-          <div class="chip-grid" aria-label="취미 선택"><button type="button">보드게임</button><button type="button">산책</button><button type="button">카페 탐방</button><button type="button">운동</button><button type="button">사진 찍기</button><button type="button">방탈출</button></div>
+          <div class="choice-tile-grid" aria-label="취미 선택">
+            <button type="button" data-choice="hobby"><span>BOARD</span><strong>보드게임</strong></button>
+            <button type="button" data-choice="hobby"><span>WALK</span><strong>산책</strong></button>
+            <button type="button" data-choice="hobby"><span>CAFE</span><strong>카페 탐방</strong></button>
+            <button type="button" data-choice="hobby"><span>SPORT</span><strong>운동</strong></button>
+            <button type="button" data-choice="hobby"><span>PHOTO</span><strong>사진 찍기</strong></button>
+            <button type="button" data-choice="hobby"><span>ESCAPE</span><strong>방탈출</strong></button>
+          </div>
+          <p class="selection-hint">여러 개 선택할 수 있어요.</p>
+          <p class="form-error" data-error="hobby"></p>
         </div>
-        <button class="primary-action signup-next" data-next="start">가입 완료</button>
+        <button class="primary-action signup-next" data-next="start" data-requires="hobby">가입 완료</button>
       </section>
 
       <section class="screen home-screen app-tab-screen" data-screen="start">

@@ -54,6 +54,22 @@ const classPresets = [
   { name: "인공지능 입문", short: "AI", slots: ["wed-6", "wed-7", "fri-4"] },
 ];
 const dayKeys = ["mon", "tue", "wed", "thu", "fri"];
+const interestOptions = [
+  { label: "신작 영화", icon: "FILM" },
+  { label: "맛집", icon: "FOOD" },
+  { label: "전공 이야기", icon: "STUDY" },
+  { label: "취업/인턴", icon: "CAREER" },
+  { label: "공연/전시", icon: "ART" },
+  { label: "여행", icon: "TRIP" },
+];
+const hobbyOptions = [
+  { label: "보드게임", icon: "BOARD" },
+  { label: "산책", icon: "WALK" },
+  { label: "카페 탐방", icon: "CAFE" },
+  { label: "운동", icon: "SPORT" },
+  { label: "사진 찍기", icon: "PHOTO" },
+  { label: "방탈출", icon: "ESCAPE" },
+];
 
 export default function Home() {
   const [step, setStep] = useState<Step>("signup-basic");
@@ -81,6 +97,10 @@ export default function Home() {
     "tue-5": "디자인",
     "tue-6": "디자인",
   });
+  const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+  const [selectedHobbies, setSelectedHobbies] = useState<string[]>([]);
+  const [interestError, setInterestError] = useState("");
+  const [hobbyError, setHobbyError] = useState("");
   const dragModeRef = useRef<"add" | "remove">("add");
 
   const todayLabel = useMemo(() => {
@@ -385,6 +405,35 @@ export default function Home() {
     });
   }
 
+  function toggleChoice(
+    value: string,
+    selected: string[],
+    setSelected: (next: string[]) => void,
+    clearError: () => void
+  ) {
+    const next = selected.includes(value)
+      ? selected.filter((item) => item !== value)
+      : [...selected, value];
+    setSelected(next);
+    if (next.length > 0) clearError();
+  }
+
+  function goNextFromInterests() {
+    if (selectedInterests.length === 0) {
+      setInterestError("관심사를 1개 이상 선택해주세요.");
+      return;
+    }
+    setStep("signup-hobbies");
+  }
+
+  function finishSignup() {
+    if (selectedHobbies.length === 0) {
+      setHobbyError("취미를 1개 이상 선택해주세요.");
+      return;
+    }
+    setStep("start");
+  }
+
   const BottomNav = () => (
     <nav className="bottom-nav" aria-label="캠퍼스 드랍 하단 메뉴">
       <button className={step === "start" ? "is-active" : ""} onClick={() => setStep("start")}>🏠<span>홈</span></button>
@@ -503,13 +552,31 @@ export default function Home() {
           <SignupProgress current={3} />
           <div className="signup-panel">
             <strong>이야기 거리</strong>
-            <div className="chip-grid" aria-label="관심사 선택">
-              <button type="button">신작 영화</button><button type="button">맛집</button>
-              <button type="button">전공 이야기</button><button type="button">취업/인턴</button>
-              <button type="button">공연/전시</button><button type="button">여행</button>
+            <div className="choice-tile-grid" aria-label="관심사 선택">
+              {interestOptions.map((option) => {
+                const selected = selectedInterests.includes(option.label);
+                return (
+                  <button
+                    key={option.label}
+                    type="button"
+                    className={selected ? "is-selected" : ""}
+                    aria-pressed={selected}
+                    onClick={() =>
+                      toggleChoice(option.label, selectedInterests, setSelectedInterests, () =>
+                        setInterestError("")
+                      )
+                    }
+                  >
+                    <span>{option.icon}</span>
+                    <strong>{option.label}</strong>
+                  </button>
+                );
+              })}
             </div>
+            <p className="selection-hint">여러 개 선택할 수 있어요.</p>
+            <p className="form-error">{interestError}</p>
           </div>
-          <button className="primary-action" onClick={() => setStep("signup-hobbies")}>다음</button>
+          <button className="primary-action" onClick={goNextFromInterests}>다음</button>
         </section>
       )}
 
@@ -524,13 +591,31 @@ export default function Home() {
           <SignupProgress current={4} />
           <div className="signup-panel">
             <strong>같이 놀거리</strong>
-            <div className="chip-grid" aria-label="취미 선택">
-              <button type="button">보드게임</button><button type="button">산책</button>
-              <button type="button">카페 탐방</button><button type="button">운동</button>
-              <button type="button">사진 찍기</button><button type="button">방탈출</button>
+            <div className="choice-tile-grid" aria-label="취미 선택">
+              {hobbyOptions.map((option) => {
+                const selected = selectedHobbies.includes(option.label);
+                return (
+                  <button
+                    key={option.label}
+                    type="button"
+                    className={selected ? "is-selected" : ""}
+                    aria-pressed={selected}
+                    onClick={() =>
+                      toggleChoice(option.label, selectedHobbies, setSelectedHobbies, () =>
+                        setHobbyError("")
+                      )
+                    }
+                  >
+                    <span>{option.icon}</span>
+                    <strong>{option.label}</strong>
+                  </button>
+                );
+              })}
             </div>
+            <p className="selection-hint">여러 개 선택할 수 있어요.</p>
+            <p className="form-error">{hobbyError}</p>
           </div>
-          <button className="primary-action" onClick={() => setStep("start")}>가입 완료</button>
+          <button className="primary-action" onClick={finishSignup}>가입 완료</button>
         </section>
       )}
 
