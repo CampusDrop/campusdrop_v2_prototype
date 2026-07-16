@@ -129,7 +129,8 @@ button { -webkit-tap-highlight-color: transparent; }
   background: #e8f4ef;
   box-shadow: none;
 }
-.kakao-map-canvas { position: absolute; inset: 0; z-index: 0; opacity: 1; filter: none; }
+.kakao-map-canvas { position: absolute; inset: 0; z-index: 0; opacity: 1; filter: invert(90%) hue-rotate(180deg) brightness(80%) contrast(85%) saturate(35%); }
+.kakao-map-canvas .kakao-crew-overlay, .kakao-map-canvas .my-location-marker { filter: invert(90%) hue-rotate(180deg) brightness(125%) contrast(118%) saturate(160%); }
 .game-map-layer {
   position: absolute; inset: 0; z-index: 1; display: none; overflow: hidden; pointer-events: none;
   background: radial-gradient(circle at 18% 16%, rgba(255,230,120,.18), transparent 22%), radial-gradient(circle at 84% 78%, rgba(58,207,161,.16), transparent 25%), linear-gradient(135deg, rgba(215,248,216,.2), rgba(255,246,191,.18));
