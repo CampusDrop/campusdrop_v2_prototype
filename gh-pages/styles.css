@@ -205,11 +205,9 @@ button { -webkit-tap-highlight-color: transparent; }
 .map-quest-hud p { margin: 0; color: var(--muted); font-size: 11px; font-weight: 850; line-height: 1.35; }
 .map-quest-hud em { color: var(--coral); font-size: 12px; font-style: normal; font-weight: 950; }
 .event-red-marker { position: relative; display: grid; place-items: center; gap: 4px; border: 0; background: transparent; color: white; cursor: pointer; filter: drop-shadow(0 10px 14px rgba(82,0,32,.34)); }
-.event-red-marker::before { position: absolute; left: 50%; top: 52px; z-index: 2; width: 10px; height: 10px; border: 1.5px solid rgba(255,255,255,.92); border-radius: 3px; background: linear-gradient(135deg, #88fbff, #1c8cff 62%, #7d5cff); box-shadow: 0 0 12px rgba(72,225,255,.85), 0 0 24px rgba(63,112,255,.46); content: ""; pointer-events: none; transform: translate(-50%, -50%) rotate(0deg) translateY(-39px) rotate(45deg); animation: encounter-diamond-orbit 2.6s linear infinite; }
 .event-red-marker img { position: relative; z-index: 1; display: block; width: 104px; height: 104px; pointer-events: none; }
-.event-red-marker strong { border-radius: 999px; background: rgba(42,5,24,.86); color: #ffd8e8; padding: 4px 8px; font-size: 10px; font-weight: 950; }
+.event-red-marker strong { display: none; }
 .event-red-marker.is-complete { opacity: .58; filter: grayscale(.65) drop-shadow(0 8px 12px rgba(0,0,0,.22)); }
-@keyframes encounter-diamond-orbit { to { transform: translate(-50%, -50%) rotate(360deg) translateY(-39px) rotate(45deg); } }
 .map-spot-sheet {
   position: absolute; right: 14px; bottom: max(110px, calc(env(safe-area-inset-bottom) + 104px)); left: 14px; z-index: 32;
   display: none; gap: 10px; border-radius: 22px; color: white; padding: 16px;
