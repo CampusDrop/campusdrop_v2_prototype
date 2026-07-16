@@ -836,14 +836,13 @@ export default function Home() {
           <button
             className="map-ar-quest-button"
             type="button"
+            aria-label="비밀 퀘스트 탐험 시작"
             onClick={() => {
               setMapMenuOpen(false);
               beginScan();
             }}
           >
-            <span>AR</span>
-            <strong>비밀 퀘스트 탐험 시작</strong>
-            <em>카메라로 캠퍼스 표식을 찾아보세요</em>
+            <span aria-hidden="true">AR</span>
           </button>
           <MapMenu />
         </section>
