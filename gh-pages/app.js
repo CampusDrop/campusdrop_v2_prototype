@@ -36,6 +36,10 @@ document.querySelector("#startScanMap").addEventListener("click", beginScan);
 document.querySelector("#openSignup").addEventListener("click", () => setStep("signup"));
 document.querySelector("#closeSignup").addEventListener("click", () => setStep("start"));
 document.querySelector("#finishSignup").addEventListener("click", () => setStep("start"));
+document.querySelector("#closeSettings").addEventListener("click", () => setStep("start"));
+document.querySelectorAll(".open-settings").forEach((button) => {
+  button.addEventListener("click", () => setStep("settings"));
+});
 document.querySelectorAll(".tab-link").forEach((button) => {
   button.addEventListener("click", () => setStep(button.dataset.tab));
 });

@@ -8,6 +8,7 @@ type Step =
   | "explore"
   | "crew"
   | "collection"
+  | "settings"
   | "signup"
   | "scan"
   | "mission"
@@ -340,38 +341,45 @@ export default function Home() {
   }
 
   const BottomNav = () => (
-    <nav className="bottom-nav" aria-label="Campus Drop navigation">
-      <button className={step === "start" ? "is-active" : ""} onClick={() => setStep("start")}>🏠<span>Home</span></button>
-      <button className={step === "map" ? "is-active" : ""} onClick={() => setStep("map")}>🗺<span>Map</span></button>
-      <button className={step === "explore" ? "is-active" : ""} onClick={() => setStep("explore")}>💎<span>Explore</span></button>
-      <button className={step === "crew" ? "is-active" : ""} onClick={() => setStep("crew")}>👥<span>Crew</span></button>
-      <button className={step === "collection" ? "is-active" : ""} onClick={() => setStep("collection")}>📖<span>Collection</span></button>
+    <nav className="bottom-nav" aria-label="캠퍼스 드랍 하단 메뉴">
+      <button className={step === "start" ? "is-active" : ""} onClick={() => setStep("start")}>🏠<span>홈</span></button>
+      <button className={step === "map" ? "is-active" : ""} onClick={() => setStep("map")}>🗺<span>지도</span></button>
+      <button className={step === "explore" ? "is-active" : ""} onClick={() => setStep("explore")}>💎<span>탐색</span></button>
+      <button className={step === "crew" ? "is-active" : ""} onClick={() => setStep("crew")}>👥<span>크루</span></button>
+      <button className={step === "collection" ? "is-active" : ""} onClick={() => setStep("collection")}>📖<span>도감</span></button>
     </nav>
+  );
+
+  const SettingsButton = () => (
+    <button className="settings-button" onClick={() => setStep("settings")} aria-label="설정 열기">
+      ⚙
+    </button>
   );
 
   return (
     <main className={`app step-${step}`}>
       {step === "start" && (
         <section className="screen home-screen app-tab-screen">
+          <SettingsButton />
           <div className="season-badge">🐴 황금말 시즌</div>
           <div className="crew-hero-card">
             <div className="crew-model-bubble">🐺</div>
             <div>
-              <p className="eyebrow">My Crew</p>
-              <h1>Phoenix</h1>
-              <strong>Level 8</strong>
+              <p className="eyebrow">나의 크루</p>
+              <h1>피닉스</h1>
+              <strong>레벨 8</strong>
               <div className="xp-bar"><span style={{ width: "82%" }} /></div>
-              <p>Your Crew gained 82% toward the next level.</p>
+              <p>우리 크루가 다음 레벨까지 82% 성장했어요.</p>
             </div>
           </div>
           <div className="event-strip">
-            <span>Next Escape Room</span>
+            <span>다음 방탈출 미션</span>
             <strong>D-5</strong>
-            <button onClick={() => setStep("map")}>Start</button>
+            <button onClick={() => setStep("map")}>시작</button>
           </div>
           <div className="section-block">
-            <h2>Today's Missions</h2>
-            <div className="mission-pills"><span>Treasure Hunt</span><span>Partner Visit</span></div>
+            <h2>오늘의 미션</h2>
+            <div className="mission-pills"><span>보물 찾기</span><span>제휴 매장 방문</span></div>
           </div>
           <div className="activity-line">민수가 새로운 캐릭터를 획득했습니다.</div>
           <button className="secondary-action" onClick={() => setStep("signup")}>
@@ -383,25 +391,26 @@ export default function Home() {
 
       {step === "map" && (
         <section className="screen map-screen app-tab-screen">
-          <div className="app-header"><p className="eyebrow">Campus Map</p><h2>크루들이 캠퍼스를 움직이고 있어요</h2></div>
+          <SettingsButton />
+          <div className="app-header"><p className="eyebrow">캠퍼스 지도</p><h2>크루들이 캠퍼스를 움직이고 있어요</h2></div>
           <div className="kakao-map-shell">
-            <div ref={kakaoMapRef} className="kakao-map-canvas" aria-label="Kakao campus map" />
+            <div ref={kakaoMapRef} className="kakao-map-canvas" aria-label="카카오 캠퍼스 지도" />
             {!kakaoReady && (
               <div className="kakao-map-fallback">
-                <strong>Kakao Map 준비됨</strong>
-                <p>URL 뒤에 <span>?kakaoKey=JavaScript키</span>를 붙이면 실제 카카오 지도가 이 자리에 표시됩니다.</p>
+                <strong>카카오맵 준비됨</strong>
+                <p>URL 뒤에 <span>?kakaoKey=자바스크립트키</span>를 붙이면 실제 카카오 지도가 이 자리에 표시됩니다.</p>
               </div>
             )}
-            <button className="crew-marker phoenix">🐺<strong>Phoenix</strong></button>
-            <button className="crew-marker aurora">🦊<strong>Aurora</strong></button>
-            <button className="crew-marker nova">🦉<strong>Nova</strong></button>
+            <button className="crew-marker phoenix">🐺<strong>피닉스</strong></button>
+            <button className="crew-marker aurora">🦊<strong>오로라</strong></button>
+            <button className="crew-marker nova">🦉<strong>노바</strong></button>
             <span className="treasure-dot">💎</span>
             <span className="store-dot">☕</span>
           </div>
           <div className="map-detail-card">
-            <span>Current Rank #3</span>
-            <strong>Phoenix · XP 12,840</strong>
-            <p>3D 모델은 XP에 따라 크기만 커집니다. 우리 커뮤니티가 함께 성장하고 있어요.</p>
+            <span>현재 순위 3위</span>
+            <strong>피닉스 · 경험치 12,840</strong>
+            <p>3D 모델은 경험치에 따라 크기만 커집니다. 우리 커뮤니티가 함께 성장하고 있어요.</p>
           </div>
           <button className="primary-action" onClick={beginScan}>AR 스캔 시작</button>
           <BottomNav />
@@ -410,46 +419,95 @@ export default function Home() {
 
       {step === "explore" && (
         <section className="screen explore-screen app-tab-screen">
-          <div className="app-header"><p className="eyebrow">Today</p><h2>오늘 캠퍼스에서 열리는 일</h2></div>
-          <div className="treasure-card"><span>🐴</span><strong>Today's Treasure</strong><p>시계탑 근처 · 보상 캐릭터 조각</p></div>
+          <SettingsButton />
+          <div className="app-header"><p className="eyebrow">오늘</p><h2>오늘 캠퍼스에서 열리는 일</h2></div>
+          <div className="treasure-card"><span>🐴</span><strong>오늘의 보물</strong><p>시계탑 근처 · 보상 캐릭터 조각</p></div>
           <div className="store-card"><span>☕</span><strong>세종 카페 라운지</strong><p>아메리카노 20% · 120m</p></div>
-          <div className="store-card"><span>🎟</span><strong>Limited Event</strong><p>탈출 미션 D-5 · Your Crew discovered together.</p></div>
+          <div className="store-card"><span>🎟</span><strong>한정 이벤트</strong><p>탈출 미션 D-5 · 우리 크루가 함께 발견했어요.</p></div>
           <BottomNav />
         </section>
       )}
 
       {step === "crew" && (
         <section className="screen crew-screen app-tab-screen">
+          <SettingsButton />
           <div className="crew-profile">
             <div className="crew-model-bubble large">🐺</div>
-            <h2>Phoenix</h2>
-            <p>황금말 시즌 · XP 12,840</p>
+            <h2>피닉스</h2>
+            <p>황금말 시즌 · 경험치 12,840</p>
           </div>
           <div className="member-grid">
-            <div><strong>민수</strong><span>Explorer</span></div>
-            <div><strong>지윤</strong><span>Mood Maker</span></div>
-            <div><strong>하린</strong><span>Food Hunter</span></div>
+            <div><strong>민수</strong><span>탐험가</span></div>
+            <div><strong>지윤</strong><span>분위기 메이커</span></div>
+            <div><strong>하린</strong><span>맛집 헌터</span></div>
           </div>
           <div className="crew-chat">오늘 6시에 보물 위치 같이 확인할 사람?</div>
-          <div className="vote-card"><strong>대표 모델 투표</strong><p>이번 주는 Phoenix가 62%로 앞서고 있어요.</p></div>
+          <div className="vote-card"><strong>대표 모델 투표</strong><p>이번 주는 피닉스가 62%로 앞서고 있어요.</p></div>
           <BottomNav />
         </section>
       )}
 
       {step === "collection" && (
         <section className="screen collection-screen app-tab-screen">
-          <div className="app-header"><p className="eyebrow">Collection</p><h2>우리 크루가 함께 발견한 기록</h2></div>
+          <SettingsButton />
+          <div className="app-header"><p className="eyebrow">도감</p><h2>우리 크루가 함께 발견한 기록</h2></div>
           <div className="collection-grid">
-            <button>🐺<span>Unlocked</span></button>
-            <button>🦊<span>Unlocked</span></button>
-            <button>🦉<span>Unlocked</span></button>
+            <button>🐺<span>발견함</span></button>
+            <button>🦊<span>발견함</span></button>
+            <button>🦉<span>발견함</span></button>
             <button className="is-locked">?</button>
             <button className="is-locked">?</button>
             <button className="is-locked">?</button>
           </div>
-          <div className="title-strip"><span>Explorer</span><span>Detective</span><span>Food Hunter</span></div>
-          <div className="season-record">🏆 황금말 시즌 · Participation Record 8 missions</div>
+          <div className="title-strip"><span>탐험가</span><span>탐정</span><span>맛집 헌터</span></div>
+          <div className="season-record">🏆 황금말 시즌 · 참여 기록 8회</div>
           <BottomNav />
+        </section>
+      )}
+
+      {step === "settings" && (
+        <section className="screen settings-screen">
+          <div className="settings-header">
+            <button className="ghost-light-button" onClick={() => setStep("start")}>
+              뒤로
+            </button>
+            <p className="eyebrow">설정</p>
+            <h2>내 설정</h2>
+            <p>언어와 프로필 취향을 다시 맞춰볼 수 있어요.</p>
+          </div>
+          <div className="settings-panel">
+            <span>언어 설정</span>
+            <div className="segmented-grid" aria-label="언어 선택">
+              <button className="is-selected" type="button">한국어</button>
+              <button type="button">중국어</button>
+              <button type="button">일본어</button>
+              <button type="button">영어</button>
+            </div>
+          </div>
+          <div className="settings-panel">
+            <span>관심사 다시 설정</span>
+            <div className="chip-grid">
+              <button type="button">신작 영화</button>
+              <button type="button">맛집</button>
+              <button type="button">전공 이야기</button>
+              <button type="button">취업/인턴</button>
+            </div>
+          </div>
+          <div className="settings-panel">
+            <span>취미 다시 설정</span>
+            <div className="chip-grid">
+              <button type="button">보드게임</button>
+              <button type="button">산책</button>
+              <button type="button">카페 탐방</button>
+              <button type="button">운동</button>
+            </div>
+          </div>
+          <div className="settings-panel my-info-card">
+            <span>내 정보</span>
+            <strong>김세종 · 22세 · 컴퓨터공학과</strong>
+            <p>전화번호 010-1234-5678</p>
+            <p>소속 크루 피닉스 · 황금말 시즌 참여 중</p>
+          </div>
         </section>
       )}
 
@@ -459,7 +517,7 @@ export default function Home() {
             <button className="ghost-light-button" onClick={() => setStep("start")}>
               뒤로
             </button>
-            <p className="eyebrow">Campus profile</p>
+            <p className="eyebrow">캠퍼스 프로필</p>
             <h2>회원가입</h2>
             <p>웹 데모에서는 기본정보와 시간표를 카카오 로그인으로 대체합니다.</p>
           </div>
@@ -511,7 +569,7 @@ export default function Home() {
             <button className="ghost-button" onClick={() => setStep("start")}>
               닫기
             </button>
-            <span>Campus Drop Scan</span>
+            <span>캠퍼스 드랍 스캔</span>
           </div>
           <div className={`scan-frame ${scanState === "found" ? "is-found" : ""}`}>
             <span />
@@ -591,7 +649,7 @@ export default function Home() {
                   shadow-intensity="0"
                   interaction-prompt="none"
                   disable-zoom
-                  alt="Campus Drop quest giraffe"
+                  alt="캠퍼스 드랍 퀘스트 기린"
                 />
               </div>
               <div
@@ -666,21 +724,21 @@ export default function Home() {
 
       {step === "coupon" && (
         <section className="screen coupon-screen">
-          <p className="eyebrow">Reward unlocked</p>
+          <p className="eyebrow">보상 획득</p>
           <h2>오늘의 캠퍼스 쿠폰</h2>
           <div className="coupon-ticket">
             <div>
               <span className="store-name">세종 카페 라운지</span>
               <strong>아메리카노 20% 할인</strong>
             </div>
-            <div className="coupon-visual" aria-label="오늘의 캠퍼스 쿠폰 QR 코드 CAMPUS-428">
+            <div className="coupon-visual" aria-label="오늘의 캠퍼스 쿠폰 큐알 코드 캠퍼스-428">
               <div className="coupon-qr" aria-hidden="true">
                 <span className="qr-eye qr-eye-tl" />
                 <span className="qr-eye qr-eye-tr" />
                 <span className="qr-eye qr-eye-bl" />
                 <span className="qr-pixels" />
               </div>
-              <em>QR 쿠폰 · CAMPUS-428</em>
+              <em>큐알 쿠폰 · 캠퍼스-428</em>
             </div>
             <div className="coupon-footer">
               <span>{todayLabel}</span>
