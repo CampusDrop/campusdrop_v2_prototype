@@ -147,6 +147,7 @@ function scanForMarker() {
     let dayCyanRight = 0;
     let dayPinkLeft = 0;
     let dayPinkRight = 0;
+    let skinTone = 0;
     for (let i = 0; i < posterImage.length; i += 4) {
       const r = posterImage[i];
       const g = posterImage[i + 1];
@@ -171,7 +172,14 @@ function scanForMarker() {
       const g = dayFixtureImage[i + 1];
       const b = dayFixtureImage[i + 2];
       const isDayCyan = g > 98 && b > 84 && r < 168 && g > r * 1.06 && b > r * 0.9;
-      const isDayPink = r > 124 && b > 72 && g < 142 && r > g * 1.08 && r > b * 0.95;
+      const isDayPink = r > 138 && b > 82 && g < 132 && r > g * 1.16 && b > g * 0.72;
+      const isSkinTone =
+        r > 118 &&
+        g > 70 &&
+        b > 48 &&
+        r > g * 1.12 &&
+        g > b * 1.08 &&
+        r - b > 42;
       if (isDayCyan) {
         dayCyan += 1;
         if (x < 54) dayCyanLeft += 1;
@@ -184,6 +192,7 @@ function scanForMarker() {
       }
       if (r > 122 && g > 104 && b > 70 && r > b * 1.04 && g > b * 0.96) dayParchment += 1;
       if (r < 118 && g < 112 && b < 118) dayInk += 1;
+      if (isSkinTone) skinTone += 1;
     }
     const posterDetected = green > 130 && yellow > 70 && dark > 60;
     const fixtureDetected =
@@ -193,16 +202,17 @@ function scanForMarker() {
       fixtureDark > 900 &&
       cyan + pink + bright + fixtureDark > 3300;
     const daylightFixtureDetected =
-      dayCyan > 760 &&
-      dayPink > 95 &&
+      skinTone < 900 &&
+      dayCyan > 1040 &&
+      dayPink > 125 &&
       dayParchment > 1200 &&
       dayInk > 280 &&
       dayParchment < 5200 &&
-      dayCyanLeft > 220 &&
-      dayCyanRight > 220 &&
-      dayPinkLeft > 18 &&
-      dayPinkRight > 18 &&
-      dayCyan + dayPink > 900 &&
+      dayCyanLeft > 320 &&
+      dayCyanRight > 320 &&
+      dayPinkLeft > 28 &&
+      dayPinkRight > 28 &&
+      dayCyan + dayPink > 1220 &&
       dayCyan + dayPink + dayParchment + dayInk > 3100;
     const detected = posterDetected || fixtureDetected || daylightFixtureDetected;
     foundFrames = detected ? foundFrames + 1 : 0;
