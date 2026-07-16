@@ -145,15 +145,18 @@ button { -webkit-tap-highlight-color: transparent; }
 .map-giraffe-point {
   position: absolute; z-index: 3; display: grid; place-items: center; gap: 0; border: 0; background: transparent;
   cursor: pointer; filter: drop-shadow(0 10px 12px rgba(19,32,31,.22));
+  transform: scale(calc(var(--point-scale, 1) * var(--map-zoom-scale, 1)));
+  transform-origin: center bottom;
+  transition: transform .18s ease;
 }
 .map-giraffe-point model-viewer { width: 92px; height: 116px; pointer-events: none; filter: drop-shadow(0 12px 14px rgba(15,35,35,.24)); }
 .map-giraffe-point strong {
   margin-top: -18px; border: 2px solid rgba(19,32,31,.1); border-radius: 999px; background: white;
   box-shadow: 0 9px 18px rgba(15,35,35,.12); color: var(--ink); padding: 6px 10px; font-size: 12px; white-space: nowrap;
 }
-.clock-tower { left: 30px; top: 74px; scale: 1.06; }
-.cafe-spot { right: 28px; top: 136px; scale: .92; }
-.student-hall { left: 138px; bottom: 36px; scale: .82; }
+.clock-tower { left: 30px; top: 74px; --point-scale: 1.06; }
+.cafe-spot { right: 28px; top: 136px; --point-scale: .92; }
+.student-hall { left: 138px; bottom: 36px; --point-scale: .82; }
 .map-detail-card span, .treasure-card p, .store-card p, .crew-profile p, .vote-card p { color: var(--muted); font-weight: 760; }
 .treasure-card, .store-card { display: grid; grid-template-columns: 52px 1fr; gap: 6px 14px; align-items: center; }
 .treasure-card span, .store-card span { grid-row: span 2; font-size: 38px; }

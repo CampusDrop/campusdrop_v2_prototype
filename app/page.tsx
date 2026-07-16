@@ -31,8 +31,13 @@ declare global {
       maps: {
         load: (callback: () => void) => void;
         LatLng: new (lat: number, lng: number) => unknown;
-        Map: new (container: HTMLElement, options: { center: unknown; level: number }) => unknown;
+        Map: new (container: HTMLElement, options: { center: unknown; level: number }) => {
+          getLevel: () => number;
+        };
         Marker: new (options: { position: unknown }) => { setMap: (map: unknown) => void };
+        event: {
+          addListener: (target: unknown, type: string, callback: () => void) => void;
+        };
       };
     };
   }
@@ -83,6 +88,7 @@ export default function Home() {
   const [frozenFrame, setFrozenFrame] = useState("");
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const kakaoShellRef = useRef<HTMLDivElement | null>(null);
   const kakaoMapRef = useRef<HTMLDivElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -131,6 +137,13 @@ export default function Home() {
         const map = new window.kakao.maps.Map(kakaoMapRef.current, { center, level: 3 });
         const marker = new window.kakao.maps.Marker({ position: center });
         marker.setMap(map);
+        const syncMapPointScale = () => {
+          const level = map.getLevel();
+          const scale = Math.min(1.8, Math.max(0.62, Math.pow(1.18, 3 - level)));
+          kakaoShellRef.current?.style.setProperty("--map-zoom-scale", scale.toFixed(3));
+        };
+        syncMapPointScale();
+        window.kakao.maps.event.addListener(map, "zoom_changed", syncMapPointScale);
         setKakaoReady(true);
       });
     };
@@ -651,7 +664,7 @@ export default function Home() {
         <section className="screen map-screen app-tab-screen">
           <SettingsButton />
           <div className="app-header"><p className="eyebrow">캠퍼스 지도</p><h2>크루들이 캠퍼스를 움직이고 있어요</h2></div>
-          <div className="kakao-map-shell">
+          <div ref={kakaoShellRef} className="kakao-map-shell">
             <div ref={kakaoMapRef} className="kakao-map-canvas" aria-label="카카오 캠퍼스 지도" />
             {!kakaoReady && (
               <div className="kakao-map-fallback">

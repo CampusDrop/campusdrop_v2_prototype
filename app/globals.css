@@ -371,6 +371,9 @@ button {
   background: transparent;
   cursor: pointer;
   filter: drop-shadow(0 10px 12px rgba(19, 32, 31, 0.22));
+  transform: scale(calc(var(--point-scale, 1) * var(--map-zoom-scale, 1)));
+  transform-origin: center bottom;
+  transition: transform 0.18s ease;
 }
 
 .map-giraffe-point model-viewer {
@@ -392,9 +395,9 @@ button {
   white-space: nowrap;
 }
 
-.clock-tower { left: 30px; top: 74px; scale: 1.06; }
-.cafe-spot { right: 28px; top: 136px; scale: 0.92; }
-.student-hall { left: 138px; bottom: 36px; scale: 0.82; }
+.clock-tower { left: 30px; top: 74px; --point-scale: 1.06; }
+.cafe-spot { right: 28px; top: 136px; --point-scale: 0.92; }
+.student-hall { left: 138px; bottom: 36px; --point-scale: 0.82; }
 
 .map-detail-card span,
 .treasure-card p,

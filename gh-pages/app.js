@@ -160,6 +160,13 @@ function initKakaoMap() {
       const map = new window.kakao.maps.Map(kakaoMapElement, { center, level: 3 });
       const marker = new window.kakao.maps.Marker({ position: center });
       marker.setMap(map);
+      const syncMapPointScale = () => {
+        const level = map.getLevel();
+        const scale = Math.min(1.8, Math.max(0.62, Math.pow(1.18, 3 - level)));
+        kakaoMapElement.closest(".kakao-map-shell")?.style.setProperty("--map-zoom-scale", scale.toFixed(3));
+      };
+      syncMapPointScale();
+      window.kakao.maps.event.addListener(map, "zoom_changed", syncMapPointScale);
       kakaoMapLoaded = true;
       kakaoFallback?.classList.add("is-hidden");
     });
