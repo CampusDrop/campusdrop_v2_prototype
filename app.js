@@ -65,6 +65,9 @@ let classDragMode = "add";
 let mapMenuOpen = false;
 let collectionIndex = 0;
 let kakaoMapInstance = null;
+let mapSpotOverlays = [];
+let mapClusterOverlay = null;
+let mapRenderDebounce = null;
 let myLocationOverlay = null;
 let interactionCircle = null;
 let lastLocationRequestAt = 0;
@@ -269,38 +272,23 @@ function initKakaoMap() {
       kakaoFallback?.classList.add("is-hidden");
       kakaoMapElement.closest(".kakao-map-shell")?.classList.add("is-kakao-ready");
       renderUserRadar(defaultUserLocation.lat, defaultUserLocation.lng, map);
-      mapCrewPoints.forEach((crew) => {
-        const content = document.createElement("button");
-        content.type = "button";
-        content.className = "kakao-crew-overlay";
-        content.setAttribute("aria-label", `${crew.name} 거점 상세 보기`);
-        content.innerHTML = `
-          <span class="crew-marker">
-            <span class="crew-marker-ping animate-ping" aria-hidden="true"></span>
-            <span class="crew-marker-core" aria-hidden="true">
-              <span class="crew-marker-sigil">${crew.sigil}</span>
-            </span>
-            <span class="crew-marker-shadow" aria-hidden="true"></span>
-          </span>
-          <strong>${crew.name}</strong>
-        `;
-        content.addEventListener("click", () => renderMapSpotPanel(crew));
-        new window.kakao.maps.CustomOverlay({
-          position: new window.kakao.maps.LatLng(crew.lat, crew.lng),
-          content,
-          xAnchor: 0.5,
-          yAnchor: 1,
-          zIndex: 12,
-        }).setMap(map);
-      });
       const syncMapPointScale = () => {
         const zoomLevel = Math.max(1, Math.min(7, map.getLevel()));
         const scale = mapZoomScaleByLevel[zoomLevel] ?? 0.32;
         kakaoMapElement.closest(".kakao-map-shell")?.style.setProperty("--map-zoom-scale", scale.toFixed(3));
         kakaoMapElement.style.setProperty("--map-zoom-scale", scale.toFixed(3));
       };
+      const scheduleVisibleSpotRender = () => {
+        if (mapRenderDebounce) window.clearTimeout(mapRenderDebounce);
+        mapRenderDebounce = window.setTimeout(() => renderVisibleMapSpots(map), 160);
+      };
       syncMapPointScale();
-      window.kakao.maps.event.addListener(map, "zoom_changed", syncMapPointScale);
+      renderVisibleMapSpots(map);
+      window.kakao.maps.event.addListener(map, "dragend", scheduleVisibleSpotRender);
+      window.kakao.maps.event.addListener(map, "zoom_changed", () => {
+        syncMapPointScale();
+        scheduleVisibleSpotRender();
+      });
     });
   };
 
@@ -325,6 +313,81 @@ function renderMapSpotPanel(spot) {
   mapSpotMembers.textContent = `${spot.members}명`;
   mapSpotReward.textContent = `보상 신호: ${spot.reward}`;
   mapSpotSheet.classList.add("is-visible");
+}
+
+function clearMapSpotOverlays() {
+  mapSpotOverlays.forEach((overlay) => overlay.setMap(null));
+  mapSpotOverlays = [];
+  if (mapClusterOverlay) {
+    mapClusterOverlay.setMap(null);
+    mapClusterOverlay = null;
+  }
+}
+
+function createSpotOverlay(crew, map) {
+  const content = document.createElement("button");
+  content.type = "button";
+  content.className = "kakao-crew-overlay";
+  content.setAttribute("aria-label", `${crew.name} 거점 상세 보기`);
+  content.innerHTML = `
+    <span class="crew-marker">
+      <span class="crew-marker-ping animate-ping" aria-hidden="true"></span>
+      <span class="crew-marker-core" aria-hidden="true">
+        <span class="crew-marker-sigil">${crew.sigil}</span>
+      </span>
+      <span class="crew-marker-shadow" aria-hidden="true"></span>
+    </span>
+    <strong>${crew.name}</strong>
+  `;
+  content.addEventListener("click", () => renderMapSpotPanel(crew));
+  const overlay = new window.kakao.maps.CustomOverlay({
+    position: new window.kakao.maps.LatLng(crew.lat, crew.lng),
+    content,
+    xAnchor: 0.5,
+    yAnchor: 1,
+    zIndex: 12,
+  });
+  overlay.setMap(map);
+  mapSpotOverlays.push(overlay);
+}
+
+function renderClusterOverlay(visibleSpots, map) {
+  const lat = visibleSpots.reduce((sum, spot) => sum + spot.lat, 0) / visibleSpots.length;
+  const lng = visibleSpots.reduce((sum, spot) => sum + spot.lng, 0) / visibleSpots.length;
+  const cluster = document.createElement("button");
+  cluster.type = "button";
+  cluster.className = "kakao-cluster-overlay";
+  cluster.setAttribute("aria-label", `${visibleSpots.length}개 거점 보기`);
+  cluster.innerHTML = `<span>${visibleSpots.length}</span><strong>거점</strong>`;
+  cluster.addEventListener("click", () => {
+    const center = new window.kakao.maps.LatLng(lat, lng);
+    map.setLevel(Math.max(3, map.getLevel() - 2));
+    if (map.panTo) map.panTo(center);
+    else map.setCenter(center);
+  });
+  mapClusterOverlay = new window.kakao.maps.CustomOverlay({
+    position: new window.kakao.maps.LatLng(lat, lng),
+    content: cluster,
+    xAnchor: 0.5,
+    yAnchor: 0.5,
+    zIndex: 18,
+  });
+  mapClusterOverlay.setMap(map);
+}
+
+function renderVisibleMapSpots(map) {
+  const bounds = map.getBounds();
+  const visibleSpots = mapCrewPoints.filter((crew) =>
+    bounds.contain(new window.kakao.maps.LatLng(crew.lat, crew.lng)),
+  );
+  clearMapSpotOverlays();
+  const countLabel = document.querySelector("#visibleSpotCount");
+  if (countLabel) countLabel.textContent = String(visibleSpots.length);
+  if (map.getLevel() >= 5 && visibleSpots.length > 1) {
+    renderClusterOverlay(visibleSpots, map);
+    return;
+  }
+  visibleSpots.forEach((crew) => createSpotOverlay(crew, map));
 }
 
 function renderUserRadar(lat, lng, map = kakaoMapInstance) {
