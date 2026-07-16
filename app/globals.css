@@ -621,8 +621,8 @@ button {
 
 .event-red-marker img {
   display: block;
-  width: 52px;
-  height: 52px;
+  width: 156px;
+  height: 156px;
   pointer-events: none;
 }
 
@@ -842,8 +842,8 @@ button {
 
 .personal-beacon {
   display: block;
-  width: 44px;
-  height: 44px;
+  width: 132px;
+  height: 132px;
   pointer-events: none;
 }
 

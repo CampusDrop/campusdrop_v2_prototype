@@ -337,7 +337,7 @@ function initKakaoMap() {
     if (!window.kakao) return;
     window.kakao.maps.load(() => {
       const center = new window.kakao.maps.LatLng(sejongCenter.lat, sejongCenter.lng);
-      const map = new window.kakao.maps.Map(kakaoMapElement, { center, level: 3 });
+      const map = new window.kakao.maps.Map(kakaoMapElement, { center, level: 2 });
       kakaoMapInstance = map;
       kakaoMapLoaded = true;
       kakaoFallback?.classList.add("is-hidden");
@@ -434,7 +434,7 @@ function renderClusterOverlay(visibleSpots, map) {
   cluster.innerHTML = `<span>${visibleSpots.length}</span><strong>거점</strong>`;
   cluster.addEventListener("click", () => {
     const center = new window.kakao.maps.LatLng(lat, lng);
-    map.setLevel(Math.max(3, map.getLevel() - 2));
+    map.setLevel(Math.max(2, map.getLevel() - 2));
     if (map.panTo) map.panTo(center);
     else map.setCenter(center);
   });
@@ -481,7 +481,7 @@ function renderEventMarker(map = kakaoMapInstance) {
     position: new window.kakao.maps.LatLng(spot.lat, spot.lng),
     content: marker,
     xAnchor: 0.5,
-    yAnchor: 1,
+    yAnchor: 0.5,
     zIndex: 30,
   });
   eventMarkerOverlay.setMap(map);
@@ -585,7 +585,7 @@ function requestMyLocation() {
         return;
       }
       const latLng = new window.kakao.maps.LatLng(position.coords.latitude, position.coords.longitude);
-      kakaoMapInstance.setLevel(3);
+      kakaoMapInstance.setLevel(2);
       if (kakaoMapInstance.panTo) kakaoMapInstance.panTo(latLng);
       else kakaoMapInstance.setCenter(latLng);
       renderUserRadar(position.coords.latitude, position.coords.longitude);
