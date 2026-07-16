@@ -21,6 +21,17 @@ declare global {
       "model-viewer": any;
     }
   }
+
+  interface Window {
+    kakao?: {
+      maps: {
+        load: (callback: () => void) => void;
+        LatLng: new (lat: number, lng: number) => unknown;
+        Map: new (container: HTMLElement, options: { center: unknown; level: number }) => unknown;
+        Marker: new (options: { position: unknown }) => { setMap: (map: unknown) => void };
+      };
+    };
+  }
 }
 
 const fixtureUrl = "/sejong-map-fixture.jpeg";
@@ -30,6 +41,7 @@ const answer = "428";
 const npcDialogueText = "지도 앞까지 왔구나. 오늘의 캠퍼스 퀘스트를 받을 준비 됐어?";
 const dialogueStartMs = 4300;
 const typingIntervalMs = 46;
+const sejongCenter = { lat: 37.550944, lng: 127.073765 };
 
 export default function Home() {
   const [step, setStep] = useState<Step>("start");
@@ -43,9 +55,11 @@ export default function Home() {
   const [frozenFrame, setFrozenFrame] = useState("");
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const kakaoMapRef = useRef<HTMLDivElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number | null>(null);
   const foundFramesRef = useRef(0);
+  const [kakaoReady, setKakaoReady] = useState(false);
 
   const todayLabel = useMemo(() => {
     const formatter = new Intl.DateTimeFormat("ko-KR", {
@@ -55,6 +69,43 @@ export default function Home() {
     });
     return formatter.format(new Date());
   }, []);
+
+  useEffect(() => {
+    if (step !== "map" || !kakaoMapRef.current || kakaoReady) return;
+    const params = new URLSearchParams(window.location.search);
+    const keyFromQuery = params.get("kakaoKey");
+    if (keyFromQuery) window.localStorage.setItem("campusDropKakaoKey", keyFromQuery);
+    const kakaoKey =
+      keyFromQuery ||
+      window.localStorage.getItem("campusDropKakaoKey") ||
+      "";
+    if (!kakaoKey) return;
+
+    const renderMap = () => {
+      if (!window.kakao || !kakaoMapRef.current) return;
+      window.kakao.maps.load(() => {
+        if (!window.kakao || !kakaoMapRef.current) return;
+        const center = new window.kakao.maps.LatLng(sejongCenter.lat, sejongCenter.lng);
+        const map = new window.kakao.maps.Map(kakaoMapRef.current, { center, level: 3 });
+        const marker = new window.kakao.maps.Marker({ position: center });
+        marker.setMap(map);
+        setKakaoReady(true);
+      });
+    };
+
+    const existingScript = document.querySelector<HTMLScriptElement>("script[data-campus-drop-kakao]");
+    if (existingScript) {
+      renderMap();
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.dataset.campusDropKakao = "true";
+    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${encodeURIComponent(kakaoKey)}&autoload=false`;
+    script.async = true;
+    script.onload = renderMap;
+    document.head.appendChild(script);
+  }, [kakaoReady, step]);
 
   useEffect(() => {
     if (step !== "scan") return;
@@ -333,9 +384,14 @@ export default function Home() {
       {step === "map" && (
         <section className="screen map-screen app-tab-screen">
           <div className="app-header"><p className="eyebrow">Campus Map</p><h2>크루들이 캠퍼스를 움직이고 있어요</h2></div>
-          <div className="campus-map-board">
-            <span className="map-path path-a" />
-            <span className="map-path path-b" />
+          <div className="kakao-map-shell">
+            <div ref={kakaoMapRef} className="kakao-map-canvas" aria-label="Kakao campus map" />
+            {!kakaoReady && (
+              <div className="kakao-map-fallback">
+                <strong>Kakao Map 준비됨</strong>
+                <p>URL 뒤에 <span>?kakaoKey=JavaScript키</span>를 붙이면 실제 카카오 지도가 이 자리에 표시됩니다.</p>
+              </div>
+            )}
             <button className="crew-marker phoenix">🐺<strong>Phoenix</strong></button>
             <button className="crew-marker aurora">🦊<strong>Aurora</strong></button>
             <button className="crew-marker nova">🦉<strong>Nova</strong></button>

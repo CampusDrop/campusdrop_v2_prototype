@@ -39,8 +39,12 @@
 
       <section class="screen map-screen app-tab-screen" data-screen="map">
         <div class="app-header"><p class="eyebrow">Campus Map</p><h2>크루들이 캠퍼스를 움직이고 있어요</h2></div>
-        <div class="campus-map-board">
-          <span class="map-path path-a"></span><span class="map-path path-b"></span>
+        <div class="kakao-map-shell">
+          <div id="kakaoMap" class="kakao-map-canvas" aria-label="Kakao campus map"></div>
+          <div id="kakaoFallback" class="kakao-map-fallback">
+            <strong>Kakao Map 준비됨</strong>
+            <p>URL 뒤에 <span>?kakaoKey=JavaScript키</span>를 붙이면 실제 카카오 지도가 이 자리에 표시됩니다.</p>
+          </div>
           <button class="crew-marker phoenix">🐺<strong>Phoenix</strong></button>
           <button class="crew-marker aurora">🦊<strong>Aurora</strong></button>
           <button class="crew-marker nova">🦉<strong>Nova</strong></button>

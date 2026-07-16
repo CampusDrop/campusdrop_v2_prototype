@@ -226,19 +226,53 @@ button {
   font-size: 31px;
 }
 
-.campus-map-board {
+.kakao-map-shell {
   position: relative;
   z-index: 1;
   min-height: 360px;
   overflow: hidden;
   border: 3px solid var(--ink);
   border-radius: 28px;
+  background: #e8f4ef;
+  box-shadow: 10px 10px 0 rgba(32, 214, 163, 0.24);
+}
+
+.kakao-map-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.kakao-map-fallback {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  align-content: center;
+  gap: 10px;
+  padding: 34px;
   background:
     linear-gradient(90deg, rgba(17, 134, 108, 0.16) 1px, transparent 1px),
     linear-gradient(rgba(17, 134, 108, 0.16) 1px, transparent 1px),
     linear-gradient(150deg, #f8f2da, #dbf5eb 48%, #fef8df);
   background-size: 34px 34px, 34px 34px, auto;
-  box-shadow: 10px 10px 0 rgba(32, 214, 163, 0.24);
+  color: var(--ink);
+}
+
+.kakao-map-fallback strong {
+  font-size: 24px;
+}
+
+.kakao-map-fallback p {
+  max-width: 250px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1.45;
+}
+
+.kakao-map-fallback span {
+  color: var(--leaf);
 }
 
 .map-path {
@@ -254,6 +288,7 @@ button {
 
 .crew-marker {
   position: absolute;
+  z-index: 3;
   display: grid;
   place-items: center;
   border: 0;
@@ -278,6 +313,7 @@ button {
 .treasure-dot,
 .store-dot {
   position: absolute;
+  z-index: 3;
   display: grid;
   width: 44px;
   aspect-ratio: 1;
