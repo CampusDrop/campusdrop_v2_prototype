@@ -49,6 +49,8 @@ const campusEventSpots = [
   { name: "세종관 산책로", lat: 37.5511, lng: 127.07298 },
 ];
 const personalBeaconMarkup = `
+  <span class="personal-beacon-pulse personal-beacon-pulse-a" aria-hidden="true"></span>
+  <span class="personal-beacon-pulse personal-beacon-pulse-b" aria-hidden="true"></span>
   <img class="personal-beacon" src="${currentLocationIconUrl}" alt="" aria-hidden="true" />
   <strong>내 위치</strong>
 `;
