@@ -32,6 +32,7 @@ const eventTimer = document.querySelector("#eventTimer");
 const scanTitle = document.querySelector("#scanTitle");
 const completeBirdEventButton = document.querySelector("#completeBirdEvent");
 const birdGuide = document.querySelector("#birdGuide");
+const birdStage = document.querySelector(".bird-stage");
 const npcDialogueText = "지도 앞까지 왔구나. 오늘의 캠퍼스 퀘스트를 받을 준비 됐어?";
 const dialogueStartMs = 4300;
 const typingIntervalMs = 46;
@@ -81,6 +82,10 @@ let foundFrames = 0;
 let canOpenMission = false;
 let arMode = "marker";
 let birdLocked = false;
+let birdSensorReady = false;
+let birdTargetOffset = 180;
+let birdTargetHeading = null;
+let birdCenterStart = null;
 let activeEventIndex = 0;
 let eventEndsAt = Date.now() + eventDurationMs;
 let eventReached = false;
@@ -102,6 +107,24 @@ let interactionCircle = null;
 let locationWatchId = null;
 let currentUserLocation = defaultUserLocation;
 let lastLocationRequestAt = 0;
+
+function normalizeDegrees(degrees) {
+  return ((degrees % 360) + 360) % 360;
+}
+
+function shortestAngleDelta(from, to) {
+  return ((to - from + 540) % 360) - 180;
+}
+
+async function requestOrientationAccess() {
+  const orientationEvent = window.DeviceOrientationEvent;
+  if (typeof orientationEvent?.requestPermission !== "function") return true;
+  try {
+    return (await orientationEvent.requestPermission()) === "granted";
+  } catch {
+    return false;
+  }
+}
 
 todayLabel.textContent = new Intl.DateTimeFormat("ko-KR", {
   month: "long",
@@ -258,6 +281,70 @@ completeBirdEventButton?.addEventListener("click", () => {
   updateEventReach();
   setStep("success");
 });
+
+function resetBirdSensorScene() {
+  birdLocked = false;
+  birdTargetHeading = null;
+  birdCenterStart = null;
+  completeBirdEventButton?.classList.remove("is-locked");
+  birdGuide?.classList.remove("is-ready");
+  if (birdStage) {
+    birdStage.style.setProperty("--bird-x", "-28%");
+    birdStage.style.setProperty("--bird-y", "44%");
+    birdStage.style.setProperty("--bird-scale", "0.72");
+    birdStage.style.setProperty("--bird-opacity", "0");
+  }
+}
+
+function updateBirdGuide() {
+  if (!birdGuide) return;
+  birdGuide.querySelector("strong").textContent = birdLocked ? "파랑새 포착!" : "파랑새 신호 추적 중";
+  birdGuide.querySelector("p").textContent = birdLocked
+    ? "파랑새를 터치해 이벤트를 완료하세요."
+    : birdSensorReady
+      ? "사용자 뒤쪽 어딘가에 파랑새가 숨어 있어요. 휴대폰을 천천히 돌려 중앙에 붙잡아 보세요."
+      : "방향 센서 권한이 필요해요. 권한 요청이 뜨면 허용해주세요.";
+}
+
+function handleBirdOrientation(event) {
+  if (arMode !== "bird" || !scanScreen.classList.contains("is-found")) return;
+  const rawHeading =
+    typeof event.webkitCompassHeading === "number"
+      ? event.webkitCompassHeading
+      : typeof event.alpha === "number"
+        ? 360 - event.alpha
+        : null;
+  if (rawHeading === null) return;
+  const heading = normalizeDegrees(rawHeading);
+  if (birdTargetHeading === null) birdTargetHeading = normalizeDegrees(heading + birdTargetOffset);
+  const delta = shortestAngleDelta(heading, birdTargetHeading);
+  const absDelta = Math.abs(delta);
+  const visibleRange = 88;
+  const x = 50 + (delta / visibleRange) * 58;
+  const y = 42 + Math.sin((delta / visibleRange) * Math.PI) * 8;
+  const opacity = Math.max(0, Math.min(1, 1 - (absDelta - 18) / 56));
+  const scale = Math.max(0.58, 1 - absDelta / 260);
+  if (birdStage) {
+    birdStage.style.setProperty("--bird-x", `${x}%`);
+    birdStage.style.setProperty("--bird-y", `${y}%`);
+    birdStage.style.setProperty("--bird-scale", String(scale));
+    birdStage.style.setProperty("--bird-opacity", String(opacity));
+  }
+  if (absDelta <= 13) {
+    if (birdCenterStart === null) birdCenterStart = Date.now();
+    if (Date.now() - birdCenterStart > 1300) {
+      birdLocked = true;
+      completeBirdEventButton?.classList.add("is-locked");
+      birdGuide?.classList.add("is-ready");
+    }
+  } else {
+    birdCenterStart = null;
+    birdLocked = false;
+    completeBirdEventButton?.classList.remove("is-locked");
+    birdGuide?.classList.remove("is-ready");
+  }
+  updateBirdGuide();
+}
 document.querySelector("#closeMapSpot")?.addEventListener("click", () => {
   mapSpotSheet?.classList.remove("is-visible");
 });
@@ -606,10 +693,15 @@ function requestMyLocation() {
 
 async function beginScan(mode = "marker") {
   arMode = mode;
+  if (arMode === "bird") {
+    birdTargetOffset = 120 + Math.random() * 120;
+    birdSensorReady = await requestOrientationAccess();
+    window.addEventListener("deviceorientation", handleBirdOrientation, true);
+  }
   setStep("scan");
   foundFrames = 0;
   canOpenMission = false;
-  birdLocked = false;
+  resetBirdSensorScene();
   resetDialogue();
   frozenFrame.removeAttribute("src");
   frozenFrame.classList.remove("is-visible");
@@ -635,14 +727,8 @@ async function beginScan(mode = "marker") {
       scanScreen.classList.add("is-found");
       scanFrame.classList.add("is-found");
       scanHint.querySelector("strong").textContent = "주변을 천천히 둘러보세요";
-      scanHint.querySelector("p").textContent = "파랑새를 중앙에 1~2초 붙잡은 뒤 터치하세요.";
-      window.setTimeout(() => {
-        birdLocked = true;
-        completeBirdEventButton?.classList.add("is-locked");
-        birdGuide?.classList.add("is-ready");
-        birdGuide.querySelector("strong").textContent = "파랑새 포착!";
-        birdGuide.querySelector("p").textContent = "파랑새를 터치해 이벤트를 완료하세요.";
-      }, 1600);
+      scanHint.querySelector("p").textContent = "파랑새는 사용자 뒤쪽 어딘가에 숨어 있어요.";
+      updateBirdGuide();
       return;
     }
     scanHint.querySelector("strong").textContent = "지도 안내판이나 포스터를 중앙에 맞춰주세요";
@@ -659,6 +745,7 @@ async function beginScan(mode = "marker") {
 function stopCamera() {
   if (raf) cancelAnimationFrame(raf);
   raf = null;
+  window.removeEventListener("deviceorientation", handleBirdOrientation, true);
   if (stream) {
     stream.getTracks().forEach((track) => track.stop());
     stream = null;
