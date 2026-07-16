@@ -14,6 +14,10 @@ const kakaoMapElement = document.querySelector("#kakaoMap");
 const kakaoFallback = document.querySelector("#kakaoFallback");
 const classSearch = document.querySelector("#classSearch");
 const classGrid = document.querySelector("#classGrid");
+const collectionSeason = document.querySelector("#collectionSeason");
+const collectionModel = document.querySelector("#collectionModel");
+const collectionName = document.querySelector("#collectionName");
+const collectionTitle = document.querySelector("#collectionTitle");
 const npcDialogueText = "지도 앞까지 왔구나. 오늘의 캠퍼스 퀘스트를 받을 준비 됐어?";
 const dialogueStartMs = 4300;
 const typingIntervalMs = 46;
@@ -22,6 +26,12 @@ const mapCrewPoints = [
   { name: "피닉스", lat: 37.550944, lng: 127.073765 },
   { name: "오로라", lat: 37.55135, lng: 127.07432 },
   { name: "노바", lat: 37.55052, lng: 127.07318 },
+];
+const collectionModels = [
+  { season: "황금말 시즌", name: "세종 기린", title: "시계탑 정령", unlocked: true, src: "./sejongGF.glb" },
+  { season: "황금말 시즌", name: "달빛 여우", title: "야간 탐험 보상", unlocked: false, src: "" },
+  { season: "황금말 시즌", name: "도서관 부엉이", title: "스터디 미션 보상", unlocked: false, src: "" },
+  { season: "벚꽃 시즌", name: "봄길 사슴", title: "지난 시즌 기록", unlocked: true, src: "./sejongGF.glb" },
 ];
 
 let stream = null;
@@ -34,6 +44,7 @@ let dialogueTypingTimer = null;
 let kakaoMapLoaded = false;
 let classDragMode = "add";
 let mapMenuOpen = false;
+let collectionIndex = 0;
 
 todayLabel.textContent = new Intl.DateTimeFormat("ko-KR", {
   month: "long",
@@ -42,6 +53,16 @@ todayLabel.textContent = new Intl.DateTimeFormat("ko-KR", {
 }).format(new Date());
 
 document.querySelector("#startScanMap")?.addEventListener("click", beginScan);
+document.querySelector("#startScanExplore")?.addEventListener("click", beginScan);
+document.querySelector("#startScanExploreAlt")?.addEventListener("click", beginScan);
+document.querySelector("#collectionPrev")?.addEventListener("click", () => {
+  collectionIndex = (collectionIndex + collectionModels.length - 1) % collectionModels.length;
+  renderCollection();
+});
+document.querySelector("#collectionNext")?.addEventListener("click", () => {
+  collectionIndex = (collectionIndex + 1) % collectionModels.length;
+  renderCollection();
+});
 document.querySelector("#closeSettings").addEventListener("click", () => setStep("map"));
 document.querySelectorAll(".open-settings").forEach((button) => {
   button.addEventListener("click", () => setStep("settings"));
@@ -152,6 +173,17 @@ function setMapMenuOpen(open) {
   menu?.classList.toggle("is-open", mapMenuOpen);
   trigger?.setAttribute("aria-expanded", mapMenuOpen ? "true" : "false");
   panel?.setAttribute("aria-hidden", mapMenuOpen ? "false" : "true");
+}
+
+function renderCollection() {
+  const active = collectionModels[collectionIndex];
+  if (!active || !collectionModel) return;
+  collectionSeason.textContent = active.season;
+  collectionName.textContent = active.unlocked ? active.name : "미발견 모델";
+  collectionTitle.textContent = active.title;
+  collectionModel.innerHTML = active.unlocked
+    ? `<model-viewer src="${active.src}" camera-orbit="90deg 76deg 3.2m" field-of-view="28deg" exposure="1.1" auto-rotate interaction-prompt="none" disable-zoom alt="${active.name}"></model-viewer>`
+    : `<div class="locked-model">??</div>`;
 }
 
 function paintClassCell(cell) {

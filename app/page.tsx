@@ -87,6 +87,12 @@ const hobbyOptions = [
   { label: "사진 찍기", icon: "PHOTO" },
   { label: "방탈출", icon: "ESCAPE" },
 ];
+const collectionModels = [
+  { season: "황금말 시즌", name: "세종 기린", title: "시계탑 정령", unlocked: true, src: npcModelUrl },
+  { season: "황금말 시즌", name: "달빛 여우", title: "야간 탐험 보상", unlocked: false, src: "" },
+  { season: "황금말 시즌", name: "도서관 부엉이", title: "스터디 미션 보상", unlocked: false, src: "" },
+  { season: "벚꽃 시즌", name: "봄길 사슴", title: "지난 시즌 기록", unlocked: true, src: npcModelUrl },
+];
 
 export default function Home() {
   const [step, setStep] = useState<Step>("signup-basic");
@@ -120,6 +126,7 @@ export default function Home() {
   const [selectedHobbies, setSelectedHobbies] = useState<string[]>([]);
   const [interestError, setInterestError] = useState("");
   const [hobbyError, setHobbyError] = useState("");
+  const [collectionIndex, setCollectionIndex] = useState(0);
   const dragModeRef = useRef<"add" | "remove">("add");
 
   const todayLabel = useMemo(() => {
@@ -130,6 +137,7 @@ export default function Home() {
     });
     return formatter.format(new Date());
   }, []);
+  const activeCollection = collectionModels[collectionIndex];
 
   useEffect(() => {
     if (step !== "map" || !kakaoMapRef.current || kakaoReady) return;
@@ -690,31 +698,23 @@ export default function Home() {
         <section className="screen home-screen app-tab-screen">
           <SettingsButton />
           <MapBackButton />
-          <div className="season-badge">🐴 황금말 시즌</div>
-          <div className="crew-hero-card">
-            <div className="crew-model-bubble">🐺</div>
-            <div>
-              <p className="eyebrow">나의 크루</p>
-              <h1>피닉스</h1>
-              <strong>레벨 8</strong>
-              <div className="xp-bar"><span style={{ width: "82%" }} /></div>
-              <p>우리 크루가 다음 레벨까지 82% 성장했어요.</p>
-            </div>
+          <div className="app-header"><p className="eyebrow">탐색</p><h2>오늘의 캠퍼스 소식</h2></div>
+          <div className="mission-card featured">
+            <span>AR</span>
+            <strong>시계탑 정령을 깨워라</strong>
+            <p>지도 안내판을 스캔하고 기린의 퀘스트를 완료하세요.</p>
+            <button type="button" onClick={beginScan}>퀘스트 입장</button>
           </div>
-          <div className="event-strip">
-            <span>다음 방탈출 미션</span>
-            <strong>D-5</strong>
-            <button onClick={() => setStep("map")}>시작</button>
+          <div className="mission-card">
+            <span>오늘</span>
+            <strong>크루 보물 탐색</strong>
+            <p>세종 카페 라운지 근처에서 힌트 조각을 발견하면 크루 경험치가 올라갑니다.</p>
           </div>
-          <div className="section-block">
-            <h2>오늘 캠퍼스에서 열리는 일</h2>
-            <div className="daily-event-list">
-              <div className="treasure-card"><span>🐴</span><strong>오늘의 보물</strong><p>시계탑 근처 · 보상 캐릭터 조각</p></div>
-              <div className="store-card"><span>☕</span><strong>세종 카페 라운지</strong><p>아메리카노 20% · 120m</p></div>
-              <div className="store-card"><span>🎟</span><strong>한정 이벤트</strong><p>탈출 미션 D-5 · 우리 크루가 함께 발견했어요.</p></div>
-            </div>
+          <div className="notice-list">
+            <h3>공지사항</h3>
+            <div><strong>황금말 시즌 진행 중</strong><p>이번 시즌 발견 기록은 도감에 자동으로 쌓입니다.</p></div>
+            <div><strong>오늘 23:59 쿠폰 만료</strong><p>획득한 캠퍼스 쿠폰은 당일 안에 사용해야 합니다.</p></div>
           </div>
-          <div className="activity-line">민수가 새로운 캐릭터를 획득했습니다.</div>
         </section>
       )}
 
@@ -761,10 +761,10 @@ export default function Home() {
         <section className="screen explore-screen app-tab-screen">
           <SettingsButton />
           <MapBackButton />
-          <div className="app-header"><p className="eyebrow">오늘</p><h2>오늘 캠퍼스에서 열리는 일</h2></div>
-          <div className="treasure-card"><span>🐴</span><strong>오늘의 보물</strong><p>시계탑 근처 · 보상 캐릭터 조각</p></div>
-          <div className="store-card"><span>☕</span><strong>세종 카페 라운지</strong><p>아메리카노 20% · 120m</p></div>
-          <div className="store-card"><span>🎟</span><strong>한정 이벤트</strong><p>탈출 미션 D-5 · 우리 크루가 함께 발견했어요.</p></div>
+          <div className="app-header"><p className="eyebrow">탐색</p><h2>오늘의 캠퍼스 소식</h2></div>
+          <div className="mission-card featured"><span>AR</span><strong>시계탑 정령을 깨워라</strong><p>지도 안내판을 스캔하고 기린의 퀘스트를 완료하세요.</p><button type="button" onClick={beginScan}>퀘스트 입장</button></div>
+          <div className="mission-card"><span>오늘</span><strong>크루 보물 탐색</strong><p>세종 카페 라운지 근처에서 힌트 조각을 발견하면 크루 경험치가 올라갑니다.</p></div>
+          <div className="notice-list"><h3>공지사항</h3><div><strong>황금말 시즌 진행 중</strong><p>이번 시즌 발견 기록은 도감에 자동으로 쌓입니다.</p></div><div><strong>오늘 23:59 쿠폰 만료</strong><p>획득한 캠퍼스 쿠폰은 당일 안에 사용해야 합니다.</p></div></div>
         </section>
       )}
 
@@ -775,15 +775,19 @@ export default function Home() {
           <div className="crew-profile">
             <div className="crew-model-bubble large">🐺</div>
             <h2>피닉스</h2>
-            <p>황금말 시즌 · 경험치 12,840</p>
+            <p>황금말 시즌 · 크루 경험치 12,840</p>
+            <div className="crew-xp-panel">
+              <div><span>다음 레벨까지</span><strong>82%</strong></div>
+              <div className="xp-bar"><span style={{ width: "82%" }} /></div>
+            </div>
           </div>
-          <div className="member-grid">
-            <div><strong>민수</strong><span>탐험가</span></div>
-            <div><strong>지윤</strong><span>분위기 메이커</span></div>
-            <div><strong>하린</strong><span>맛집 헌터</span></div>
+          <div className="contributor-list">
+            <h3>상위 기여 유저</h3>
+            <div><span>1</span><strong>민수</strong><em>+3,420 XP</em></div>
+            <div><span>2</span><strong>지윤</strong><em>+2,880 XP</em></div>
+            <div><span>3</span><strong>하린</strong><em>+2,140 XP</em></div>
           </div>
           <div className="crew-chat">오늘 6시에 보물 위치 같이 확인할 사람?</div>
-          <div className="vote-card"><strong>대표 모델 투표</strong><p>이번 주는 피닉스가 62%로 앞서고 있어요.</p></div>
         </section>
       )}
 
@@ -791,17 +795,30 @@ export default function Home() {
         <section className="screen collection-screen app-tab-screen">
           <SettingsButton />
           <MapBackButton />
-          <div className="app-header"><p className="eyebrow">도감</p><h2>우리 크루가 함께 발견한 기록</h2></div>
-          <div className="collection-grid">
-            <button>🐺<span>발견함</span></button>
-            <button>🦊<span>발견함</span></button>
-            <button>🦉<span>발견함</span></button>
-            <button className="is-locked">?</button>
-            <button className="is-locked">?</button>
-            <button className="is-locked">?</button>
+          <div className="collection-profile-card">
+            <span>내 정보</span>
+            <strong>김세종</strong>
+            <p>컴퓨터공학과 · 피닉스 크루</p>
+            <div className="title-strip"><span>시계탑 탐험가</span><span>맛집 헌터</span></div>
           </div>
-          <div className="title-strip"><span>탐험가</span><span>탐정</span><span>맛집 헌터</span></div>
-          <div className="season-record">🏆 황금말 시즌 · 참여 기록 8회</div>
+          <div className="collection-carousel">
+            <div className="app-header"><p className="eyebrow">시즌 도감</p><h2>{activeCollection.season}</h2></div>
+            <div className="carousel-stage">
+              <button type="button" aria-label="이전 도감 모델" onClick={() => setCollectionIndex((index) => (index + collectionModels.length - 1) % collectionModels.length)}>‹</button>
+              <div className="model-showcase">
+                {activeCollection.unlocked ? (
+                  <model-viewer src={activeCollection.src} camera-orbit="90deg 76deg 3.2m" field-of-view="28deg" exposure="1.1" auto-rotate interaction-prompt="none" disable-zoom alt={activeCollection.name} />
+                ) : (
+                  <div className="locked-model">??</div>
+                )}
+              </div>
+              <button type="button" aria-label="다음 도감 모델" onClick={() => setCollectionIndex((index) => (index + 1) % collectionModels.length)}>›</button>
+            </div>
+            <div className="collection-caption">
+              <strong>{activeCollection.unlocked ? activeCollection.name : "미발견 모델"}</strong>
+              <p>{activeCollection.title}</p>
+            </div>
+          </div>
         </section>
       )}
 
