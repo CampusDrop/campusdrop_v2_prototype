@@ -255,35 +255,30 @@ button { -webkit-tap-highlight-color: transparent; }
 .map-location-button:active { transform: translateY(1px) scale(.96); }
 .map-location-button em { font-style: normal; }
 .my-location-marker { display: grid; place-items: center; pointer-events: none; }
-.personal-beacon { position: relative; display: grid; place-items: center; width: 74px; height: 86px; filter: drop-shadow(0 0 16px rgba(0,230,254,.82)); }
+.personal-beacon { position: relative; display: grid; place-items: center; width: 70px; height: 82px; filter: drop-shadow(0 0 14px rgba(80,190,255,.54)); }
 .beacon-core {
-  position: relative; z-index: 4; width: 14px; aspect-ratio: 1; border: 2px solid rgba(255,255,255,.9); border-radius: 999px;
-  background: #00e6fe; box-shadow: 0 0 12px rgba(0,230,254,.96), 0 0 24px rgba(188,19,254,.42);
+  position: relative; z-index: 4; width: 22px; aspect-ratio: 1; border: 4px solid rgba(255,255,255,.96); border-radius: 999px;
+  background: radial-gradient(circle at 35% 30%, #ffffff 0 10%, transparent 12%), #1f8cff; box-shadow: 0 0 0 7px rgba(31,140,255,.18), 0 0 18px rgba(80,190,255,.72);
 }
 .beacon-ring {
-  position: absolute; top: 13px; z-index: 3; border: 1px solid rgba(0,230,254,.62); border-radius: 999px;
-  box-shadow: inset 0 0 12px rgba(0,230,254,.22), 0 0 10px rgba(188,19,254,.48);
+  position: absolute; z-index: 3; width: 6px; aspect-ratio: 1; border: 0; border-radius: 2px; background: #ffeaa6;
+  box-shadow: 0 0 8px rgba(255,234,166,.9), 0 0 16px rgba(131,220,255,.5); transform: rotate(45deg);
 }
-.beacon-ring::before, .beacon-ring::after {
-  position: absolute; width: 5px; aspect-ratio: 1; border-radius: 999px; background: rgba(0,230,254,.86);
-  box-shadow: 0 0 8px rgba(188,19,254,.8); content: "";
-}
-.beacon-ring::before { top: -3px; left: 50%; }
-.beacon-ring::after { right: -3px; top: 50%; }
-.beacon-ring-a { width: 42px; height: 42px; animation: beacon-spin 8s linear infinite; }
-.beacon-ring-b { width: 56px; height: 56px; border-style: dashed; opacity: .78; animation: beacon-spin-reverse 12s linear infinite; }
+.beacon-ring::before, .beacon-ring::after { display: none; }
+.beacon-ring-a { left: 12px; top: 20px; animation: fairy-spark-a 2.8s ease-in-out infinite; }
+.beacon-ring-b { right: 10px; top: 30px; opacity: .82; animation: fairy-spark-b 3.4s ease-in-out infinite; }
 .beacon-pulse {
-  position: absolute; top: 10px; z-index: 1; width: 60px; height: 60px; border: 1px solid rgba(0,230,254,.3);
-  border-radius: 999px; background: rgba(0,230,254,.1);
+  position: absolute; top: 17px; z-index: 1; width: 44px; height: 44px; border: 0; border-radius: 999px;
+  background: radial-gradient(circle, rgba(151,222,255,.28), transparent 62%);
 }
 .beacon-pulse-a { animation: beacon-pulse 1.45s ease-out infinite; }
-.beacon-pulse-b { animation: beacon-ping 1.1s cubic-bezier(0,0,.2,1) infinite; animation-delay: .28s; }
-.beacon-shadow { position: absolute; bottom: 5px; width: 38px; height: 10px; border-radius: 999px; background: rgba(0,8,14,.64); filter: blur(3px); transform: scaleX(1.35); }
+.beacon-pulse-b { background: radial-gradient(circle, rgba(255,234,166,.24), transparent 60%); animation: beacon-ping 1.8s cubic-bezier(0,0,.2,1) infinite; animation-delay: .28s; }
+.beacon-shadow { position: absolute; bottom: 6px; width: 34px; height: 9px; border-radius: 999px; background: rgba(41,30,64,.38); filter: blur(3px); transform: scaleX(1.25); }
 .my-location-marker strong { display: none; }
-@keyframes beacon-spin { to { transform: rotate(360deg); } }
-@keyframes beacon-spin-reverse { to { transform: rotate(-360deg); } }
-@keyframes beacon-pulse { 0%, 100% { opacity: .32; transform: scale(.92); } 50% { opacity: .68; transform: scale(1.1); } }
-@keyframes beacon-ping { 80%, 100% { opacity: 0; transform: scale(1.65); } }
+@keyframes fairy-spark-a { 0%, 100% { opacity: .42; transform: translateY(0) rotate(45deg) scale(.8); } 50% { opacity: 1; transform: translateY(-7px) rotate(45deg) scale(1.18); } }
+@keyframes fairy-spark-b { 0%, 100% { opacity: .38; transform: translateY(2px) rotate(45deg) scale(.72); } 50% { opacity: .92; transform: translateY(-5px) rotate(45deg) scale(1.06); } }
+@keyframes beacon-pulse { 0%, 100% { opacity: .22; transform: scale(.86); } 50% { opacity: .5; transform: scale(1.16); } }
+@keyframes beacon-ping { 80%, 100% { opacity: 0; transform: scale(1.42); } }
 .map-ar-quest-button {
   position: absolute; left: 50%; right: auto; bottom: max(20px, calc(env(safe-area-inset-bottom) + 14px)); z-index: 48;
   display: grid; width: 78px; min-height: 78px; place-items: center;
