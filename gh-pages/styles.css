@@ -274,12 +274,12 @@ button { -webkit-tap-highlight-color: transparent; }
 .collection-caption { display: grid; gap: 5px; text-align: center; }
 .collection-caption strong { font-size: 21px; }
 .map-action-menu {
-  position: absolute; left: 50%; bottom: max(18px, env(safe-area-inset-bottom)); z-index: 24;
-  display: grid; justify-items: center; translate: -50% 0;
+  position: absolute; right: 18px; bottom: max(18px, env(safe-area-inset-bottom)); z-index: 24;
+  display: grid; justify-items: end;
 }
 .map-menu-panel {
   display: flex; gap: 10px; margin-bottom: 12px; opacity: 0; pointer-events: none;
-  transform: translateY(14px) scale(.92); transition: opacity .18s ease, transform .18s ease;
+  transform: translateY(14px) scale(.92); transform-origin: right bottom; transition: opacity .18s ease, transform .18s ease;
 }
 .map-action-menu.is-open .map-menu-panel { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
 .map-menu-panel button, .map-menu-trigger, .map-back-button {

@@ -946,12 +946,11 @@ button {
 
 .map-action-menu {
   position: absolute;
-  left: 50%;
+  right: 18px;
   bottom: max(18px, env(safe-area-inset-bottom));
   z-index: 24;
   display: grid;
-  justify-items: center;
-  translate: -50% 0;
+  justify-items: end;
 }
 
 .map-menu-panel {
@@ -961,6 +960,7 @@ button {
   opacity: 0;
   pointer-events: none;
   transform: translateY(14px) scale(0.92);
+  transform-origin: right bottom;
   transition: opacity 0.18s ease, transform 0.18s ease;
 }
 
