@@ -109,11 +109,12 @@
           <p class="selection-hint">여러 개 선택할 수 있어요.</p>
           <p class="form-error" data-error="hobby"></p>
         </div>
-        <button class="primary-action signup-next" data-next="start" data-requires="hobby">가입 완료</button>
+        <button class="primary-action signup-next" data-next="map" data-requires="hobby">가입 완료</button>
       </section>
 
       <section class="screen home-screen app-tab-screen" data-screen="start">
         <button class="settings-button open-settings" aria-label="설정 열기">⚙</button>
+        <button class="map-back-button" type="button" data-menu-step="map">지도</button>
         <div class="season-badge">🐴 황금말 시즌</div>
         <div class="crew-hero-card">
           <div class="crew-model-bubble">🐺</div>
@@ -161,10 +162,19 @@
             <strong>노바</strong>
           </button>
         </div>
+        <div class="map-action-menu">
+          <div class="map-menu-panel" aria-hidden="true">
+            <button type="button" data-menu-step="start">💎<span>탐색</span></button>
+            <button type="button" data-menu-step="crew">👥<span>크루</span></button>
+            <button type="button" data-menu-step="collection">📖<span>도감</span></button>
+          </div>
+          <button type="button" class="map-menu-trigger" aria-label="지도 메뉴 열기" aria-expanded="false">✦</button>
+        </div>
       </section>
 
       <section class="screen explore-screen app-tab-screen" data-screen="explore">
         <button class="settings-button open-settings" aria-label="설정 열기">⚙</button>
+        <button class="map-back-button" type="button" data-menu-step="map">지도</button>
         <div class="app-header"><p class="eyebrow">오늘</p><h2>오늘 캠퍼스에서 열리는 일</h2></div>
         <div class="treasure-card"><span>🐴</span><strong>오늘의 보물</strong><p>시계탑 근처 · 보상 캐릭터 조각</p></div>
         <div class="store-card"><span>☕</span><strong>세종 카페 라운지</strong><p>아메리카노 20% · 120m</p></div>
@@ -173,6 +183,7 @@
 
       <section class="screen crew-screen app-tab-screen" data-screen="crew">
         <button class="settings-button open-settings" aria-label="설정 열기">⚙</button>
+        <button class="map-back-button" type="button" data-menu-step="map">지도</button>
         <div class="crew-profile"><div class="crew-model-bubble large">🐺</div><h2>피닉스</h2><p>황금말 시즌 · 경험치 12,840</p></div>
         <div class="member-grid"><div><strong>민수</strong><span>탐험가</span></div><div><strong>지윤</strong><span>분위기 메이커</span></div><div><strong>하린</strong><span>맛집 헌터</span></div></div>
         <div class="crew-chat">오늘 6시에 보물 위치 같이 확인할 사람?</div>
@@ -181,6 +192,7 @@
 
       <section class="screen collection-screen app-tab-screen" data-screen="collection">
         <button class="settings-button open-settings" aria-label="설정 열기">⚙</button>
+        <button class="map-back-button" type="button" data-menu-step="map">지도</button>
         <div class="app-header"><p class="eyebrow">도감</p><h2>우리 크루가 함께 발견한 기록</h2></div>
         <div class="collection-grid"><button>🐺<span>발견함</span></button><button>🦊<span>발견함</span></button><button>🦉<span>발견함</span></button><button class="is-locked">?</button><button class="is-locked">?</button><button class="is-locked">?</button></div>
         <div class="title-strip"><span>탐험가</span><span>탐정</span><span>맛집 헌터</span></div>
@@ -315,13 +327,6 @@
         <div class="today-alert">당일 사용 제한 쿠폰입니다</div>
         <button class="secondary-action" id="restartDemo">처음부터 다시 시연</button>
       </section>
-      <nav class="bottom-nav" aria-label="캠퍼스 드랍 하단 메뉴">
-        <button class="tab-link is-active" data-tab="start">🏠<span>홈</span></button>
-        <button class="tab-link" data-tab="map">🗺<span>지도</span></button>
-        <button class="tab-link" data-tab="explore">💎<span>탐색</span></button>
-        <button class="tab-link" data-tab="crew">👥<span>크루</span></button>
-        <button class="tab-link" data-tab="collection">📖<span>도감</span></button>
-      </nav>
     </main>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
     <script src="./app.js"></script>

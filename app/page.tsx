@@ -98,6 +98,7 @@ export default function Home() {
   const [canOpenMission, setCanOpenMission] = useState(false);
   const [typedDialogue, setTypedDialogue] = useState("");
   const [frozenFrame, setFrozenFrame] = useState("");
+  const [mapMenuOpen, setMapMenuOpen] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const kakaoShellRef = useRef<HTMLDivElement | null>(null);
@@ -474,17 +475,40 @@ export default function Home() {
       setHobbyError("취미를 1개 이상 선택해주세요.");
       return;
     }
-    setStep("start");
+    setStep("map");
   }
 
-  const BottomNav = () => (
-    <nav className="bottom-nav" aria-label="캠퍼스 드랍 하단 메뉴">
-      <button className={step === "start" ? "is-active" : ""} onClick={() => setStep("start")}>🏠<span>홈</span></button>
-      <button className={step === "map" ? "is-active" : ""} onClick={() => setStep("map")}>🗺<span>지도</span></button>
-      <button className={step === "explore" ? "is-active" : ""} onClick={() => setStep("explore")}>💎<span>탐색</span></button>
-      <button className={step === "crew" ? "is-active" : ""} onClick={() => setStep("crew")}>👥<span>크루</span></button>
-      <button className={step === "collection" ? "is-active" : ""} onClick={() => setStep("collection")}>📖<span>도감</span></button>
-    </nav>
+  const goToMap = () => {
+    setMapMenuOpen(false);
+    setStep("map");
+  };
+
+  const openFromMapMenu = (nextStep: Step) => {
+    setMapMenuOpen(false);
+    setStep(nextStep);
+  };
+
+  const MapMenu = () => (
+    <div className={`map-action-menu${mapMenuOpen ? " is-open" : ""}`}>
+      <div className="map-menu-panel" aria-hidden={!mapMenuOpen}>
+        <button type="button" onClick={() => openFromMapMenu("start")}>💎<span>탐색</span></button>
+        <button type="button" onClick={() => openFromMapMenu("crew")}>👥<span>크루</span></button>
+        <button type="button" onClick={() => openFromMapMenu("collection")}>📖<span>도감</span></button>
+      </div>
+      <button
+        type="button"
+        className="map-menu-trigger"
+        aria-label="지도 메뉴 열기"
+        aria-expanded={mapMenuOpen}
+        onClick={() => setMapMenuOpen((open) => !open)}
+      >
+        ✦
+      </button>
+    </div>
+  );
+
+  const MapBackButton = () => (
+    <button className="map-back-button" type="button" onClick={goToMap}>지도</button>
   );
 
   const SettingsButton = () => (
@@ -665,6 +689,7 @@ export default function Home() {
       {step === "start" && (
         <section className="screen home-screen app-tab-screen">
           <SettingsButton />
+          <MapBackButton />
           <div className="season-badge">🐴 황금말 시즌</div>
           <div className="crew-hero-card">
             <div className="crew-model-bubble">🐺</div>
@@ -690,7 +715,6 @@ export default function Home() {
             </div>
           </div>
           <div className="activity-line">민수가 새로운 캐릭터를 획득했습니다.</div>
-          <BottomNav />
         </section>
       )}
 
@@ -717,24 +741,25 @@ export default function Home() {
               <strong>노바</strong>
             </button>
           </div>
-          <BottomNav />
+          <MapMenu />
         </section>
       )}
 
       {step === "explore" && (
         <section className="screen explore-screen app-tab-screen">
           <SettingsButton />
+          <MapBackButton />
           <div className="app-header"><p className="eyebrow">오늘</p><h2>오늘 캠퍼스에서 열리는 일</h2></div>
           <div className="treasure-card"><span>🐴</span><strong>오늘의 보물</strong><p>시계탑 근처 · 보상 캐릭터 조각</p></div>
           <div className="store-card"><span>☕</span><strong>세종 카페 라운지</strong><p>아메리카노 20% · 120m</p></div>
           <div className="store-card"><span>🎟</span><strong>한정 이벤트</strong><p>탈출 미션 D-5 · 우리 크루가 함께 발견했어요.</p></div>
-          <BottomNav />
         </section>
       )}
 
       {step === "crew" && (
         <section className="screen crew-screen app-tab-screen">
           <SettingsButton />
+          <MapBackButton />
           <div className="crew-profile">
             <div className="crew-model-bubble large">🐺</div>
             <h2>피닉스</h2>
@@ -747,13 +772,13 @@ export default function Home() {
           </div>
           <div className="crew-chat">오늘 6시에 보물 위치 같이 확인할 사람?</div>
           <div className="vote-card"><strong>대표 모델 투표</strong><p>이번 주는 피닉스가 62%로 앞서고 있어요.</p></div>
-          <BottomNav />
         </section>
       )}
 
       {step === "collection" && (
         <section className="screen collection-screen app-tab-screen">
           <SettingsButton />
+          <MapBackButton />
           <div className="app-header"><p className="eyebrow">도감</p><h2>우리 크루가 함께 발견한 기록</h2></div>
           <div className="collection-grid">
             <button>🐺<span>발견함</span></button>
@@ -765,14 +790,13 @@ export default function Home() {
           </div>
           <div className="title-strip"><span>탐험가</span><span>탐정</span><span>맛집 헌터</span></div>
           <div className="season-record">🏆 황금말 시즌 · 참여 기록 8회</div>
-          <BottomNav />
         </section>
       )}
 
       {step === "settings" && (
         <section className="screen settings-screen">
           <div className="settings-header">
-            <button className="ghost-light-button" onClick={() => setStep("start")}>
+            <button className="ghost-light-button" onClick={goToMap}>
               뒤로
             </button>
             <p className="eyebrow">설정</p>
@@ -824,7 +848,7 @@ export default function Home() {
           <canvas ref={canvasRef} className="hidden-canvas" />
           <div className="scan-vignette" />
           <div className="scan-topbar">
-            <button className="ghost-button" onClick={() => setStep("start")}>
+            <button className="ghost-button" onClick={goToMap}>
               닫기
             </button>
             <span>캠퍼스 드랍 스캔</span>
@@ -1009,7 +1033,7 @@ export default function Home() {
             onClick={() => {
               setCode("");
               setCollected(false);
-              setStep("start");
+              setStep("map");
             }}
           >
             처음부터 다시 시연
