@@ -29,6 +29,9 @@ todayLabel.textContent = new Intl.DateTimeFormat("ko-KR", {
 }).format(new Date());
 
 document.querySelector("#startScan").addEventListener("click", beginScan);
+document.querySelector("#openSignup").addEventListener("click", () => setStep("signup"));
+document.querySelector("#closeSignup").addEventListener("click", () => setStep("start"));
+document.querySelector("#finishSignup").addEventListener("click", () => setStep("start"));
 document.querySelector("#closeScan").addEventListener("click", () => {
   stopCamera();
   setStep("start");
