@@ -41,7 +41,28 @@ document.querySelectorAll(".open-settings").forEach((button) => {
   button.addEventListener("click", () => setStep("settings"));
 });
 document.querySelectorAll(".signup-next").forEach((button) => {
-  button.addEventListener("click", () => setStep(button.dataset.next));
+  button.addEventListener("click", () => {
+    const requiredGroup = button.dataset.requires;
+    if (requiredGroup) {
+      const hasSelection = Boolean(document.querySelector(`[data-choice="${requiredGroup}"].is-selected`));
+      const error = document.querySelector(`[data-error="${requiredGroup}"]`);
+      if (!hasSelection) {
+        if (error) error.textContent = requiredGroup === "interest" ? "관심사를 1개 이상 선택해주세요." : "취미를 1개 이상 선택해주세요.";
+        return;
+      }
+      if (error) error.textContent = "";
+    }
+    setStep(button.dataset.next);
+  });
+});
+document.querySelectorAll("[data-choice]").forEach((button) => {
+  button.addEventListener("click", () => {
+    button.classList.toggle("is-selected");
+    button.setAttribute("aria-pressed", button.classList.contains("is-selected") ? "true" : "false");
+    const group = button.dataset.choice;
+    const error = document.querySelector(`[data-error="${group}"]`);
+    if (document.querySelector(`[data-choice="${group}"].is-selected`) && error) error.textContent = "";
+  });
 });
 document.querySelectorAll(".class-preset").forEach((button) => {
   button.addEventListener("click", () => {
