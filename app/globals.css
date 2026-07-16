@@ -332,8 +332,8 @@ button {
   position: absolute;
   inset: 0;
   z-index: 0;
-  opacity: 0.76;
-  filter: saturate(1.16) contrast(0.86) brightness(1.08);
+  opacity: 1;
+  filter: none;
 }
 
 .kakao-map-canvas .kakao-crew-overlay {
@@ -344,6 +344,7 @@ button {
   position: absolute;
   inset: 0;
   z-index: 1;
+  display: none;
   overflow: hidden;
   pointer-events: none;
   background:
