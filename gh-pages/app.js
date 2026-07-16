@@ -272,7 +272,7 @@ function initKakaoMap() {
         <model-viewer src="./sejongGF.glb" camera-orbit="90deg 76deg 3.2m" field-of-view="28deg" exposure="1.1" auto-rotate interaction-prompt="none" disable-zoom alt="${crew.name} 크루 기린"></model-viewer>
         <strong>${crew.name}</strong>
       `;
-      new window.mapboxgl.Marker({ element: content }).setLngLat([crew.lng, crew.lat]).addTo(map);
+      new window.mapboxgl.Marker({ element: content, anchor: "bottom" }).setLngLat([crew.lng, crew.lat]).addTo(map);
     });
     const syncMapPointScale = () => {
       const zoomLevel = Math.max(1, Math.min(7, Math.round(19 - map.getZoom())));

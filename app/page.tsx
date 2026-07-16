@@ -42,7 +42,7 @@ declare global {
         flyTo: (options: { center: [number, number]; zoom?: number; essential?: boolean }) => void;
         remove: () => void;
       };
-      Marker: new (options?: { element?: HTMLElement }) => {
+      Marker: new (options?: { element?: HTMLElement; anchor?: string }) => {
         setLngLat: (lngLat: [number, number]) => {
           addTo: (map: unknown) => { remove: () => void };
         };
@@ -214,7 +214,7 @@ export default function Home() {
           <model-viewer src="${npcModelUrl}" camera-orbit="90deg 76deg 3.2m" field-of-view="28deg" exposure="1.1" auto-rotate interaction-prompt="none" disable-zoom alt="${crew.name} 크루 기린"></model-viewer>
           <strong>${crew.name}</strong>
         `;
-        new window.mapboxgl!.Marker({ element: marker }).setLngLat([crew.lng, crew.lat]).addTo(map);
+        new window.mapboxgl!.Marker({ element: marker, anchor: "bottom" }).setLngLat([crew.lng, crew.lat]).addTo(map);
       });
         const syncMapPointScale = () => {
           const zoomLevel = Math.max(1, Math.min(7, Math.round(19 - map.getZoom())));
@@ -833,18 +833,6 @@ export default function Home() {
                 <p>URL 뒤에 <span>?mapboxToken=액세스토큰</span>을 붙이면 다크 테마 지도가 표시됩니다.</p>
               </div>
             )}
-            <button className="map-giraffe-point clock-tower" type="button">
-              <model-viewer src={npcModelUrl} camera-orbit="90deg 76deg 3.2m" field-of-view="28deg" exposure="1.1" auto-rotate interaction-prompt="none" disable-zoom alt="피닉스 크루 기린" />
-              <strong>피닉스</strong>
-            </button>
-            <button className="map-giraffe-point cafe-spot" type="button">
-              <model-viewer src={npcModelUrl} camera-orbit="90deg 76deg 3.2m" field-of-view="28deg" exposure="1.1" auto-rotate interaction-prompt="none" disable-zoom alt="오로라 크루 기린" />
-              <strong>오로라</strong>
-            </button>
-            <button className="map-giraffe-point student-hall" type="button">
-              <model-viewer src={npcModelUrl} camera-orbit="90deg 76deg 3.2m" field-of-view="28deg" exposure="1.1" auto-rotate interaction-prompt="none" disable-zoom alt="노바 크루 기린" />
-              <strong>노바</strong>
-            </button>
           </div>
           <div className="map-crew-hud" aria-label="내 크루 상태">
             <span>내 크루</span>
