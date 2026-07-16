@@ -147,6 +147,7 @@ export default function Home() {
   const mapRenderDebounceRef = useRef<number | null>(null);
   const myLocationOverlayRef = useRef<{ setMap: (map: unknown) => void } | null>(null);
   const interactionCircleRef = useRef<{ setMap: (map: unknown) => void } | null>(null);
+  const locationWatchIdRef = useRef<number | null>(null);
   const lastLocationRequestRef = useRef(0);
   const streamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -342,6 +343,32 @@ export default function Home() {
     myLocationOverlayRef.current.setMap(map);
   }
 
+  function startLocationWatch() {
+    if (!navigator.geolocation || locationWatchIdRef.current !== null) return;
+    locationWatchIdRef.current = navigator.geolocation.watchPosition(
+      (position) => {
+        if (!window.kakao || !kakaoMapInstanceRef.current) return;
+        renderUserRadar(position.coords.latitude, position.coords.longitude);
+        setLocationStatus("실시간 위치 추적 중");
+      },
+      () => {
+        setLocationStatus("위치 권한 필요");
+      },
+      { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 },
+    );
+  }
+
+  useEffect(() => {
+    if (step !== "map" || !kakaoReady) return;
+    startLocationWatch();
+    return () => {
+      if (locationWatchIdRef.current !== null) {
+        navigator.geolocation.clearWatch(locationWatchIdRef.current);
+        locationWatchIdRef.current = null;
+      }
+    };
+  }, [kakaoReady, step]);
+
   function requestMyLocation() {
     const now = Date.now();
     if (now - lastLocationRequestRef.current < 900) return;
@@ -362,6 +389,7 @@ export default function Home() {
         if (kakaoMapInstanceRef.current.panTo) kakaoMapInstanceRef.current.panTo(latLng);
         else kakaoMapInstanceRef.current.setCenter(latLng);
         renderUserRadar(position.coords.latitude, position.coords.longitude);
+        startLocationWatch();
         setLocationStatus("내 위치 표시됨");
       },
       () => {

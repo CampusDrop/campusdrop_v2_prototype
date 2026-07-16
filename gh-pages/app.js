@@ -70,6 +70,7 @@ let mapClusterOverlay = null;
 let mapRenderDebounce = null;
 let myLocationOverlay = null;
 let interactionCircle = null;
+let locationWatchId = null;
 let lastLocationRequestAt = 0;
 
 todayLabel.textContent = new Intl.DateTimeFormat("ko-KR", {
@@ -289,6 +290,7 @@ function initKakaoMap() {
         syncMapPointScale();
         scheduleVisibleSpotRender();
       });
+      startLocationWatch();
     });
   };
 
@@ -418,6 +420,23 @@ function renderUserRadar(lat, lng, map = kakaoMapInstance) {
   myLocationOverlay.setMap(map);
 }
 
+function startLocationWatch() {
+  if (!navigator.geolocation || locationWatchId !== null) return;
+  locationWatchId = navigator.geolocation.watchPosition(
+    (position) => {
+      if (!window.kakao || !kakaoMapInstance) return;
+      renderUserRadar(position.coords.latitude, position.coords.longitude);
+      const label = myLocationButton?.querySelector("em");
+      if (label) label.textContent = "실시간 위치 추적 중";
+    },
+    () => {
+      const label = myLocationButton?.querySelector("em");
+      if (label) label.textContent = "위치 권한 필요";
+    },
+    { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 },
+  );
+}
+
 function requestMyLocation() {
   const now = Date.now();
   if (now - lastLocationRequestAt < 900) return;
@@ -439,6 +458,7 @@ function requestMyLocation() {
       if (kakaoMapInstance.panTo) kakaoMapInstance.panTo(latLng);
       else kakaoMapInstance.setCenter(latLng);
       renderUserRadar(position.coords.latitude, position.coords.longitude);
+      startLocationWatch();
       if (label) label.textContent = "내 위치 표시됨";
     },
     () => {
