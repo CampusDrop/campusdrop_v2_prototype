@@ -660,22 +660,22 @@ export default function Home() {
               </div>
             )}
             <button className="map-giraffe-point clock-tower" type="button">
-              <model-viewer src={npcModelUrl} camera-orbit="90deg 76deg 3.2m" field-of-view="28deg" exposure="1.1" auto-rotate interaction-prompt="none" disable-zoom alt="시계탑 거점 기린" />
-              <strong>시계탑</strong>
+              <model-viewer src={npcModelUrl} camera-orbit="90deg 76deg 3.2m" field-of-view="28deg" exposure="1.1" auto-rotate interaction-prompt="none" disable-zoom alt="피닉스 크루 기린" />
+              <strong>피닉스</strong>
             </button>
             <button className="map-giraffe-point cafe-spot" type="button">
-              <model-viewer src={npcModelUrl} camera-orbit="90deg 76deg 3.2m" field-of-view="28deg" exposure="1.1" auto-rotate interaction-prompt="none" disable-zoom alt="세종 카페 거점 기린" />
-              <strong>세종 카페</strong>
+              <model-viewer src={npcModelUrl} camera-orbit="90deg 76deg 3.2m" field-of-view="28deg" exposure="1.1" auto-rotate interaction-prompt="none" disable-zoom alt="오로라 크루 기린" />
+              <strong>오로라</strong>
             </button>
             <button className="map-giraffe-point student-hall" type="button">
-              <model-viewer src={npcModelUrl} camera-orbit="90deg 76deg 3.2m" field-of-view="28deg" exposure="1.1" auto-rotate interaction-prompt="none" disable-zoom alt="학생회관 거점 기린" />
-              <strong>학생회관</strong>
+              <model-viewer src={npcModelUrl} camera-orbit="90deg 76deg 3.2m" field-of-view="28deg" exposure="1.1" auto-rotate interaction-prompt="none" disable-zoom alt="노바 크루 기린" />
+              <strong>노바</strong>
             </button>
           </div>
           <div className="map-detail-card">
-            <span>활성 거점 3개</span>
-            <strong>기린 거점 · 캠퍼스 퀘스트 대기 중</strong>
-            <p>카카오맵 위의 주요 거점을 3D 기린으로 표시합니다. 가까운 거점에서 AR 미션을 시작할 수 있어요.</p>
+            <span>활동 중인 크루 3팀</span>
+            <strong>크루 기린 · 캠퍼스 퀘스트 대기 중</strong>
+            <p>카카오맵 위의 주요 크루를 3D 기린으로 표시합니다. 가까운 크루를 만나 AR 미션을 시작할 수 있어요.</p>
           </div>
           <button className="primary-action" onClick={beginScan}>AR 스캔 시작</button>
           <BottomNav />
