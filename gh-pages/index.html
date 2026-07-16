@@ -12,27 +12,63 @@
   </head>
   <body>
     <main class="app" data-step="start">
-      <section class="screen start-screen" data-screen="start">
-        <div class="campus-sky" aria-hidden="true">
-          <span class="sun"></span>
-          <span class="pin pin-a"></span>
-          <span class="pin pin-b"></span>
-          <span class="route"></span>
+      <section class="screen home-screen app-tab-screen" data-screen="start">
+        <div class="season-badge">🐴 황금말 시즌</div>
+        <div class="crew-hero-card">
+          <div class="crew-model-bubble">🐺</div>
+          <div>
+            <p class="eyebrow">My Crew</p>
+            <h1>Phoenix</h1>
+            <strong>Level 8</strong>
+            <div class="xp-bar"><span></span></div>
+            <p>Your Crew gained 82% toward the next level.</p>
+          </div>
         </div>
-        <div class="brand-mark">CD</div>
-        <p class="eyebrow">Campus AR mission</p>
-        <h1>Campus Drop</h1>
-        <p class="lead">지도 안내판이나 전용 포스터를 스캔하면 기린이 나타납니다</p>
-        <button class="primary-action" id="startScan">AR 스캔 시작</button>
+        <div class="event-strip">
+          <span>Next Escape Room</span>
+          <strong>D-5</strong>
+          <button class="tab-link" data-tab="map">Start</button>
+        </div>
+        <div class="section-block">
+          <h2>Today's Missions</h2>
+          <div class="mission-pills"><span>Treasure Hunt</span><span>Partner Visit</span></div>
+        </div>
+        <div class="activity-line">민수가 새로운 캐릭터를 획득했습니다.</div>
         <button class="secondary-action" id="openSignup">회원가입</button>
-        <div class="marker-links">
-          <a class="marker-link" href="./sejong-map-fixture.jpeg" target="_blank" rel="noreferrer">
-            인식할 기물 예시 보기
-          </a>
-          <a class="marker-link" href="./campus-drop-marker.svg" target="_blank" rel="noreferrer">
-            전용 포스터 열기
-          </a>
+      </section>
+
+      <section class="screen map-screen app-tab-screen" data-screen="map">
+        <div class="app-header"><p class="eyebrow">Campus Map</p><h2>크루들이 캠퍼스를 움직이고 있어요</h2></div>
+        <div class="campus-map-board">
+          <span class="map-path path-a"></span><span class="map-path path-b"></span>
+          <button class="crew-marker phoenix">🐺<strong>Phoenix</strong></button>
+          <button class="crew-marker aurora">🦊<strong>Aurora</strong></button>
+          <button class="crew-marker nova">🦉<strong>Nova</strong></button>
+          <span class="treasure-dot">💎</span><span class="store-dot">☕</span>
         </div>
+        <div class="map-detail-card"><span>Current Rank #3</span><strong>Phoenix · XP 12,840</strong><p>3D 모델은 XP에 따라 크기만 커집니다. 우리 커뮤니티가 함께 성장하고 있어요.</p></div>
+        <button class="primary-action" id="startScanMap">AR 스캔 시작</button>
+      </section>
+
+      <section class="screen explore-screen app-tab-screen" data-screen="explore">
+        <div class="app-header"><p class="eyebrow">Today</p><h2>오늘 캠퍼스에서 열리는 일</h2></div>
+        <div class="treasure-card"><span>🐴</span><strong>Today's Treasure</strong><p>시계탑 근처 · 보상 캐릭터 조각</p></div>
+        <div class="store-card"><span>☕</span><strong>세종 카페 라운지</strong><p>아메리카노 20% · 120m</p></div>
+        <div class="store-card"><span>🎟</span><strong>Limited Event</strong><p>탈출 미션 D-5 · Your Crew discovered together.</p></div>
+      </section>
+
+      <section class="screen crew-screen app-tab-screen" data-screen="crew">
+        <div class="crew-profile"><div class="crew-model-bubble large">🐺</div><h2>Phoenix</h2><p>황금말 시즌 · XP 12,840</p></div>
+        <div class="member-grid"><div><strong>민수</strong><span>Explorer</span></div><div><strong>지윤</strong><span>Mood Maker</span></div><div><strong>하린</strong><span>Food Hunter</span></div></div>
+        <div class="crew-chat">오늘 6시에 보물 위치 같이 확인할 사람?</div>
+        <div class="vote-card"><strong>대표 모델 투표</strong><p>이번 주는 Phoenix가 62%로 앞서고 있어요.</p></div>
+      </section>
+
+      <section class="screen collection-screen app-tab-screen" data-screen="collection">
+        <div class="app-header"><p class="eyebrow">Collection</p><h2>우리 크루가 함께 발견한 기록</h2></div>
+        <div class="collection-grid"><button>🐺<span>Unlocked</span></button><button>🦊<span>Unlocked</span></button><button>🦉<span>Unlocked</span></button><button class="is-locked">?</button><button class="is-locked">?</button><button class="is-locked">?</button></div>
+        <div class="title-strip"><span>Explorer</span><span>Detective</span><span>Food Hunter</span></div>
+        <div class="season-record">🏆 황금말 시즌 · Participation Record 8 missions</div>
       </section>
 
       <section class="screen signup-screen" data-screen="signup">
@@ -171,6 +207,13 @@
         <div class="today-alert">당일 사용 제한 쿠폰입니다</div>
         <button class="secondary-action" id="restartDemo">처음부터 다시 시연</button>
       </section>
+      <nav class="bottom-nav" aria-label="Campus Drop navigation">
+        <button class="tab-link is-active" data-tab="start">🏠<span>Home</span></button>
+        <button class="tab-link" data-tab="map">🗺<span>Map</span></button>
+        <button class="tab-link" data-tab="explore">💎<span>Explore</span></button>
+        <button class="tab-link" data-tab="crew">👥<span>Crew</span></button>
+        <button class="tab-link" data-tab="collection">📖<span>Collection</span></button>
+      </nav>
     </main>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
     <script src="./app.js"></script>

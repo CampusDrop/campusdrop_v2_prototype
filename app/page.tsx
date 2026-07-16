@@ -2,7 +2,17 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-type Step = "start" | "signup" | "scan" | "mission" | "success" | "coupon";
+type Step =
+  | "start"
+  | "map"
+  | "explore"
+  | "crew"
+  | "collection"
+  | "signup"
+  | "scan"
+  | "mission"
+  | "success"
+  | "coupon";
 type ScanState = "idle" | "requesting" | "searching" | "found" | "error";
 
 declare global {
@@ -278,34 +288,112 @@ export default function Home() {
     setMissionError("코드가 맞지 않아요. 단서를 다시 살펴보세요.");
   }
 
+  const BottomNav = () => (
+    <nav className="bottom-nav" aria-label="Campus Drop navigation">
+      <button className={step === "start" ? "is-active" : ""} onClick={() => setStep("start")}>🏠<span>Home</span></button>
+      <button className={step === "map" ? "is-active" : ""} onClick={() => setStep("map")}>🗺<span>Map</span></button>
+      <button className={step === "explore" ? "is-active" : ""} onClick={() => setStep("explore")}>💎<span>Explore</span></button>
+      <button className={step === "crew" ? "is-active" : ""} onClick={() => setStep("crew")}>👥<span>Crew</span></button>
+      <button className={step === "collection" ? "is-active" : ""} onClick={() => setStep("collection")}>📖<span>Collection</span></button>
+    </nav>
+  );
+
   return (
     <main className={`app step-${step}`}>
       {step === "start" && (
-        <section className="screen start-screen">
-          <div className="campus-sky" aria-hidden="true">
-            <span className="sun" />
-            <span className="pin pin-a" />
-            <span className="pin pin-b" />
-            <span className="route" />
+        <section className="screen home-screen app-tab-screen">
+          <div className="season-badge">🐴 황금말 시즌</div>
+          <div className="crew-hero-card">
+            <div className="crew-model-bubble">🐺</div>
+            <div>
+              <p className="eyebrow">My Crew</p>
+              <h1>Phoenix</h1>
+              <strong>Level 8</strong>
+              <div className="xp-bar"><span style={{ width: "82%" }} /></div>
+              <p>Your Crew gained 82% toward the next level.</p>
+            </div>
           </div>
-          <div className="brand-mark">CD</div>
-          <p className="eyebrow">Campus AR mission</p>
-          <h1>Campus Drop</h1>
-          <p className="lead">지도 안내판이나 전용 포스터를 스캔하면 기린이 나타납니다</p>
-          <button className="primary-action" onClick={beginScan}>
-            AR 스캔 시작
-          </button>
+          <div className="event-strip">
+            <span>Next Escape Room</span>
+            <strong>D-5</strong>
+            <button onClick={() => setStep("map")}>Start</button>
+          </div>
+          <div className="section-block">
+            <h2>Today's Missions</h2>
+            <div className="mission-pills"><span>Treasure Hunt</span><span>Partner Visit</span></div>
+          </div>
+          <div className="activity-line">민수가 새로운 캐릭터를 획득했습니다.</div>
           <button className="secondary-action" onClick={() => setStep("signup")}>
             회원가입
           </button>
-          <div className="marker-links">
-            <a className="marker-link" href={fixtureUrl} target="_blank">
-              인식할 기물 예시 보기
-            </a>
-            <a className="marker-link" href={posterUrl} target="_blank">
-              전용 포스터 열기
-            </a>
+          <BottomNav />
+        </section>
+      )}
+
+      {step === "map" && (
+        <section className="screen map-screen app-tab-screen">
+          <div className="app-header"><p className="eyebrow">Campus Map</p><h2>크루들이 캠퍼스를 움직이고 있어요</h2></div>
+          <div className="campus-map-board">
+            <span className="map-path path-a" />
+            <span className="map-path path-b" />
+            <button className="crew-marker phoenix">🐺<strong>Phoenix</strong></button>
+            <button className="crew-marker aurora">🦊<strong>Aurora</strong></button>
+            <button className="crew-marker nova">🦉<strong>Nova</strong></button>
+            <span className="treasure-dot">💎</span>
+            <span className="store-dot">☕</span>
           </div>
+          <div className="map-detail-card">
+            <span>Current Rank #3</span>
+            <strong>Phoenix · XP 12,840</strong>
+            <p>3D 모델은 XP에 따라 크기만 커집니다. 우리 커뮤니티가 함께 성장하고 있어요.</p>
+          </div>
+          <button className="primary-action" onClick={beginScan}>AR 스캔 시작</button>
+          <BottomNav />
+        </section>
+      )}
+
+      {step === "explore" && (
+        <section className="screen explore-screen app-tab-screen">
+          <div className="app-header"><p className="eyebrow">Today</p><h2>오늘 캠퍼스에서 열리는 일</h2></div>
+          <div className="treasure-card"><span>🐴</span><strong>Today's Treasure</strong><p>시계탑 근처 · 보상 캐릭터 조각</p></div>
+          <div className="store-card"><span>☕</span><strong>세종 카페 라운지</strong><p>아메리카노 20% · 120m</p></div>
+          <div className="store-card"><span>🎟</span><strong>Limited Event</strong><p>탈출 미션 D-5 · Your Crew discovered together.</p></div>
+          <BottomNav />
+        </section>
+      )}
+
+      {step === "crew" && (
+        <section className="screen crew-screen app-tab-screen">
+          <div className="crew-profile">
+            <div className="crew-model-bubble large">🐺</div>
+            <h2>Phoenix</h2>
+            <p>황금말 시즌 · XP 12,840</p>
+          </div>
+          <div className="member-grid">
+            <div><strong>민수</strong><span>Explorer</span></div>
+            <div><strong>지윤</strong><span>Mood Maker</span></div>
+            <div><strong>하린</strong><span>Food Hunter</span></div>
+          </div>
+          <div className="crew-chat">오늘 6시에 보물 위치 같이 확인할 사람?</div>
+          <div className="vote-card"><strong>대표 모델 투표</strong><p>이번 주는 Phoenix가 62%로 앞서고 있어요.</p></div>
+          <BottomNav />
+        </section>
+      )}
+
+      {step === "collection" && (
+        <section className="screen collection-screen app-tab-screen">
+          <div className="app-header"><p className="eyebrow">Collection</p><h2>우리 크루가 함께 발견한 기록</h2></div>
+          <div className="collection-grid">
+            <button>🐺<span>Unlocked</span></button>
+            <button>🦊<span>Unlocked</span></button>
+            <button>🦉<span>Unlocked</span></button>
+            <button className="is-locked">?</button>
+            <button className="is-locked">?</button>
+            <button className="is-locked">?</button>
+          </div>
+          <div className="title-strip"><span>Explorer</span><span>Detective</span><span>Food Hunter</span></div>
+          <div className="season-record">🏆 황금말 시즌 · Participation Record 8 missions</div>
+          <BottomNav />
         </section>
       )}
 
