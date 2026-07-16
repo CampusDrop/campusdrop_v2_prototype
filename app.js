@@ -26,9 +26,9 @@ const dialogueStartMs = 4300;
 const typingIntervalMs = 46;
 const sejongCenter = { lat: 37.550944, lng: 127.073765 };
 const mapCrewPoints = [
-  { name: "피닉스", lat: 37.550944, lng: 127.073765 },
-  { name: "오로라", lat: 37.55135, lng: 127.07432 },
-  { name: "노바", lat: 37.55052, lng: 127.07318 },
+  { name: "피닉스", lat: 37.550944, lng: 127.073765, sigil: "P" },
+  { name: "오로라", lat: 37.55135, lng: 127.07432, sigil: "A" },
+  { name: "노바", lat: 37.55052, lng: 127.07318, sigil: "N" },
 ];
 const mapZoomScaleByLevel = {
   1: 2.25,
@@ -262,7 +262,13 @@ function initKakaoMap() {
         content.type = "button";
         content.className = "kakao-crew-overlay";
         content.innerHTML = `
-          <model-viewer src="./sejongGF.glb" camera-orbit="90deg 76deg 3.2m" field-of-view="28deg" exposure="1.1" auto-rotate interaction-prompt="none" disable-zoom alt="${crew.name} 크루 기린"></model-viewer>
+          <span class="crew-marker">
+            <span class="crew-marker-ping animate-ping" aria-hidden="true"></span>
+            <span class="crew-marker-core" aria-hidden="true">
+              <span class="crew-marker-sigil">${crew.sigil}</span>
+            </span>
+            <span class="crew-marker-shadow" aria-hidden="true"></span>
+          </span>
           <strong>${crew.name}</strong>
         `;
         new window.kakao.maps.CustomOverlay({
