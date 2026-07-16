@@ -556,6 +556,9 @@ function startLocationWatch() {
   locationWatchId = navigator.geolocation.watchPosition(
     (position) => {
       if (!window.kakao || !kakaoMapInstance) return;
+      const latLng = new window.kakao.maps.LatLng(position.coords.latitude, position.coords.longitude);
+      if (kakaoMapInstance.panTo) kakaoMapInstance.panTo(latLng);
+      else kakaoMapInstance.setCenter(latLng);
       renderUserRadar(position.coords.latitude, position.coords.longitude);
       const label = myLocationButton?.querySelector("em");
       if (label) label.textContent = "실시간 위치 추적 중";
