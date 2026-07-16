@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-type Step = "start" | "scan" | "mission" | "success" | "coupon";
+type Step = "start" | "signup" | "scan" | "mission" | "success" | "coupon";
 type ScanState = "idle" | "requesting" | "searching" | "found" | "error";
 
 declare global {
@@ -295,6 +295,9 @@ export default function Home() {
           <button className="primary-action" onClick={beginScan}>
             AR 스캔 시작
           </button>
+          <button className="secondary-action" onClick={() => setStep("signup")}>
+            회원가입
+          </button>
           <div className="marker-links">
             <a className="marker-link" href={fixtureUrl} target="_blank">
               인식할 기물 예시 보기
@@ -303,6 +306,52 @@ export default function Home() {
               전용 포스터 열기
             </a>
           </div>
+        </section>
+      )}
+
+      {step === "signup" && (
+        <section className="screen signup-screen">
+          <div className="signup-header">
+            <button className="ghost-light-button" onClick={() => setStep("start")}>
+              뒤로
+            </button>
+            <p className="eyebrow">Campus profile</p>
+            <h2>회원가입</h2>
+            <p>웹 데모에서는 기본정보와 시간표를 카카오 로그인으로 대체합니다.</p>
+          </div>
+          <div className="signup-panel kakao-panel">
+            <span>1 · 기본정보</span>
+            <strong>이름, 성별, 나이, 전화번호, 학과</strong>
+            <button type="button">카카오로 불러오기</button>
+          </div>
+          <div className="signup-panel kakao-panel">
+            <span>2 · 시간표</span>
+            <strong>수업 시간과 캠퍼스 체류 패턴</strong>
+            <button type="button">카카오로 대체하기</button>
+          </div>
+          <div className="signup-panel">
+            <span>3 · 관심사</span>
+            <strong>이야기 거리</strong>
+            <div className="chip-grid" aria-label="관심사 예시">
+              <button type="button">신작 영화</button>
+              <button type="button">맛집</button>
+              <button type="button">전공 이야기</button>
+              <button type="button">취업/인턴</button>
+            </div>
+          </div>
+          <div className="signup-panel">
+            <span>4 · 취미</span>
+            <strong>같이 놀거리</strong>
+            <div className="chip-grid" aria-label="취미 예시">
+              <button type="button">보드게임</button>
+              <button type="button">산책</button>
+              <button type="button">카페 탐방</button>
+              <button type="button">운동</button>
+            </div>
+          </div>
+          <button className="primary-action" onClick={() => setStep("start")}>
+            가입 데모 완료
+          </button>
         </section>
       )}
 
