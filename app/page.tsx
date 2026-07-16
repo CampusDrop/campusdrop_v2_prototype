@@ -196,8 +196,8 @@ export default function Home() {
         const r = dayFixtureImage[i];
         const g = dayFixtureImage[i + 1];
         const b = dayFixtureImage[i + 2];
-        const isDayCyan = g > 98 && b > 84 && r < 168 && g > r * 1.06 && b > r * 0.9;
-        const isDayPink = r > 138 && b > 82 && g < 132 && r > g * 1.16 && b > g * 0.72;
+        const isDayCyan = g > 104 && b > 92 && r < 160 && g > r * 1.08 && b > r * 0.94;
+        const isDayPink = r > 152 && b > 92 && g < 118 && r > g * 1.28 && b > g * 0.84;
         const isSkinTone =
           r > 118 &&
           g > 70 &&
@@ -227,18 +227,18 @@ export default function Home() {
         fixtureDark > 900 &&
         cyan + pink + bright + fixtureDark > 3300;
       const daylightFixtureDetected =
-        skinTone < 900 &&
-        dayCyan > 1040 &&
-        dayPink > 125 &&
-        dayParchment > 1200 &&
-        dayInk > 280 &&
-        dayParchment < 5200 &&
-        dayCyanLeft > 320 &&
-        dayCyanRight > 320 &&
-        dayPinkLeft > 28 &&
-        dayPinkRight > 28 &&
-        dayCyan + dayPink > 1220 &&
-        dayCyan + dayPink + dayParchment + dayInk > 3100;
+        skinTone < 700 &&
+        dayCyan > 1500 &&
+        dayPink > 220 &&
+        dayParchment > 1450 &&
+        dayInk > 420 &&
+        dayParchment < 5000 &&
+        dayCyanLeft > 520 &&
+        dayCyanRight > 520 &&
+        dayPinkLeft > 55 &&
+        dayPinkRight > 55 &&
+        dayCyan + dayPink > 1780 &&
+        dayCyan + dayPink + dayParchment + dayInk > 4100;
       const detected = posterDetected || fixtureDetected || daylightFixtureDetected;
       foundFramesRef.current = detected ? foundFramesRef.current + 1 : 0;
       if (foundFramesRef.current > 10) {
