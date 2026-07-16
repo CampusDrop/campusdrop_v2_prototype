@@ -59,6 +59,7 @@ let mapMenuOpen = false;
 let collectionIndex = 0;
 let kakaoMapInstance = null;
 let myLocationOverlay = null;
+let lastLocationRequestAt = 0;
 
 todayLabel.textContent = new Intl.DateTimeFormat("ko-KR", {
   month: "long",
@@ -76,7 +77,13 @@ function beginScanFromMap(event) {
 mapScanButton?.addEventListener("pointerdown", beginScanFromMap);
 mapScanButton?.addEventListener("touchstart", beginScanFromMap, { passive: false });
 mapScanButton?.addEventListener("click", beginScanFromMap);
-myLocationButton?.addEventListener("click", requestMyLocation);
+function requestMyLocationFromMap(event) {
+  event?.preventDefault();
+  requestMyLocation();
+}
+myLocationButton?.addEventListener("pointerdown", requestMyLocationFromMap);
+myLocationButton?.addEventListener("touchstart", requestMyLocationFromMap, { passive: false });
+myLocationButton?.addEventListener("click", requestMyLocationFromMap);
 document.querySelector("#startScanExplore")?.addEventListener("click", beginScan);
 document.querySelector("#startScanExploreAlt")?.addEventListener("click", beginScan);
 document.querySelector("#collectionPrev")?.addEventListener("click", () => {
@@ -300,6 +307,9 @@ function initKakaoMap() {
 }
 
 function requestMyLocation() {
+  const now = Date.now();
+  if (now - lastLocationRequestAt < 900) return;
+  lastLocationRequestAt = now;
   const label = myLocationButton?.querySelector("em");
   if (!navigator.geolocation) {
     if (label) label.textContent = "위치 사용 불가";
@@ -313,6 +323,7 @@ function requestMyLocation() {
         return;
       }
       const latLng = new window.kakao.maps.LatLng(position.coords.latitude, position.coords.longitude);
+      kakaoMapInstance.panTo?.(latLng);
       kakaoMapInstance.setCenter(latLng);
       if (myLocationOverlay) myLocationOverlay.setMap(null);
       const marker = document.createElement("div");
