@@ -108,12 +108,20 @@
             <strong>카카오맵 준비됨</strong>
             <p>URL 뒤에 <span>?kakaoKey=자바스크립트키</span>를 붙이면 실제 카카오 지도가 이 자리에 표시됩니다.</p>
           </div>
-          <button class="crew-marker phoenix">🐺<strong>피닉스</strong></button>
-          <button class="crew-marker aurora">🦊<strong>오로라</strong></button>
-          <button class="crew-marker nova">🦉<strong>노바</strong></button>
-          <span class="treasure-dot">💎</span><span class="store-dot">☕</span>
+          <button class="map-giraffe-point clock-tower" type="button">
+            <model-viewer src="./sejongGF.glb" camera-orbit="90deg 76deg 3.2m" field-of-view="28deg" exposure="1.1" auto-rotate interaction-prompt="none" disable-zoom alt="시계탑 거점 기린"></model-viewer>
+            <strong>시계탑</strong>
+          </button>
+          <button class="map-giraffe-point cafe-spot" type="button">
+            <model-viewer src="./sejongGF.glb" camera-orbit="90deg 76deg 3.2m" field-of-view="28deg" exposure="1.1" auto-rotate interaction-prompt="none" disable-zoom alt="세종 카페 거점 기린"></model-viewer>
+            <strong>세종 카페</strong>
+          </button>
+          <button class="map-giraffe-point student-hall" type="button">
+            <model-viewer src="./sejongGF.glb" camera-orbit="90deg 76deg 3.2m" field-of-view="28deg" exposure="1.1" auto-rotate interaction-prompt="none" disable-zoom alt="학생회관 거점 기린"></model-viewer>
+            <strong>학생회관</strong>
+          </button>
         </div>
-        <div class="map-detail-card"><span>현재 순위 3위</span><strong>피닉스 · 경험치 12,840</strong><p>3D 모델은 경험치에 따라 크기만 커집니다. 우리 커뮤니티가 함께 성장하고 있어요.</p></div>
+        <div class="map-detail-card"><span>활성 거점 3개</span><strong>기린 거점 · 캠퍼스 퀘스트 대기 중</strong><p>카카오맵 위의 주요 거점을 3D 기린으로 표시합니다. 가까운 거점에서 AR 미션을 시작할 수 있어요.</p></div>
         <button class="primary-action" id="startScanMap">AR 스캔 시작</button>
       </section>
 

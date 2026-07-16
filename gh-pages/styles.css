@@ -142,17 +142,18 @@ button { -webkit-tap-highlight-color: transparent; }
 .map-path { position: absolute; height: 12px; border-radius: 999px; background: rgba(255,204,77,.72); transform-origin: left center; }
 .path-a { left: 20px; top: 160px; width: 280px; rotate: -18deg; }
 .path-b { left: 70px; top: 250px; width: 260px; rotate: 22deg; }
-.crew-marker {
-  position: absolute; z-index: 3; display: grid; place-items: center; border: 0; background: transparent; cursor: pointer;
-  font-size: 54px; filter: drop-shadow(0 10px 12px rgba(19,32,31,.22));
+.map-giraffe-point {
+  position: absolute; z-index: 3; display: grid; place-items: center; gap: 0; border: 0; background: transparent;
+  cursor: pointer; filter: drop-shadow(0 10px 12px rgba(19,32,31,.22));
 }
-.crew-marker strong { margin-top: -6px; border-radius: 999px; background: white; padding: 5px 9px; font-size: 12px; }
-.phoenix { left: 38px; top: 84px; scale: 1.18; }
-.aurora { right: 34px; top: 128px; scale: .96; }
-.nova { left: 138px; bottom: 40px; scale: .82; }
-.treasure-dot, .store-dot { position: absolute; z-index: 3; display: grid; width: 44px; aspect-ratio: 1; place-items: center; border-radius: 50%; background: white; box-shadow: 0 8px 18px rgba(19,32,31,.16); }
-.treasure-dot { right: 32px; bottom: 52px; }
-.store-dot { left: 52px; bottom: 64px; }
+.map-giraffe-point model-viewer { width: 92px; height: 116px; pointer-events: none; filter: drop-shadow(0 12px 14px rgba(15,35,35,.24)); }
+.map-giraffe-point strong {
+  margin-top: -18px; border: 2px solid rgba(19,32,31,.1); border-radius: 999px; background: white;
+  box-shadow: 0 9px 18px rgba(15,35,35,.12); color: var(--ink); padding: 6px 10px; font-size: 12px; white-space: nowrap;
+}
+.clock-tower { left: 30px; top: 74px; scale: 1.06; }
+.cafe-spot { right: 28px; top: 136px; scale: .92; }
+.student-hall { left: 138px; bottom: 36px; scale: .82; }
 .map-detail-card span, .treasure-card p, .store-card p, .crew-profile p, .vote-card p { color: var(--muted); font-weight: 760; }
 .treasure-card, .store-card { display: grid; grid-template-columns: 52px 1fr; gap: 6px 14px; align-items: center; }
 .treasure-card span, .store-card span { grid-row: span 2; font-size: 38px; }

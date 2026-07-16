@@ -361,45 +361,40 @@ button {
 .path-a { left: 20px; top: 160px; width: 280px; rotate: -18deg; }
 .path-b { left: 70px; top: 250px; width: 260px; rotate: 22deg; }
 
-.crew-marker {
+.map-giraffe-point {
   position: absolute;
   z-index: 3;
   display: grid;
   place-items: center;
+  gap: 0;
   border: 0;
   background: transparent;
   cursor: pointer;
-  font-size: 54px;
   filter: drop-shadow(0 10px 12px rgba(19, 32, 31, 0.22));
 }
 
-.crew-marker strong {
-  margin-top: -6px;
+.map-giraffe-point model-viewer {
+  width: 92px;
+  height: 116px;
+  pointer-events: none;
+  filter: drop-shadow(0 12px 14px rgba(15, 35, 35, 0.24));
+}
+
+.map-giraffe-point strong {
+  margin-top: -18px;
+  border: 2px solid rgba(19, 32, 31, 0.1);
   border-radius: 999px;
   background: white;
-  padding: 5px 9px;
+  box-shadow: 0 9px 18px rgba(15, 35, 35, 0.12);
+  color: var(--ink);
+  padding: 6px 10px;
   font-size: 12px;
+  white-space: nowrap;
 }
 
-.phoenix { left: 38px; top: 84px; scale: 1.18; }
-.aurora { right: 34px; top: 128px; scale: 0.96; }
-.nova { left: 138px; bottom: 40px; scale: 0.82; }
-
-.treasure-dot,
-.store-dot {
-  position: absolute;
-  z-index: 3;
-  display: grid;
-  width: 44px;
-  aspect-ratio: 1;
-  place-items: center;
-  border-radius: 50%;
-  background: white;
-  box-shadow: 0 8px 18px rgba(19, 32, 31, 0.16);
-}
-
-.treasure-dot { right: 32px; bottom: 52px; }
-.store-dot { left: 52px; bottom: 64px; }
+.clock-tower { left: 30px; top: 74px; scale: 1.06; }
+.cafe-spot { right: 28px; top: 136px; scale: 0.92; }
+.student-hall { left: 138px; bottom: 36px; scale: 0.82; }
 
 .map-detail-card span,
 .treasure-card p,
