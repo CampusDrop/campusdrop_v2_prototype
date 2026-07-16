@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 
 type Step =
   | "signup-basic"
@@ -46,6 +46,14 @@ const npcDialogueText = "지도 앞까지 왔구나. 오늘의 캠퍼스 퀘스�
 const dialogueStartMs = 4300;
 const typingIntervalMs = 46;
 const sejongCenter = { lat: 37.550944, lng: 127.073765 };
+const scheduleDays = ["월", "화", "수", "목", "금"];
+const schedulePeriods = ["1", "2", "3", "4", "5", "6", "7", "8"];
+const classPresets = [
+  { name: "자료구조", short: "자료", slots: ["mon-2", "mon-3", "wed-2", "wed-3"] },
+  { name: "서비스 디자인", short: "디자인", slots: ["tue-5", "tue-6", "thu-5", "thu-6"] },
+  { name: "인공지능 입문", short: "AI", slots: ["wed-6", "wed-7", "fri-4"] },
+];
+const dayKeys = ["mon", "tue", "wed", "thu", "fri"];
 
 export default function Home() {
   const [step, setStep] = useState<Step>("signup-basic");
@@ -64,6 +72,16 @@ export default function Home() {
   const rafRef = useRef<number | null>(null);
   const foundFramesRef = useRef(0);
   const [kakaoReady, setKakaoReady] = useState(false);
+  const [classSearch, setClassSearch] = useState("");
+  const [classSlots, setClassSlots] = useState<Record<string, string>>({
+    "mon-2": "자료",
+    "mon-3": "자료",
+    "wed-2": "자료",
+    "wed-3": "자료",
+    "tue-5": "디자인",
+    "tue-6": "디자인",
+  });
+  const dragModeRef = useRef<"add" | "remove">("add");
 
   const todayLabel = useMemo(() => {
     const formatter = new Intl.DateTimeFormat("ko-KR", {
@@ -343,6 +361,30 @@ export default function Home() {
     setMissionError("코드가 맞지 않아요. 단서를 다시 살펴보세요.");
   }
 
+  function paintClassSlot(slot: string) {
+    setClassSlots((current) => {
+      const next = { ...current };
+      if (dragModeRef.current === "add") next[slot] = "수업";
+      else delete next[slot];
+      return next;
+    });
+  }
+
+  function startClassDrag(slot: string) {
+    dragModeRef.current = classSlots[slot] ? "remove" : "add";
+    paintClassSlot(slot);
+  }
+
+  function fillPreset(preset: (typeof classPresets)[number]) {
+    setClassSlots((current) => {
+      const next = { ...current };
+      preset.slots.forEach((slot) => {
+        next[slot] = preset.short;
+      });
+      return next;
+    });
+  }
+
   const BottomNav = () => (
     <nav className="bottom-nav" aria-label="캠퍼스 드랍 하단 메뉴">
       <button className={step === "start" ? "is-active" : ""} onClick={() => setStep("start")}>🏠<span>홈</span></button>
@@ -398,11 +440,52 @@ export default function Home() {
           </div>
           <SignupProgress current={2} />
           <div className="signup-panel schedule-panel">
-            <strong>이번 주 빈 시간</strong>
-            <div className="time-grid" aria-label="시간표 선택">
-              <button type="button">월 3-4교시</button><button type="button">화 5-6교시</button>
-              <button type="button">수 점심</button><button type="button">목 7-8교시</button>
-              <button type="button">금 오후</button><button type="button">주말 가능</button>
+            <strong>수업 검색</strong>
+            <label className="class-search">
+              <input
+                value={classSearch}
+                onChange={(event) => setClassSearch(event.target.value)}
+                placeholder="수업명 검색 예: 자료구조"
+              />
+            </label>
+            <div className="class-result-list" aria-label="수업 검색 결과">
+              {classPresets
+                .filter((preset) => !classSearch || preset.name.includes(classSearch))
+                .map((preset) => (
+                  <button type="button" key={preset.name} onClick={() => fillPreset(preset)}>
+                    <strong>{preset.name}</strong>
+                    <span>{preset.slots.length}칸 채우기</span>
+                  </button>
+                ))}
+            </div>
+          </div>
+          <div className="signup-panel schedule-panel">
+            <strong>수업 시간표</strong>
+            <p className="schedule-caption">수업이 있는 칸을 드래그해서 체크하세요.</p>
+            <div className="class-grid" onPointerLeave={() => (dragModeRef.current = "add")}>
+              <span className="grid-corner">교시</span>
+              {scheduleDays.map((day) => <span className="grid-day" key={day}>{day}</span>)}
+              {schedulePeriods.map((period) => (
+                <Fragment key={period}>
+                  <span className="grid-period">{period}</span>
+                  {dayKeys.map((dayKey) => {
+                    const slot = `${dayKey}-${period}`;
+                    return (
+                      <button
+                        type="button"
+                        key={slot}
+                        className={classSlots[slot] ? "is-class" : ""}
+                        onPointerDown={() => startClassDrag(slot)}
+                        onPointerEnter={(event) => {
+                          if (event.buttons === 1) paintClassSlot(slot);
+                        }}
+                      >
+                        {classSlots[slot] || ""}
+                      </button>
+                    );
+                  })}
+                </Fragment>
+              ))}
             </div>
           </div>
           <button className="primary-action" onClick={() => setStep("signup-interests")}>다음</button>

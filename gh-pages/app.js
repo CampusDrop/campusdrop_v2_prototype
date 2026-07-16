@@ -12,6 +12,8 @@ const npcDialogue = document.querySelector("#npcDialogue");
 const npcDialogueTextNode = document.querySelector("#npcDialogueText");
 const kakaoMapElement = document.querySelector("#kakaoMap");
 const kakaoFallback = document.querySelector("#kakaoFallback");
+const classSearch = document.querySelector("#classSearch");
+const classGrid = document.querySelector("#classGrid");
 const npcDialogueText = "지도 앞까지 왔구나. 오늘의 캠퍼스 퀘스트를 받을 준비 됐어?";
 const dialogueStartMs = 4300;
 const typingIntervalMs = 46;
@@ -25,6 +27,7 @@ let missionReadyTimer = null;
 let dialogueStartTimer = null;
 let dialogueTypingTimer = null;
 let kakaoMapLoaded = false;
+let classDragMode = "add";
 
 todayLabel.textContent = new Intl.DateTimeFormat("ko-KR", {
   month: "long",
@@ -39,6 +42,31 @@ document.querySelectorAll(".open-settings").forEach((button) => {
 });
 document.querySelectorAll(".signup-next").forEach((button) => {
   button.addEventListener("click", () => setStep(button.dataset.next));
+});
+document.querySelectorAll(".class-preset").forEach((button) => {
+  button.addEventListener("click", () => {
+    button.dataset.slots.split(",").forEach((slot) => {
+      const cell = document.querySelector(`[data-slot="${slot}"]`);
+      if (!cell) return;
+      cell.classList.add("is-class");
+      cell.textContent = button.dataset.short;
+    });
+  });
+});
+classSearch?.addEventListener("input", () => {
+  const query = classSearch.value.trim();
+  document.querySelectorAll(".class-preset").forEach((button) => {
+    button.hidden = query && !button.dataset.name.includes(query);
+  });
+});
+classGrid?.addEventListener("pointerdown", (event) => {
+  if (!event.target.matches("[data-slot]")) return;
+  classDragMode = event.target.classList.contains("is-class") ? "remove" : "add";
+  paintClassCell(event.target);
+});
+classGrid?.addEventListener("pointerover", (event) => {
+  if (event.buttons !== 1 || !event.target.matches("[data-slot]")) return;
+  paintClassCell(event.target);
 });
 document.querySelectorAll(".tab-link").forEach((button) => {
   button.addEventListener("click", () => setStep(button.dataset.tab));
@@ -80,6 +108,16 @@ function setStep(step) {
     button.classList.toggle("is-active", button.dataset.tab === step);
   });
   if (step === "map") initKakaoMap();
+}
+
+function paintClassCell(cell) {
+  if (classDragMode === "add") {
+    cell.classList.add("is-class");
+    cell.textContent = "수업";
+    return;
+  }
+  cell.classList.remove("is-class");
+  cell.textContent = "";
 }
 
 function getKakaoKey() {
