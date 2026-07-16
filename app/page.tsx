@@ -682,8 +682,12 @@ export default function Home() {
             <button onClick={() => setStep("map")}>시작</button>
           </div>
           <div className="section-block">
-            <h2>오늘의 미션</h2>
-            <div className="mission-pills"><span>보물 찾기</span><span>제휴 매장 방문</span></div>
+            <h2>오늘 캠퍼스에서 열리는 일</h2>
+            <div className="daily-event-list">
+              <div className="treasure-card"><span>🐴</span><strong>오늘의 보물</strong><p>시계탑 근처 · 보상 캐릭터 조각</p></div>
+              <div className="store-card"><span>☕</span><strong>세종 카페 라운지</strong><p>아메리카노 20% · 120m</p></div>
+              <div className="store-card"><span>🎟</span><strong>한정 이벤트</strong><p>탈출 미션 D-5 · 우리 크루가 함께 발견했어요.</p></div>
+            </div>
           </div>
           <div className="activity-line">민수가 새로운 캐릭터를 획득했습니다.</div>
           <BottomNav />

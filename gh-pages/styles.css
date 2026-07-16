@@ -105,6 +105,7 @@ button { -webkit-tap-highlight-color: transparent; }
 .event-strip button { border: 0; border-radius: 999px; background: var(--ink); color: white; padding: 10px 13px; font-weight: 950; }
 .section-block { z-index: 1; }
 .section-block h2 { margin-bottom: 10px; font-size: 24px; }
+.daily-event-list { display: grid; gap: 10px; }
 .mission-pills, .title-strip { display: flex; flex-wrap: wrap; gap: 8px; }
 .mission-pills span, .title-strip span {
   border-radius: 999px; background: white; color: var(--leaf); padding: 10px 12px; font-size: 13px; font-weight: 950;

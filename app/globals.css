@@ -222,6 +222,11 @@ button {
   font-size: 24px;
 }
 
+.daily-event-list {
+  display: grid;
+  gap: 10px;
+}
+
 .mission-pills,
 .title-strip {
   display: flex;
