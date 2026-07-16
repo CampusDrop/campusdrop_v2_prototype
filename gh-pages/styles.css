@@ -130,7 +130,6 @@ button { -webkit-tap-highlight-color: transparent; }
   box-shadow: none;
 }
 .kakao-map-canvas { position: absolute; inset: 0; z-index: 0; opacity: 1; filter: none; }
-.kakao-map-canvas .kakao-crew-overlay { display: none; }
 .game-map-layer {
   position: absolute; inset: 0; z-index: 1; display: none; overflow: hidden; pointer-events: none;
   background: radial-gradient(circle at 18% 16%, rgba(255,230,120,.18), transparent 22%), radial-gradient(circle at 84% 78%, rgba(58,207,161,.16), transparent 25%), linear-gradient(135deg, rgba(215,248,216,.2), rgba(255,246,191,.18));
@@ -184,7 +183,7 @@ button { -webkit-tap-highlight-color: transparent; }
 .kakao-map-fallback strong { font-size: 24px; }
 .kakao-map-fallback p { max-width: 250px; color: var(--muted); font-size: 13px; font-weight: 850; line-height: 1.45; }
 .kakao-map-fallback span { color: var(--leaf); }
-.kakao-map-shell.is-kakao-ready > .map-giraffe-point { display: grid; }
+.kakao-map-shell.is-kakao-ready > .map-giraffe-point { display: none; }
 .map-crew-hud, .map-quest-hud {
   position: absolute; top: max(16px, env(safe-area-inset-top)); z-index: 24; display: grid; gap: 6px; min-height: 92px;
   border: 2px solid rgba(255,255,255,.88); border-radius: 20px; background: rgba(255,255,255,.86);

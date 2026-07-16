@@ -336,10 +336,6 @@ button {
   filter: none;
 }
 
-.kakao-map-canvas .kakao-crew-overlay {
-  display: none;
-}
-
 .game-map-layer {
   position: absolute;
   inset: 0;
@@ -502,7 +498,7 @@ button {
 }
 
 .kakao-map-shell.is-kakao-ready > .map-giraffe-point {
-  display: grid;
+  display: none;
 }
 
 .map-crew-hud,
