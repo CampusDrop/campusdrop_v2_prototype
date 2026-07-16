@@ -196,8 +196,8 @@ export default function Home() {
         const r = dayFixtureImage[i];
         const g = dayFixtureImage[i + 1];
         const b = dayFixtureImage[i + 2];
-        const isDayCyan = g > 104 && b > 92 && r < 160 && g > r * 1.08 && b > r * 0.94;
-        const isDayPink = r > 152 && b > 92 && g < 118 && r > g * 1.28 && b > g * 0.84;
+        const isDayCyan = g > 100 && b > 88 && r < 168 && g > r * 1.06 && b > r * 0.9;
+        const isDayPink = r > 142 && b > 82 && g < 128 && r > g * 1.2 && b > g * 0.74;
         const isSkinTone =
           r > 118 &&
           g > 70 &&
@@ -227,21 +227,22 @@ export default function Home() {
         fixtureDark > 900 &&
         cyan + pink + bright + fixtureDark > 3300;
       const daylightFixtureDetected =
-        skinTone < 700 &&
-        dayCyan > 1500 &&
-        dayPink > 220 &&
-        dayParchment > 1450 &&
-        dayInk > 420 &&
-        dayParchment < 5000 &&
-        dayCyanLeft > 520 &&
-        dayCyanRight > 520 &&
-        dayPinkLeft > 55 &&
-        dayPinkRight > 55 &&
-        dayCyan + dayPink > 1780 &&
-        dayCyan + dayPink + dayParchment + dayInk > 4100;
+        skinTone < 760 &&
+        dayCyan > 1180 &&
+        dayPink > 150 &&
+        dayParchment > 1300 &&
+        dayInk > 340 &&
+        dayParchment < 5200 &&
+        dayCyanLeft > 390 &&
+        dayCyanRight > 390 &&
+        dayPinkLeft > 36 &&
+        dayPinkRight > 36 &&
+        dayCyan + dayPink > 1380 &&
+        dayCyan + dayPink + dayParchment + dayInk > 3600;
       const detected = posterDetected || fixtureDetected || daylightFixtureDetected;
+      const requiredFrames = daylightFixtureDetected && !posterDetected && !fixtureDetected ? 18 : 10;
       foundFramesRef.current = detected ? foundFramesRef.current + 1 : 0;
-      if (foundFramesRef.current > 10) {
+      if (foundFramesRef.current > requiredFrames) {
         freezeCameraFrame(video);
         stopCamera();
         setScanState("found");
