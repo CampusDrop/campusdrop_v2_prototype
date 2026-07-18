@@ -3,377 +3,132 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Campus Drop WebAR Demo</title>
+    <title>Campus Drop | 시계탑 이상 현상 조사</title>
     <meta
       name="description"
-      content="캠퍼스 이미지를 스캔하면 AR 미션이 열리고 당일 쿠폰을 받는 Campus Drop WebAR 데모"
+      content="QR 포스터에서 시작되는 Campus Drop 시계탑 이상 현상 조사 웹 데모"
     />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <main class="app" data-step="signup-basic">
-      <section class="screen signup-screen" data-screen="signup-basic">
-        <div class="signup-header">
-          <p class="eyebrow">회원가입 1/4</p>
-          <h2>기본정보</h2>
-          <p>캠퍼스 드랍에서 사용할 내 정보를 입력합니다.</p>
+    <main class="case-app scene-entry" id="app">
+      <div class="clock-noise" aria-hidden="true"></div>
+
+      <section class="screen case-entry" data-screen="entry">
+        <div class="case-mark">CAMPUS DROP</div>
+        <div class="clocktower-window" aria-hidden="true"><span></span><i></i></div>
+        <div class="case-title">
+          <p>시계탑 이상 현상 조사</p>
+          <h1>세종대 시계탑의 시계 4개가 전부 틀린 이유를 알고 있나요?</h1>
         </div>
-        <div class="signup-progress" aria-label="회원가입 1단계"><span class="is-active"></span><span></span><span></span><span></span></div>
-        <div class="signup-panel form-panel">
-          <label>이름<input placeholder="김세종" /></label>
-          <label>성별<select><option selected disabled>선택</option><option>여성</option><option>남성</option><option>응답하지 않음</option></select></label>
-          <label>나이<input inputmode="numeric" placeholder="22" /></label>
-          <label>전화번호<input inputmode="tel" placeholder="010-1234-5678" /></label>
-          <label>학과<input placeholder="컴퓨터공학과" /></label>
+        <div class="case-status">
+          <span>현재 조사 인원</span>
+          <strong>127명</strong>
+          <p>아직 원인은 밝혀지지 않았습니다.</p>
         </div>
-        <button class="primary-action signup-next" data-next="signup-schedule">다음</button>
+        <p class="poster-source" id="posterSource">학생회관 포스터를 통해 접속했습니다. 이 근처에서도 이상한 종소리가 들렸다는 제보가 있습니다.</p>
+        <button class="primary-action" type="button" data-go="login">조사 참여하기</button>
+        <p class="warning-copy">※ 시계탑 꼭대기를 너무 오래 올려다보지 마세요.</p>
       </section>
 
-      <section class="screen signup-screen" data-screen="signup-schedule">
-        <div class="signup-header">
-          <button class="ghost-light-button signup-next" data-next="signup-basic">이전</button>
-          <p class="eyebrow">회원가입 2/4</p>
-          <h2>시간표</h2>
-          <p>같이 움직일 수 있는 캠퍼스 시간을 등록합니다.</p>
+      <section class="screen login-screen" data-screen="login">
+        <button class="text-back" type="button" data-go="entry">돌아가기</button>
+        <div class="login-copy">
+          <p>조사 기록 연결</p>
+          <h2>중간에 나가도 현재 단서부터 계속할 수 있어요.</h2>
+          <span>회원가입이 아니라, 조사 기록을 보존하기 위한 계정 연결입니다.</span>
         </div>
-        <div class="signup-progress" aria-label="회원가입 2단계"><span class="is-active"></span><span class="is-active"></span><span></span><span></span></div>
-        <div class="signup-panel schedule-panel">
-          <strong>수업 검색</strong>
-          <label class="class-search"><input id="classSearch" placeholder="수업명 검색 예: 자료구조" /></label>
-          <div class="class-result-list" aria-label="수업 검색 결과">
-            <button type="button" class="class-preset" data-name="자료구조" data-short="자료" data-slots="mon-2,mon-3,wed-2,wed-3"><strong>자료구조</strong><span>4칸 채우기</span></button>
-            <button type="button" class="class-preset" data-name="서비스 디자인" data-short="디자인" data-slots="tue-5,tue-6,thu-5,thu-6"><strong>서비스 디자인</strong><span>4칸 채우기</span></button>
-            <button type="button" class="class-preset" data-name="인공지능 입문" data-short="AI" data-slots="wed-6,wed-7,fri-4"><strong>인공지능 입문</strong><span>3칸 채우기</span></button>
-          </div>
-        </div>
-        <div class="signup-panel schedule-panel">
-          <strong>수업 시간표</strong>
-          <p class="schedule-caption">수업이 있는 칸을 드래그해서 체크하세요.</p>
-          <div class="class-grid" id="classGrid" aria-label="수업 시간표">
-            <span class="grid-corner">교시</span><span class="grid-day">월</span><span class="grid-day">화</span><span class="grid-day">수</span><span class="grid-day">목</span><span class="grid-day">금</span>
-            <span class="grid-period">1</span><button type="button" data-slot="mon-1"></button><button type="button" data-slot="tue-1"></button><button type="button" data-slot="wed-1"></button><button type="button" data-slot="thu-1"></button><button type="button" data-slot="fri-1"></button>
-            <span class="grid-period">2</span><button type="button" data-slot="mon-2" class="is-class">자료</button><button type="button" data-slot="tue-2"></button><button type="button" data-slot="wed-2" class="is-class">자료</button><button type="button" data-slot="thu-2"></button><button type="button" data-slot="fri-2"></button>
-            <span class="grid-period">3</span><button type="button" data-slot="mon-3" class="is-class">자료</button><button type="button" data-slot="tue-3"></button><button type="button" data-slot="wed-3" class="is-class">자료</button><button type="button" data-slot="thu-3"></button><button type="button" data-slot="fri-3"></button>
-            <span class="grid-period">4</span><button type="button" data-slot="mon-4"></button><button type="button" data-slot="tue-4"></button><button type="button" data-slot="wed-4"></button><button type="button" data-slot="thu-4"></button><button type="button" data-slot="fri-4"></button>
-            <span class="grid-period">5</span><button type="button" data-slot="mon-5"></button><button type="button" data-slot="tue-5" class="is-class">디자인</button><button type="button" data-slot="wed-5"></button><button type="button" data-slot="thu-5" class="is-class">디자인</button><button type="button" data-slot="fri-5"></button>
-            <span class="grid-period">6</span><button type="button" data-slot="mon-6"></button><button type="button" data-slot="tue-6" class="is-class">디자인</button><button type="button" data-slot="wed-6"></button><button type="button" data-slot="thu-6" class="is-class">디자인</button><button type="button" data-slot="fri-6"></button>
-            <span class="grid-period">7</span><button type="button" data-slot="mon-7"></button><button type="button" data-slot="tue-7"></button><button type="button" data-slot="wed-7"></button><button type="button" data-slot="thu-7"></button><button type="button" data-slot="fri-7"></button>
-            <span class="grid-period">8</span><button type="button" data-slot="mon-8"></button><button type="button" data-slot="tue-8"></button><button type="button" data-slot="wed-8"></button><button type="button" data-slot="thu-8"></button><button type="button" data-slot="fri-8"></button>
-          </div>
-        </div>
-        <button class="primary-action signup-next" data-next="signup-interests">다음</button>
-      </section>
-
-      <section class="screen signup-screen" data-screen="signup-interests">
-        <div class="signup-header">
-          <button class="ghost-light-button signup-next" data-next="signup-schedule">이전</button>
-          <p class="eyebrow">회원가입 3/4</p>
-          <h2>관심사</h2>
-          <p>처음 만난 크루와 이야기하기 좋은 주제를 고릅니다.</p>
-        </div>
-        <div class="signup-progress" aria-label="회원가입 3단계"><span class="is-active"></span><span class="is-active"></span><span class="is-active"></span><span></span></div>
-        <div class="signup-panel">
-          <strong>이야기 거리</strong>
-          <div class="choice-tile-grid" aria-label="관심사 선택">
-            <button type="button" data-choice="interest"><span>FILM</span><strong>신작 영화</strong></button>
-            <button type="button" data-choice="interest"><span>FOOD</span><strong>맛집</strong></button>
-            <button type="button" data-choice="interest"><span>STUDY</span><strong>전공 이야기</strong></button>
-            <button type="button" data-choice="interest"><span>CAREER</span><strong>취업/인턴</strong></button>
-            <button type="button" data-choice="interest"><span>ART</span><strong>공연/전시</strong></button>
-            <button type="button" data-choice="interest"><span>TRIP</span><strong>여행</strong></button>
-          </div>
-          <p class="selection-hint">여러 개 선택할 수 있어요.</p>
-          <p class="form-error" data-error="interest"></p>
-        </div>
-        <button class="primary-action signup-next" data-next="signup-hobbies" data-requires="interest">다음</button>
-      </section>
-
-      <section class="screen signup-screen" data-screen="signup-hobbies">
-        <div class="signup-header">
-          <button class="ghost-light-button signup-next" data-next="signup-interests">이전</button>
-          <p class="eyebrow">회원가입 4/4</p>
-          <h2>취미</h2>
-          <p>같이 놀거나 미션을 돌 때 어울리는 활동을 고릅니다.</p>
-        </div>
-        <div class="signup-progress" aria-label="회원가입 4단계"><span class="is-active"></span><span class="is-active"></span><span class="is-active"></span><span class="is-active"></span></div>
-        <div class="signup-panel">
-          <strong>같이 놀거리</strong>
-          <div class="choice-tile-grid" aria-label="취미 선택">
-            <button type="button" data-choice="hobby"><span>BOARD</span><strong>보드게임</strong></button>
-            <button type="button" data-choice="hobby"><span>WALK</span><strong>산책</strong></button>
-            <button type="button" data-choice="hobby"><span>CAFE</span><strong>카페 탐방</strong></button>
-            <button type="button" data-choice="hobby"><span>SPORT</span><strong>운동</strong></button>
-            <button type="button" data-choice="hobby"><span>PHOTO</span><strong>사진 찍기</strong></button>
-            <button type="button" data-choice="hobby"><span>ESCAPE</span><strong>방탈출</strong></button>
-          </div>
-          <p class="selection-hint">여러 개 선택할 수 있어요.</p>
-          <p class="form-error" data-error="hobby"></p>
-        </div>
-        <button class="primary-action signup-next" data-next="map" data-requires="hobby">가입 완료</button>
-      </section>
-
-      <section class="screen home-screen app-tab-screen" data-screen="start">
-        <button class="settings-button open-settings" aria-label="설정 열기">⚙</button>
-        <button class="map-back-button" type="button" data-menu-step="map">지도</button>
-        <div class="app-header"><p class="eyebrow">탐색</p><h2>오늘의 캠퍼스 소식</h2></div>
-        <div class="mission-card featured">
-          <span>AR</span>
-          <strong>시계탑 정령을 깨워라</strong>
-          <p>지도 안내판을 스캔하고 기린의 퀘스트를 완료하세요.</p>
-          <button type="button" id="startScanExplore">퀘스트 입장</button>
-        </div>
-        <div class="mission-card">
-          <span>오늘</span>
-          <strong>크루 보물 탐색</strong>
-          <p>세종 카페 라운지 근처에서 힌트 조각을 발견하면 크루 경험치가 올라갑니다.</p>
-        </div>
-        <div class="notice-list">
-          <h3>공지사항</h3>
-          <div><strong>황금말 시즌 진행 중</strong><p>이번 시즌 발견 기록은 도감에 자동으로 쌓입니다.</p></div>
-          <div><strong>오늘 23:59 쿠폰 만료</strong><p>획득한 캠퍼스 쿠폰은 당일 안에 사용해야 합니다.</p></div>
+        <div class="login-list">
+          <button type="button" data-go="incident"><span>카카오 로그인</span><i>계속</i></button>
+          <button type="button" data-go="incident"><span>Apple 로그인</span><i>계속</i></button>
+          <button type="button" data-go="incident"><span>Google 로그인</span><i>계속</i></button>
+          <button type="button" data-go="incident"><span>학교 이메일 로그인</span><i>계속</i></button>
         </div>
       </section>
 
-      <section class="screen map-screen app-tab-screen" data-screen="map">
-        <div class="kakao-map-shell">
-          <div id="kakaoMap" class="kakao-map-canvas" aria-label="카카오 캠퍼스 지도"></div>
-          <div class="game-map-layer" aria-hidden="true">
-            <span class="game-map-grass grass-a"></span>
-            <span class="game-map-grass grass-b"></span>
-            <span class="game-map-water"></span>
-            <span class="game-map-road road-main"></span>
-            <span class="game-map-road road-branch-a"></span>
-            <span class="game-map-road road-branch-b"></span>
-            <span class="game-map-building building-a"></span>
-            <span class="game-map-building building-b"></span>
-            <span class="game-map-building building-c"></span>
-            <span class="game-map-building building-d"></span>
-            <span class="game-map-plaza"></span>
+      <section class="screen incident-screen" data-screen="incident">
+        <div class="incident-header">
+          <p>로그인 완료</p>
+          <h2>시계탑 이상 현상 감지</h2>
+        </div>
+        <div class="clock-grid" aria-label="시계탑 네 방향 시간">
+          <div class="clock-card">
+            <div class="clock-face east"><span class="tick tick-a"></span><span class="tick tick-b"></span><i class="hand hour"></i><i class="hand minute"></i><b></b></div>
+            <span>동쪽</span><strong>14:19</strong>
           </div>
-          <div id="kakaoFallback" class="kakao-map-fallback">
-            <strong>카카오 지도 준비됨</strong>
-            <p>URL 뒤에 <span>?kakaoKey=JavaScript키</span>를 붙이면 필터 다크모드 지도가 표시됩니다.</p>
+          <div class="clock-card">
+            <div class="clock-face south"><span class="tick tick-a"></span><span class="tick tick-b"></span><i class="hand hour"></i><i class="hand minute"></i><b></b></div>
+            <span>남쪽</span><strong>14:47</strong>
+          </div>
+          <div class="clock-card is-corrupted">
+            <div class="clock-face west corrupted"><span class="tick tick-a"></span><span class="tick tick-b"></span><i class="hand hour"></i><i class="hand minute"></i><b></b></div>
+            <span>서쪽</span><strong>13:58</strong>
+          </div>
+          <div class="clock-card is-unknown">
+            <div class="clock-face unknown"><span class="tick tick-a"></span><span class="tick tick-b"></span><i class="hand hour"></i><i class="hand minute"></i><b></b></div>
+            <span>북쪽</span><strong>확인 불가</strong>
           </div>
         </div>
-        <div class="map-crew-hud" aria-label="내 크루 상태">
-          <span>내 크루</span>
-          <strong>피닉스</strong>
-          <div class="map-crew-level"><em>Lv. 8</em><b>82%</b></div>
-          <div class="map-hud-xp-bar"><span style="width: 82%"></span></div>
-          <p class="map-visible-count">표시 거점 <b id="visibleSpotCount">3</b>개</p>
+        <div class="time-report">
+          <span>휴대폰 현재 시각</span>
+          <strong id="currentTime">--:--</strong>
+          <p>세종대학교 시계탑에는 동서남북을 향한 4개의 시계가 있습니다. 이상하게도 4개의 시계는 모두 실제 시간과 다릅니다.</p>
         </div>
-        <div class="map-quest-hud" aria-label="현재 진행중인 퀘스트">
-          <span>AR 탐색 이벤트</span>
-          <strong id="eventSpotName">대양AI센터</strong>
-          <p id="eventSpotMeta">거리 확인 중</p>
-          <em id="eventTimer">이동까지 5:00</em>
+        <div class="system-message">
+          <span>시스템</span>
+          <p>기계 고장과 일치하지 않는 움직임이 감지됐습니다.</p>
         </div>
-        <aside id="mapSpotSheet" class="map-spot-sheet bg-slate-900/70 backdrop-blur-md border border-white/20 animate-fade-in-up" aria-live="polite">
-          <button id="closeMapSpot" type="button" aria-label="거점 상세 닫기">×</button>
-          <span>거점 신호 감지</span>
-          <strong id="mapSpotName">피닉스</strong>
-          <div class="map-spot-grid">
-            <p><em>점령 상태</em><b id="mapSpotStatus">점령 중</b></p>
-            <p><em>참여 인원</em><b id="mapSpotMembers">18명</b></p>
-          </div>
-          <p id="mapSpotReward" class="map-spot-reward">보상 신호: 시계탑 정령 단서</p>
-        </aside>
-        <button class="map-location-button" type="button" id="showMyLocation"><span></span><em>내 위치 표시</em></button>
-        <button class="map-ar-quest-button is-locked" type="button" id="startScanMap" aria-label="이벤트 좌표에 도달해야 합니다" disabled>
-          <span aria-hidden="true">LOCK</span>
+        <button class="unknown-message" id="unknownMessage" type="button">
+          <span>알 수 없는 발신자</span>
+          <strong>“시계가 틀린 건 내 잘못이야.”</strong>
+          <em>메시지를 터치하세요</em>
         </button>
-        <div class="map-action-menu">
-          <div class="map-menu-panel" aria-hidden="true">
-            <button type="button" data-menu-step="start">💎<span>탐색</span></button>
-            <button type="button" data-menu-step="crew">👥<span>크루</span></button>
-            <button type="button" data-menu-step="collection">📖<span>도감</span></button>
-          </div>
-          <button type="button" class="map-menu-trigger" aria-label="지도 메뉴 열기" aria-expanded="false">✦</button>
-        </div>
-      </section>
-
-      <section class="screen explore-screen app-tab-screen" data-screen="explore">
-        <button class="settings-button open-settings" aria-label="설정 열기">⚙</button>
-        <button class="map-back-button" type="button" data-menu-step="map">지도</button>
-        <div class="app-header"><p class="eyebrow">탐색</p><h2>오늘의 캠퍼스 소식</h2></div>
-        <div class="mission-card featured"><span>AR</span><strong>시계탑 정령을 깨워라</strong><p>지도 안내판을 스캔하고 기린의 퀘스트를 완료하세요.</p><button type="button" id="startScanExploreAlt">퀘스트 입장</button></div>
-        <div class="mission-card"><span>오늘</span><strong>크루 보물 탐색</strong><p>세종 카페 라운지 근처에서 힌트 조각을 발견하면 크루 경험치가 올라갑니다.</p></div>
-        <div class="notice-list"><h3>공지사항</h3><div><strong>황금말 시즌 진행 중</strong><p>이번 시즌 발견 기록은 도감에 자동으로 쌓입니다.</p></div><div><strong>오늘 23:59 쿠폰 만료</strong><p>획득한 캠퍼스 쿠폰은 당일 안에 사용해야 합니다.</p></div></div>
-      </section>
-
-      <section class="screen crew-screen app-tab-screen" data-screen="crew">
-        <button class="settings-button open-settings" aria-label="설정 열기">⚙</button>
-        <button class="map-back-button" type="button" data-menu-step="map">지도</button>
-        <div class="crew-profile"><div class="crew-model-bubble large">🐺</div><h2>피닉스</h2><p>황금말 시즌 · 크루 경험치 12,840</p><div class="crew-xp-panel"><div><span>다음 레벨까지</span><strong>82%</strong></div><div class="xp-bar"><span></span></div></div></div>
-        <div class="contributor-list"><h3>상위 기여 유저</h3><div><span>1</span><strong>민수</strong><em>+3,420 XP</em></div><div><span>2</span><strong>지윤</strong><em>+2,880 XP</em></div><div><span>3</span><strong>하린</strong><em>+2,140 XP</em></div></div>
-        <div class="crew-chat">오늘 6시에 보물 위치 같이 확인할 사람?</div>
-      </section>
-
-      <section class="screen collection-screen app-tab-screen" data-screen="collection">
-        <button class="settings-button open-settings" aria-label="설정 열기">⚙</button>
-        <button class="map-back-button" type="button" data-menu-step="map">지도</button>
-        <div class="collection-profile-card"><span>내 정보</span><strong>김세종</strong><p>컴퓨터공학과 · 피닉스 크루</p><div class="equipped-title"><em>장착 중인 칭호</em><strong>시계탑의 첫 목격자</strong></div><div class="title-vault" aria-label="보유 칭호"><button type="button" class="is-equipped"><span>RARE</span><strong>시계탑 탐험가</strong></button><button type="button"><span>COMMON</span><strong>맛집 헌터</strong></button><button type="button"><span>LOCKED</span><strong>???</strong></button></div></div>
-        <div class="collection-carousel">
-          <div class="app-header"><p class="eyebrow">시즌 도감</p><h2 id="collectionSeason">황금말 시즌</h2></div>
-          <div class="carousel-stage">
-            <button class="carousel-arrow carousel-prev" type="button" id="collectionPrev" aria-label="이전 도감 모델">‹</button>
-            <div class="model-preview preview-left" id="collectionPrevPreview" aria-hidden="true"><div class="locked-model small">??</div></div>
-            <div class="model-showcase" id="collectionModel"><model-viewer src="./sejongGF.glb" camera-orbit="90deg 76deg 3.2m" field-of-view="28deg" exposure="1.1" auto-rotate interaction-prompt="none" disable-zoom alt="세종 기린"></model-viewer></div>
-            <div class="model-preview preview-right" id="collectionNextPreview" aria-hidden="true"><div class="locked-model small">??</div></div>
-            <button class="carousel-arrow carousel-next" type="button" id="collectionNext" aria-label="다음 도감 모델">›</button>
-          </div>
-          <div class="collection-caption"><strong id="collectionName">세종 기린</strong><p id="collectionTitle">시계탑 정령</p></div>
-        </div>
-      </section>
-
-      <section class="screen settings-screen" data-screen="settings">
-        <div class="settings-header">
-          <button class="ghost-light-button" id="closeSettings">뒤로</button>
-          <p class="eyebrow">설정</p>
-          <h2>내 설정</h2>
-          <p>언어와 프로필 취향을 다시 맞춰볼 수 있어요.</p>
-        </div>
-        <div class="settings-panel">
-          <span>언어 설정</span>
-          <div class="segmented-grid" aria-label="언어 선택">
-            <button class="is-selected" type="button">한국어</button>
-            <button type="button">중국어</button>
-            <button type="button">일본어</button>
-            <button type="button">영어</button>
-          </div>
-        </div>
-        <div class="settings-panel">
-          <span>관심사 다시 설정</span>
-          <div class="chip-grid"><button type="button">신작 영화</button><button type="button">맛집</button><button type="button">전공 이야기</button><button type="button">취업/인턴</button></div>
-        </div>
-        <div class="settings-panel">
-          <span>취미 다시 설정</span>
-          <div class="chip-grid"><button type="button">보드게임</button><button type="button">산책</button><button type="button">카페 탐방</button><button type="button">운동</button></div>
-        </div>
-        <div class="settings-panel my-info-card">
-          <span>내 정보</span>
-          <strong>김세종 · 22세 · 컴퓨터공학과</strong>
-          <p>전화번호 010-1234-5678</p>
-          <p>소속 크루 피닉스 · 황금말 시즌 참여 중</p>
-        </div>
-      </section>
-
-      <section class="screen scan-screen" data-screen="scan" aria-label="AR 스캔 화면">
-        <video id="cameraFeed" class="camera-feed" playsinline muted></video>
-        <img id="frozenFrame" class="camera-freeze" alt="" aria-hidden="true" />
-        <canvas id="scanCanvas" class="hidden-canvas"></canvas>
-        <div class="scan-vignette"></div>
-        <div class="scan-topbar">
-          <button class="ghost-button" id="closeScan">닫기</button>
-          <span id="scanTitle">캠퍼스 드랍 스캔</span>
-        </div>
-        <div class="scan-frame" id="scanFrame"><span></span><span></span><span></span><span></span></div>
-        <div class="scan-hint" id="scanHint">
-          <strong>지도 안내판이나 포스터를 중앙에 맞춰주세요</strong>
-          <p>세종대 지도 안내판의 낮/야간 지도 영역 또는 전용 포스터의 초록/노랑 표식이 프레임 안에 들어오면 기린이 나타납니다.</p>
-        </div>
-        <button class="ar-hit-area" id="openMission" aria-label="퀘스트 기린 만나기"></button>
-        <div class="summon-flash" aria-hidden="true"></div>
-        <div class="speed-lines" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
-        <div class="npc-stage" aria-hidden="true">
-          <div class="clock-gears"><span></span><span></span><span></span></div>
-          <div class="summon-beam"></div>
-          <div class="npc-glow"></div>
-          <div class="impact-ring"></div>
-          <div class="clock-hands"></div>
-          <div class="summon-runes"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-          <div class="spark-field"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-          <model-viewer
-            src="./sejongGF.glb"
-            camera-orbit="90deg 76deg 3.2m"
-            field-of-view="28deg"
-            exposure="1.1"
-            shadow-intensity="0"
-            interaction-prompt="none"
-            disable-zoom
-            alt="캠퍼스 드랍 퀘스트 기린"
-          ></model-viewer>
-        </div>
-        <div class="npc-dialogue" id="npcDialogue">
-          <strong>세종 기린</strong>
-          <p id="npcDialogueText"></p>
-          <span>기린을 탭해 퀘스트 시작</span>
-        </div>
-        <button class="bird-hit-area" id="completeBirdEvent" type="button" aria-label="파랑새 발견 완료"></button>
-        <div class="bird-ar-reticle" aria-hidden="true"></div>
-        <div class="bird-stage" aria-hidden="true">
-          <model-viewer
-            src="./blueBird.glb"
-            camera-orbit="65deg 72deg 3.4m"
-            field-of-view="30deg"
-            exposure="1.2"
-            shadow-intensity="0"
-            interaction-prompt="none"
-            disable-zoom
-            alt="파랑새"
-          ></model-viewer>
-        </div>
-        <div class="bird-guide" id="birdGuide">
-          <strong>파랑새 신호 추적 중</strong>
-          <p>휴대폰을 돌려 파랑새를 중앙 영역에 붙잡아 보세요.</p>
-        </div>
       </section>
 
       <section class="screen mission-screen" data-screen="mission">
-        <div class="mission-header">
-          <span class="location-chip">세종관 1층 라운지</span>
-          <h2>기린의 캠퍼스 퀘스트</h2>
-          <p>기린이 남긴 세 개의 단서를 조합해 3자리 코드를 입력하세요.</p>
+        <div class="mission-copy">
+          <p>미션 1</p>
+          <h2>네 개의 시계를 확인하라</h2>
+          <span>시계탑 안의 제보자가 사실을 말하고 있는지 확인해야 합니다.</span>
         </div>
-        <div class="clue-board" aria-label="미션 단서">
-          <div class="clue"><span>단서 1</span><strong>강의실 문패의 네 번째 숫자</strong></div>
-          <div class="clue"><span>단서 2</span><strong>지도 위 두 번째 분홍 번호</strong></div>
-          <div class="clue"><span>단서 3</span><strong>쿠폰 스탬프에 남은 여덟 조각</strong></div>
+        <div class="campus-radar">
+          <div class="radar-map">
+            <span class="radar-road road-a"></span>
+            <span class="radar-road road-b"></span>
+            <span class="radar-zone"></span>
+            <span class="current-dot"></span>
+            <span class="clocktower-pin">시계탑</span>
+          </div>
+          <div class="radar-data">
+            <div><span>예상 거리</span><strong id="distanceText">위치 확인 필요</strong></div>
+            <div><span>조사 가능 범위</span><strong>90m</strong></div>
+          </div>
         </div>
-        <form class="code-form" id="codeForm">
-          <label for="missionCode">3자리 코드</label>
-          <input id="missionCode" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="000" />
-          <p class="form-error" id="missionError"></p>
-          <button class="primary-action" type="submit">퀘스트 제출</button>
-        </form>
+        <p class="location-status" id="locationStatus">위치 확인 전</p>
+        <div class="mission-actions">
+          <button class="primary-action" type="button" id="checkLocation">현재 위치로 확인</button>
+          <button class="secondary-action" type="button" data-go="arrival">데모용 도착 처리</button>
+        </div>
       </section>
 
-      <section class="screen success-screen" data-screen="success">
-        <div class="reward-burst">
-          <span></span><span></span><span></span>
-          <div class="reward-token">20%</div>
+      <section class="screen arrival-screen" data-screen="arrival">
+        <div class="arrival-copy">
+          <p>체크포인트 열림</p>
+          <h2>시계탑 신호 범위에 진입했습니다.</h2>
+          <span>시계탑을 한 바퀴 돌며 서로 다른 시계를 확인하세요.</span>
         </div>
-        <h2>미션 클리어!</h2>
-        <p>오늘만 사용할 수 있는 캠퍼스 보상을 획득했어요.</p>
-      </section>
-
-      <section class="screen coupon-screen" data-screen="coupon">
-        <p class="eyebrow">보상 획득</p>
-        <h2>오늘의 캠퍼스 쿠폰</h2>
-        <div class="coupon-ticket">
-          <div>
-            <span class="store-name">세종 카페 라운지</span>
-            <strong>아메리카노 20% 할인</strong>
-          </div>
-          <div class="coupon-visual" aria-label="오늘의 캠퍼스 쿠폰 큐알 코드 캠퍼스-428">
-            <div class="coupon-qr" aria-hidden="true">
-              <span class="qr-eye qr-eye-tl"></span>
-              <span class="qr-eye qr-eye-tr"></span>
-              <span class="qr-eye qr-eye-bl"></span>
-              <span class="qr-pixels"></span>
-            </div>
-            <em>큐알 쿠폰 · 캠퍼스-428</em>
-          </div>
-          <div class="coupon-footer">
-            <span id="todayLabel"></span>
-            <strong>오늘 23:59까지</strong>
-          </div>
+        <div class="clue-list">
+          <button type="button" data-clue="털"><span>동쪽 시계</span><strong>시곗바늘 옆 노란 털</strong><p>탭해서 흔적 조사</p></button>
+          <button type="button" data-clue="콧김"><span>남쪽 시계</span><strong>시계판 안쪽 콧김 자국</strong><p>탭해서 흔적 조사</p></button>
+          <button type="button" data-clue="나뭇잎"><span>서쪽 시계</span><strong>높은 곳에 붙은 나뭇잎</strong><p>탭해서 흔적 조사</p></button>
+          <button type="button" data-clue="흔적"><span>북쪽 시계</span><strong>시곗바늘이 바깥쪽에서 밀린 흔적</strong><p>탭해서 흔적 조사</p></button>
         </div>
-        <div class="today-alert">당일 사용 제한 쿠폰입니다</div>
-        <button class="secondary-action" id="restartDemo">처음부터 다시 시연</button>
+        <div class="conclusion" id="conclusion" aria-live="polite">
+          <span>조사 결론</span>
+          <strong>0 / 4 흔적 확인</strong>
+        </div>
       </section>
     </main>
-    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
     <script src="./app.js"></script>
   </body>
 </html>
