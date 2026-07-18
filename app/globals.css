@@ -1884,3 +1884,66 @@ button:focus-visible {
   0%, 48% { opacity: 1; }
   49%, 100% { opacity: 0; }
 }
+
+/* Readability pass: replace pure-white text with warmer high-contrast tones */
+:root {
+  --readable-gold: #ffd86b;
+  --readable-amber: #f4c430;
+  --readable-cream: #f1dfad;
+  --readable-ink: #081011;
+}
+
+.case-app,
+.incident-screen,
+.mission-screen,
+.arrival-screen {
+  color: var(--readable-cream);
+}
+
+.incident-screen .incident-header h2,
+.mission-screen .mission-copy h2,
+.arrival-screen .arrival-copy h2,
+.clock-card strong,
+.time-report strong,
+.conclusion.is-open strong,
+.drop-link-type,
+.drop-link-transfer strong,
+.editor-summary strong {
+  color: var(--readable-gold);
+}
+
+.drop-link-transfer span,
+.drop-link-modal,
+.editor-summary {
+  color: var(--readable-cream);
+}
+
+.primary-action,
+.drop-link-next,
+.question-count-control button,
+.capture-tools button,
+.capture-tools label {
+  color: var(--readable-ink);
+  text-shadow: none;
+}
+
+.secondary-action {
+  color: var(--readable-gold);
+}
+
+.drop-link-type i,
+.hand {
+  background: var(--readable-gold);
+}
+
+.drop-link-portrait,
+.drop-link-speech,
+.drop-link-reveal-core {
+  border-color: rgba(255, 216, 107, 0.78);
+}
+
+.talk-drop-core,
+.drop-link-reveal-core {
+  color: var(--readable-gold);
+}
+
