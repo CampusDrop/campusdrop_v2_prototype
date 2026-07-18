@@ -228,6 +228,13 @@ export default function Home() {
 
           {caseModalOpen && (
             <div className="drop-link-modal" role="dialog" aria-modal="true" aria-labelledby="dropLinkTitle">
+              <div className="drop-link-reveal" aria-hidden="true">
+                <span className="drop-link-reveal-ring" />
+                <span className="drop-link-reveal-core">DROP LINK</span>
+                <span className="drop-link-reveal-spark spark-a" />
+                <span className="drop-link-reveal-spark spark-b" />
+                <span className="drop-link-reveal-spark spark-c" />
+              </div>
               <div className="drop-link-dialogue">
                 <div className="drop-link-portrait" aria-hidden="true">
                   <Image src="/campusdrop_logo.png" alt="" width={58} height={58} />
