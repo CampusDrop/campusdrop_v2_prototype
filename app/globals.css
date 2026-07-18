@@ -1816,18 +1816,45 @@ button:focus-visible {
   49%, 100% { opacity: 0; }
 }
 
-/* Readability pass: replace pure-white text with warmer high-contrast tones */
+/* Readability pass: avoid bright text on bright investigation surfaces */
 :root {
-  --readable-gold: #ffd86b;
-  --readable-amber: #f4c430;
-  --readable-cream: #f1dfad;
   --readable-ink: #081011;
+  --readable-deep: #12322f;
+  --readable-teal: #04746d;
+  --readable-muted-dark: rgba(8, 16, 17, 0.66);
+  --readable-cream: #f1dfad;
+  --readable-signal: #73f2df;
 }
 
-.case-app,
+.case-app {
+  color: var(--readable-ink);
+}
+
+.case-entry .case-title h1,
+.case-entry .case-status strong {
+  color: var(--readable-ink);
+}
+
+.case-entry .case-title p,
+.case-entry .case-status span {
+  color: var(--readable-teal);
+}
+
+.case-entry .case-status p,
+.case-entry .warning-copy {
+  color: var(--readable-muted-dark);
+}
+
+.poster-source {
+  border-left-color: rgba(4, 116, 109, 0.62);
+  color: #4a4321;
+}
+
 .incident-screen,
 .mission-screen,
-.arrival-screen {
+.arrival-screen,
+.drop-link-modal,
+.editor-summary {
   color: var(--readable-cream);
 }
 
@@ -1840,13 +1867,17 @@ button:focus-visible {
 .drop-link-type,
 .drop-link-transfer strong,
 .editor-summary strong {
-  color: var(--readable-gold);
+  color: var(--readable-cream);
 }
 
-.drop-link-transfer span,
-.drop-link-modal,
-.editor-summary {
-  color: var(--readable-cream);
+.drop-link-transfer span {
+  color: rgba(241, 223, 173, 0.78);
+}
+
+.map-target-panel strong,
+.talk-drop-core,
+.drop-link-reveal-core {
+  color: var(--readable-signal);
 }
 
 .primary-action,
@@ -1859,21 +1890,15 @@ button:focus-visible {
 }
 
 .secondary-action {
-  color: var(--readable-gold);
+  color: var(--readable-signal);
 }
 
-.drop-link-type i,
-.hand {
-  background: var(--readable-gold);
+.drop-link-type i {
+  background: var(--readable-signal);
 }
 
 .drop-link-speech,
 .drop-link-reveal-core {
-  border-color: rgba(255, 216, 107, 0.78);
-}
-
-.talk-drop-core,
-.drop-link-reveal-core {
-  color: var(--readable-gold);
+  border-color: rgba(115, 242, 223, 0.58);
 }
 
