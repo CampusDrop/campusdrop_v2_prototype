@@ -1482,7 +1482,6 @@ button:focus-visible {
 }
 
 .drop-link-speech {
-  min-height: 192px;
   border: 2px solid rgba(247, 241, 227, 0.92);
   border-radius: 18px;
   background:
@@ -1494,7 +1493,6 @@ button:focus-visible {
 }
 
 .drop-link-type {
-  min-height: 112px;
   margin: 0;
   color: #fff8df;
   font-size: 18px;
@@ -1716,12 +1714,10 @@ button:focus-visible {
   }
 
   .drop-link-speech {
-    min-height: 168px;
     padding: 38px 14px 12px;
   }
 
   .drop-link-type {
-    min-height: 84px;
     font-size: 16px;
     line-height: 1.48;
   }
@@ -1771,13 +1767,11 @@ button:focus-visible {
   }
 
   .drop-link-speech {
-    min-height: 164px;
     padding: 38px 14px 12px;
     border-radius: 16px;
   }
 
   .drop-link-type {
-    min-height: 82px;
     font-size: 16px;
     line-height: 1.48;
   }
@@ -1816,12 +1810,10 @@ button:focus-visible {
   }
 
   .drop-link-speech {
-    min-height: 142px;
     padding: 30px 12px 10px;
   }
 
   .drop-link-type {
-    min-height: 70px;
     font-size: 14px;
     line-height: 1.42;
   }
