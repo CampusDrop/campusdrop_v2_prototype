@@ -4,36 +4,36 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
 type Scene = "entry" | "incident" | "mission" | "arrival";
-type MessageStep = "hidden" | "first" | "second";
+type MessageStep = "hidden" | "first";
 
 const clockTower = { lat: 37.550944, lng: 127.073765 };
 const reachRadiusMeters = 90;
 const dropLinkBriefings = [
-  "사용자 인증이 완료됐습니다. 사건 CD-SJ-01, 시계탑 대형 생물 목격 사건에 임시 배정합니다.",
-  "최근 30일 동안 정체불명의 생물 신고가 7건 접수됐습니다. 본부는 현장 조사가 필요하다고 판단했습니다.",
+  "사용자 인증 완료. 임시 현장 조사원으로 등록합니다. 사건 번호 CD-SJ-01, 사건명 시계탑 대형 생물 목격 사건.",
+  "세종대학교에는 오래된 소문이 하나 있습니다. 시계탑 꼭대기에는 기린이 산다. 본부는 목격 신고 7건을 근거로 현장 조사가 필요하다고 판단했습니다.",
 ];
 
 const posterCopy: Record<string, string> = {
-  student_hall: "학생회관 포스터를 통해 접속했습니다. 이 근처에서도 이상한 종소리가 들렸다는 제보가 있습니다.",
-  library: "학술정보원 포스터를 통해 접속했습니다. 오늘 새벽, 시계탑 쪽에서 같은 제보가 반복됐습니다.",
-  gate: "정문 포스터를 통해 접속했습니다. 방문자 기록에는 없는 종소리가 남아 있습니다.",
+  student_hall: "학생회관 포스터를 통해 접속했습니다. 창문 뒤로 긴 그림자를 봤다는 제보가 남아 있습니다.",
+  library: "학술정보원 포스터를 통해 접속했습니다. 새벽 시간대 시계탑 꼭대기 목격 신고가 반복됐습니다.",
+  gate: "정문 포스터를 통해 접속했습니다. 최근 30일 동안 같은 소문과 관련된 신고가 7건 접수됐습니다.",
 };
 
 const clues = [
   {
-    direction: "시계탑 꼭대기",
-    title: "높은 위치에서 사라진 나뭇잎",
-    detail: "표본 분석 중… 가장자리만 뜯긴 잎자국이 시계탑 꼭대기 근처에서 반복됩니다.",
+    direction: "흔적 A",
+    title: "사라진 나뭇잎",
+    detail: "사람의 손이 닿지 않는 높이에서만 나뭇잎이 사라져 있습니다. 대형 초식동물의 섭식 흔적과 유사합니다.",
   },
   {
-    direction: "건물 외벽",
-    title: "건물 외벽의 노란색 털",
-    detail: "표본 분석 중… 노란색 섬유는 인공 재료가 아닙니다. 대형 초식동물의 체모와 유사합니다.",
+    direction: "흔적 B",
+    title: "노란색 털",
+    detail: "표본을 확인했습니다. 인공 섬유가 아닙니다. 기린과 동물의 체모와 유사하지만 단독 증거로는 확정할 수 없습니다.",
   },
   {
-    direction: "시계탑 상부",
-    title: "꼭대기에서 발생하는 충격음",
-    detail: "음향 분석 중… 일정한 간격의 둔탁한 소리가 시계 장치 진동과 별도로 기록됩니다.",
+    direction: "흔적 C",
+    title: "발굽 같은 충격음",
+    detail: "단단한 바닥을 밟는 발굽 소리로 분류됐습니다. 발굽이 바닥에 닿는 간격이 대형 개체 보행 패턴과 일치합니다.",
   },
 ];
 
@@ -49,14 +49,9 @@ function getDistanceMeters(from: { lat: number; lng: number }, to: { lat: number
   return Math.round(radius * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
 }
 
-function formatClockTime(date: Date) {
-  return date.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", hour12: false });
-}
-
 export default function Home() {
   const [scene, setScene] = useState<Scene>("entry");
   const [messageStep, setMessageStep] = useState<MessageStep>("hidden");
-  const [now, setNow] = useState(() => new Date());
   const [distance, setDistance] = useState<number | null>(null);
   const [locationStatus, setLocationStatus] = useState("위치 확인 전");
   const [foundClues, setFoundClues] = useState<string[]>([]);
@@ -64,11 +59,6 @@ export default function Home() {
   const [dropLinkText, setDropLinkText] = useState("");
   const [caseTransferActive, setCaseTransferActive] = useState(false);
   const [dropLinkLine, setDropLinkLine] = useState(0);
-
-  useEffect(() => {
-    const timer = window.setInterval(() => setNow(new Date()), 1000 * 20);
-    return () => window.clearInterval(timer);
-  }, []);
 
   useEffect(() => {
     if (scene !== "incident") return;
@@ -176,13 +166,13 @@ export default function Home() {
             <i />
           </div>
           <div className="case-title">
-            <p>시계탑 이상 현상 조사</p>
-            <h1>세종대 시계탑의 시계 4개가 전부 틀린 이유를 알고 있나요?</h1>
+            <p>시계탑 대형 생물 목격 사건</p>
+            <h1>세종대 시계탑 꼭대기에는 정말 기린이 살고 있을까?</h1>
           </div>
           <div className="case-status">
-            <span>현재 조사 인원</span>
-            <strong>127명</strong>
-            <p>아직 원인은 밝혀지지 않았습니다.</p>
+            <span>최근 목격 신고</span>
+            <strong>7건</strong>
+            <p>아직 확인된 사진은 없습니다.</p>
           </div>
           <p className="poster-source">{posterText}</p>
           <button className="primary-action" type="button" onClick={() => moveToScene("incident")}>
@@ -195,41 +185,37 @@ export default function Home() {
         <section className="screen incident-screen">
           <div className="incident-header">
             <p>카카오 로그인 완료</p>
-            <h2>시계탑 이상 현상 감지</h2>
+            <h2>임시 현장 조사원 등록</h2>
           </div>
 
-          <div className="clock-grid" aria-label="시계탑 네 방향 시간">
+          <div className="clock-grid" aria-label="목격 신고 요약">
             <div className="clock-card">
-              <ClockFace minuteOffset={-13} />
-              <span>동쪽</span>
-              <strong>14:19</strong>
+              <span>신고 01</span>
+              <strong>긴 목 그림자</strong>
             </div>
             <div className="clock-card">
-              <ClockFace minuteOffset={15} />
-              <span>남쪽</span>
-              <strong>14:47</strong>
+              <span>신고 02</span>
+              <strong>높은 잎사귀</strong>
             </div>
             <div className="clock-card is-corrupted">
-              <ClockFace minuteOffset={-34} corrupted />
-              <span>서쪽</span>
-              <strong>13:58</strong>
+              <span>신고 03</span>
+              <strong>노란 무늬</strong>
             </div>
             <div className="clock-card is-unknown">
-              <ClockFace minuteOffset={0} unknown />
-              <span>북쪽</span>
-              <strong>확인 불가</strong>
+              <span>신고 04</span>
+              <strong>발굽 소리</strong>
             </div>
           </div>
 
           <div className="time-report">
-            <span>휴대폰 현재 시각</span>
-            <strong>{formatClockTime(now)}</strong>
-            <p>세종대학교 시계탑에는 동서남북을 향한 4개의 시계가 있습니다. 이상하게도 4개의 시계는 모두 실제 시간과 다릅니다.</p>
+            <span>CAMPUS DROP 운영본부</span>
+            <strong>시계탑 대형 생물 목격 사건</strong>
+            <p>세종대학교에는 오래된 소문이 하나 있습니다. “시계탑 꼭대기에는 기린이 산다.” 본부는 최근 목격 신고 7건을 바탕으로 별도 현장 조사를 시작합니다.</p>
           </div>
 
           <div className="system-message">
-            <span>시스템</span>
-            <p>기계 고장과 일치하지 않는 움직임이 감지됐습니다.</p>
+            <span>첫 번째 목표</span>
+            <p>시계탑으로 이동해 목격 신고가 사실인지 확인하세요.</p>
           </div>
 
           {messageStep !== "hidden" && (
@@ -239,7 +225,7 @@ export default function Home() {
               onClick={handleDropLink}
             >
               <div className="talk-notice-head"><span>DROP LINK</span><em>지금</em></div>
-              <div className="talk-notice-body"><span className="talk-drop-core" aria-hidden="true">DROP</span><div><b>CAMPUS DROP 운영본부</b><strong>{messageStep === "first" ? "사용자 인증이 완료됐습니다. 사건 CD-SJ-01, 시계탑 대형 생물 목격 사건에 임시 배정합니다." : "최근 30일 동안 시계탑 꼭대기에서 정체불명의 생물 신고가 7건 접수됐습니다."}</strong><small>{messageStep === "first" ? "탭해서 사건 개요 보기" : "탭해서 첫 미션 받기"}</small></div></div>
+              <div className="talk-notice-body"><span className="talk-drop-core" aria-hidden="true">DROP</span><div><b>CAMPUS DROP 운영본부</b><strong>사용자 인증 완료. CD-SJ-01 현장 조사에 임시 배정됐습니다.</strong><small>탭해서 사건 개요 보기</small></div></div>
             </button>
           )}
 
@@ -283,7 +269,7 @@ export default function Home() {
           <div className="mission-copy">
             <p>사건 개요</p>
             <h2>CD-SJ-01 현장 조사 개방</h2>
-            <span>세종대학교 시계탑으로 이동해 네 방향의 시계와 정체불명의 대형 생물 흔적을 확인하세요.</span>
+            <span>세종대학교 시계탑으로 이동해 소문 속 대형 생물의 흔적을 확인하세요. GPS는 시계탑 근처 도착 여부만 확인합니다.</span>
           </div>
 
           <div className="campus-radar">
@@ -322,8 +308,8 @@ export default function Home() {
         <section className="screen arrival-screen">
           <div className="arrival-copy">
             <p>체크포인트 열림</p>
-            <h2>시계탑 신호 범위에 진입했습니다.</h2>
-            <span>시계탑을 한 바퀴 돌며 서로 다른 시계를 확인하세요.</span>
+            <h2>시계탑 조사 범위에 진입했습니다.</h2>
+            <span>목격 신고에서 공통적으로 언급된 세 가지 흔적을 찾아주세요.</span>
           </div>
 
           <div className="clue-list">
@@ -348,35 +334,13 @@ export default function Home() {
             <span>조사 결론</span>
             <strong>
               {foundAllClues
-                ? "분석 완료. 추정 개체 높이 4.5m 이상, 추정 분류 기린과, 현장 존재 가능성 93.7%."
+                ? "분석 완료. 추정 개체 높이 4.5m 이상, 추정 분류 기린과, 실제 개체 존재 가능성 93.7%."
                 : `${foundClues.length} / ${clues.length} 흔적 확인`}
             </strong>
-            {foundAllClues && <p>다음 파트: 지정 이미지를 스캔해 관리 대상 확인하기</p>}
+            {foundAllClues && <p>기존 기록과 일치하는 개체가 확인됐습니다. 다음 파트: 지정 이미지를 스캔해 세린이와 첫 접촉하기</p>}
           </div>
         </section>
       )}
     </main>
-  );
-}
-
-function ClockFace({
-  minuteOffset,
-  corrupted = false,
-  unknown = false,
-}: {
-  minuteOffset: number;
-  corrupted?: boolean;
-  unknown?: boolean;
-}) {
-  const minuteAngle = unknown ? 0 : minuteOffset * 6;
-  const hourAngle = unknown ? 0 : 70 + minuteOffset * 0.5;
-  return (
-    <div className={`clock-face${corrupted ? " corrupted" : ""}${unknown ? " unknown" : ""}`}>
-      <span className="tick tick-a" />
-      <span className="tick tick-b" />
-      <i className="hand hour" style={{ transform: `rotate(${hourAngle}deg)` }} />
-      <i className="hand minute" style={{ transform: `rotate(${minuteAngle}deg)` }} />
-      <b />
-    </div>
   );
 }
