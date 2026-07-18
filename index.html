@@ -89,12 +89,10 @@
           <span>세종대학교 시계탑으로 이동해 소문 속 대형 생물의 흔적을 확인하세요. GPS는 시계탑 근처 도착 여부만 확인합니다.</span>
         </div>
         <div class="campus-radar">
-          <div class="radar-map">
-            <span class="radar-road road-a"></span>
-            <span class="radar-road road-b"></span>
-            <span class="radar-zone"></span>
-            <span class="current-dot"></span>
-            <span class="clocktower-pin">시계탑</span>
+          <div class="real-map-shell" id="missionMap">
+            <iframe class="real-map-frame" title="세종대학교 시계탑 지도" src="https://www.openstreetmap.org/export/embed.html?bbox=127.070765%2C37.548944%2C127.076765%2C37.552944000000004&layer=mapnik&marker=37.550944%2C127.073765" loading="lazy"></iframe>
+            <div class="map-target-panel"><span>조사 지점</span><strong>세종대학교 시계탑</strong></div>
+            <p class="map-loading" id="mapLoading">Kakao 키 없이 실제 지도 미리보기 표시 중</p>
           </div>
           <div class="radar-data">
             <div><span>예상 거리</span><strong id="distanceText">위치 확인 필요</strong></div>

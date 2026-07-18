@@ -21,6 +21,7 @@ let messageStep = 0;
 let dropLinkTyper = null;
 let dropLinkLine = 0;
 const foundClues = new Set();
+let missionMapReady = false;
 
 function showScreen(name) {
   screens.forEach((screen) => {
@@ -35,6 +36,67 @@ function showScreen(name) {
     message.classList.remove("is-visible");
     window.setTimeout(() => message.classList.add("is-visible"), 5200);
   }
+
+  if (name === "mission") {
+    initMissionMap();
+  }
+}
+
+function initMissionMap() {
+  if (missionMapReady) return;
+  const shell = document.querySelector("#missionMap");
+  const loading = document.querySelector("#mapLoading");
+  const key = new URLSearchParams(window.location.search).get("kakaoKey");
+  if (!shell || !key) return;
+
+  missionMapReady = true;
+  shell.querySelector("iframe")?.remove();
+  const canvas = document.createElement("div");
+  canvas.className = "real-map-canvas";
+  canvas.setAttribute("aria-label", "세종대학교 시계탑 실제 지도");
+  shell.prepend(canvas);
+  if (loading) loading.textContent = "지도 불러오는 중...";
+
+  const renderMap = () => {
+    if (!window.kakao?.maps) return;
+    window.kakao.maps.load(() => {
+      const center = new window.kakao.maps.LatLng(clockTower.lat, clockTower.lng);
+      const map = new window.kakao.maps.Map(canvas, { center, level: 3 });
+      new window.kakao.maps.Marker({ position: center, title: "세종대학교 시계탑" }).setMap(map);
+      new window.kakao.maps.Circle({
+        center,
+        radius: reachRadiusMeters,
+        strokeWeight: 2,
+        strokeColor: "#73f2df",
+        strokeOpacity: 0.9,
+        fillColor: "#00b8a9",
+        fillOpacity: 0.14,
+      }).setMap(map);
+      if (loading) loading.hidden = true;
+    });
+  };
+
+  if (window.kakao?.maps) {
+    renderMap();
+    return;
+  }
+
+  const existingScript = document.querySelector("#kakao-map-sdk");
+  if (existingScript) {
+    existingScript.addEventListener("load", renderMap, { once: true });
+    return;
+  }
+
+  const script = document.createElement("script");
+  script.id = "kakao-map-sdk";
+  script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${encodeURIComponent(key)}&autoload=false`;
+  script.async = true;
+  script.onload = renderMap;
+  script.onerror = () => {
+    missionMapReady = false;
+    if (loading) loading.textContent = "지도를 불러오지 못했습니다. Kakao JavaScript 키를 확인해 주세요.";
+  };
+  document.head.appendChild(script);
 }
 
 function getDistanceMeters(from, to) {
