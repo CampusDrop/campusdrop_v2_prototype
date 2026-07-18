@@ -23,9 +23,9 @@ export async function generateMetadata(): Promise<Metadata> {
     requestHeaders.get("x-forwarded-proto") ??
     (host.startsWith("localhost") ? "http" : "https");
   const metadataBase = new URL(`${protocol}://${host}`);
-  const title = "캠퍼스드랍: 기억의 봉인";
+  const title = "Campus Drop | 시계탑 이상 현상 조사";
   const description =
-    "캠퍼스에 남은 기억과 봉인된 에코를 추적하는 Campus Drop 스토리 맵 콘셉트.";
+    "QR 포스터에서 시작되는 Campus Drop 시계탑 이상 현상 조사 웹 데모.";
   const socialImage = new URL("/og.png", metadataBase).toString();
 
   return {
@@ -58,12 +58,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <head>
-        <script
-          type="module"
-          src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"
-        />
-      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

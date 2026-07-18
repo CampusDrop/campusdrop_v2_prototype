@@ -1,305 +1,327 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import type { CSSProperties } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      "model-viewer": any;
-    }
-  }
-}
+type Scene = "entry" | "login" | "incident" | "mission" | "arrival";
+type MessageStep = "hidden" | "first" | "second";
 
-type SealState = "opened" | "detected" | "locked" | "corrupted";
+const clockTower = { lat: 37.550944, lng: 127.073765 };
+const reachRadiusMeters = 90;
 
-type SealPoint = {
-  id: string;
-  name: string;
-  shortName: string;
-  echo: string;
-  memory: string;
-  clue: string;
-  status: SealState;
-  statusLabel: string;
-  x: number;
-  y: number;
-  chapter: string;
+const posterCopy: Record<string, string> = {
+  student_hall: "학생회관 포스터를 통해 접속했습니다. 이 근처에서도 이상한 종소리가 들렸다는 제보가 있습니다.",
+  library: "학술정보원 포스터를 통해 접속했습니다. 오늘 새벽, 시계탑 쪽에서 같은 제보가 반복됐습니다.",
+  gate: "정문 포스터를 통해 접속했습니다. 방문자 기록에는 없는 종소리가 남아 있습니다.",
 };
 
-const worldDraft = {
-  title: "기억의 봉인",
-  subtitle: "Campus Drop · Story Map Draft 01",
-  premise:
-    "캠퍼스에 남은 기억은 에코가 되어 장소의 문양에 봉인된다. 누군가 봉인을 오염시키기 시작했고, 드로퍼만이 현실의 표식을 스캔해 그 목소리를 들을 수 있다.",
-};
-
-const sealPoints: SealPoint[] = [
+const clues = [
   {
-    id: "front-gate",
-    name: "정문 · 첫 번째 봉인",
-    shortName: "정문",
-    echo: "미오",
-    memory: "처음 학교에 들어오던 날의 기대",
-    clue: "교표 아래 반복되는 세 개의 별을 확인하라.",
-    status: "opened",
-    statusLabel: "해방 완료",
-    x: 51,
-    y: 83,
-    chapter: "프롤로그",
+    direction: "동쪽 시계",
+    title: "시곗바늘 옆 노란 털",
+    detail: "바람에 날린 흔적이 아니라, 높은 곳에서 스친 것처럼 붙어 있습니다.",
   },
   {
-    id: "student-hall",
-    name: "학생회관 · 온기의 봉인",
-    shortName: "학생회관",
-    echo: "모닥",
-    memory: "친구를 기다리며 나누던 짧은 대화",
-    clue: "빛이 꺼진 게시판에서 사라진 동아리 이름을 찾아라.",
-    status: "detected",
-    statusLabel: "신호 감지",
-    x: 25,
-    y: 65,
-    chapter: "1장",
+    direction: "남쪽 시계",
+    title: "시계판 안쪽 콧김 자국",
+    detail: "유리 안쪽에만 남은 뿌연 곡선. 바깥 날씨와 맞지 않습니다.",
   },
   {
-    id: "clock-tower",
-    name: "시계탑 · 약속의 봉인",
-    shortName: "시계탑",
-    echo: "세종 기린",
-    memory: "같은 시간을 바라보며 했던 약속",
-    clue: "멈춘 시곗바늘이 가리키는 두 장소를 연결하라.",
-    status: "corrupted",
-    statusLabel: "오염 발생",
-    x: 54,
-    y: 43,
-    chapter: "2장",
+    direction: "서쪽 시계",
+    title: "높은 곳에 붙은 나뭇잎",
+    detail: "사다리 없이는 닿기 어려운 위치에 젖은 잎이 끼어 있습니다.",
   },
   {
-    id: "library",
-    name: "학술정보원 · 침묵의 봉인",
-    shortName: "학술정보원",
-    echo: "페이지",
-    memory: "마지막 한 줄을 읽기 전의 고요함",
-    clue: "대출 기록에 존재하지 않는 책의 청구기호를 찾아라.",
-    status: "locked",
-    statusLabel: "접근 잠김",
-    x: 77,
-    y: 31,
-    chapter: "3장",
-  },
-  {
-    id: "daeyang-hall",
-    name: "대양홀 · 환호의 봉인",
-    shortName: "대양홀",
-    echo: "앙코르",
-    memory: "무대가 끝난 뒤에도 남아 있던 박수",
-    clue: "다섯 봉인의 기억이 모여야 마지막 문양이 나타난다.",
-    status: "locked",
-    statusLabel: "최종 봉인",
-    x: 32,
-    y: 25,
-    chapter: "마지막 장",
+    direction: "북쪽 시계",
+    title: "바깥쪽에서 밀린 흔적",
+    detail: "기계 내부 고장이 아니라 바깥에서 힘을 받은 방향입니다.",
   },
 ];
 
-const stateCopy: Record<SealState, string> = {
-  opened: "이미 해방한 에코입니다. 이 장소의 기억은 도감에 보존됐습니다.",
-  detected: "현장 표식에서 약한 신호가 감지됩니다. 가까이 가면 스캔할 수 있습니다.",
-  corrupted: "봉인이 오염됐습니다. 현장의 지정 이미지를 인식해야 에코와 대화할 수 있습니다.",
-  locked: "이전 봉인의 기억을 복구해야 접근할 수 있습니다.",
-};
+function getDistanceMeters(from: { lat: number; lng: number }, to: { lat: number; lng: number }) {
+  const radius = 6371000;
+  const lat1 = (from.lat * Math.PI) / 180;
+  const lat2 = (to.lat * Math.PI) / 180;
+  const deltaLat = ((to.lat - from.lat) * Math.PI) / 180;
+  const deltaLng = ((to.lng - from.lng) * Math.PI) / 180;
+  const a =
+    Math.sin(deltaLat / 2) ** 2 +
+    Math.cos(lat1) * Math.cos(lat2) * Math.sin(deltaLng / 2) ** 2;
+  return Math.round(radius * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+}
+
+function formatClockTime(date: Date) {
+  return date.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", hour12: false });
+}
 
 export default function Home() {
-  const [selectedId, setSelectedId] = useState("clock-tower");
-  const [storyOpen, setStoryOpen] = useState(false);
-  const [scanNoticeOpen, setScanNoticeOpen] = useState(false);
+  const [scene, setScene] = useState<Scene>("entry");
+  const [messageStep, setMessageStep] = useState<MessageStep>("hidden");
+  const [now, setNow] = useState(() => new Date());
+  const [distance, setDistance] = useState<number | null>(null);
+  const [locationStatus, setLocationStatus] = useState("위치 확인 전");
+  const [foundClues, setFoundClues] = useState<string[]>([]);
 
-  const selectedSeal = useMemo(
-    () => sealPoints.find((point) => point.id === selectedId) ?? sealPoints[0],
-    [selectedId],
-  );
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(new Date()), 1000 * 20);
+    return () => window.clearInterval(timer);
+  }, []);
 
-  const openedCount = sealPoints.filter((point) => point.status === "opened").length;
+  useEffect(() => {
+    if (scene !== "incident") return;
+    const first = window.setTimeout(() => setMessageStep("first"), 5200);
+    return () => window.clearTimeout(first);
+  }, [scene]);
+
+  const posterId = useMemo(() => {
+    if (typeof window === "undefined") return "student_hall";
+    return new URLSearchParams(window.location.search).get("poster_id") ?? "student_hall";
+  }, []);
+
+  const posterText = posterCopy[posterId] ?? posterCopy.student_hall;
+  const foundAllClues = foundClues.length === clues.length;
+
+  function moveToScene(nextScene: Scene) {
+    if (nextScene === "incident") {
+      setMessageStep("hidden");
+    }
+    setScene(nextScene);
+  }
+
+  function checkLocation() {
+    if (!navigator.geolocation) {
+      setLocationStatus("이 브라우저에서는 위치 확인을 사용할 수 없습니다.");
+      return;
+    }
+
+    setLocationStatus("현재 위치 확인 중...");
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const nextDistance = getDistanceMeters(
+          { lat: position.coords.latitude, lng: position.coords.longitude },
+          clockTower,
+        );
+        setDistance(nextDistance);
+        if (nextDistance <= reachRadiusMeters) {
+          setLocationStatus("시계탑 신호 범위에 진입했습니다.");
+          moveToScene("arrival");
+          return;
+        }
+        setLocationStatus("아직 신호 범위 밖입니다. 시계탑 쪽으로 이동하세요.");
+      },
+      () => {
+        setLocationStatus("위치 권한을 허용하면 시계탑 도착 여부를 확인할 수 있습니다.");
+      },
+      { enableHighAccuracy: true, timeout: 10000 },
+    );
+  }
+
+  function toggleClue(title: string) {
+    setFoundClues((current) => (current.includes(title) ? current : [...current, title]));
+  }
 
   return (
-    <main className="escape-app">
-      <section className="map-shell" aria-label="캠퍼스드랍 기억의 봉인 지도">
-        <header className="map-header">
-          <div>
-            <span className="draft-label">CONCEPT DRAFT · 언제든 변경 가능</span>
-            <h1>{worldDraft.title}</h1>
-            <p>{worldDraft.subtitle}</p>
+    <main className={`case-app scene-${scene}`}>
+      <div className="clock-noise" aria-hidden="true" />
+
+      {scene === "entry" && (
+        <section className="screen case-entry">
+          <div className="case-mark">CAMPUS DROP</div>
+          <div className="clocktower-window" aria-hidden="true">
+            <span />
+            <i />
           </div>
-          <button
-            className="lore-button"
-            type="button"
-            aria-expanded={storyOpen}
-            onClick={() => setStoryOpen((open) => !open)}
-          >
-            세계관
+          <div className="case-title">
+            <p>시계탑 이상 현상 조사</p>
+            <h1>세종대 시계탑의 시계 4개가 전부 틀린 이유를 알고 있나요?</h1>
+          </div>
+          <div className="case-status">
+            <span>현재 조사 인원</span>
+            <strong>127명</strong>
+            <p>아직 원인은 밝혀지지 않았습니다.</p>
+          </div>
+          <p className="poster-source">{posterText}</p>
+          <button className="primary-action" type="button" onClick={() => moveToScene("login")}>
+            조사 참여하기
           </button>
-        </header>
+          <p className="warning-copy">※ 시계탑 꼭대기를 너무 오래 올려다보지 마세요.</p>
+        </section>
+      )}
 
-        {storyOpen && (
-          <aside className="lore-card" aria-live="polite">
-            <span>현재 채택안 · 봉인된 캠퍼스 × 장소의 기억</span>
-            <p>{worldDraft.premise}</p>
-            <button type="button" onClick={() => setStoryOpen(false)}>
-              지도 보기
-            </button>
-          </aside>
-        )}
-
-        <div className="mission-strip">
-          <div>
-            <span>현재 목표</span>
-            <strong>오염된 시계탑 봉인을 조사하세요</strong>
+      {scene === "login" && (
+        <section className="screen login-screen">
+          <button className="text-back" type="button" onClick={() => moveToScene("entry")}>
+            돌아가기
+          </button>
+          <div className="login-copy">
+            <p>조사 기록 연결</p>
+            <h2>중간에 나가도 현재 단서부터 계속할 수 있어요.</h2>
+            <span>회원가입이 아니라, 조사 기록을 보존하기 위한 계정 연결입니다.</span>
           </div>
-          <div className="progress-orb" aria-label={`${sealPoints.length}개 중 ${openedCount}개 해방`}>
-            <b>{openedCount}</b>
-            <span>/ {sealPoints.length}</span>
-          </div>
-        </div>
-
-        <div className="campus-map">
-          <div className="map-atmosphere" aria-hidden="true" />
-          <div className="map-grid" aria-hidden="true" />
-          <div className="map-water map-water-a" aria-hidden="true" />
-          <div className="map-water map-water-b" aria-hidden="true" />
-          <div className="map-road map-road-main" aria-hidden="true" />
-          <div className="map-road map-road-cross" aria-hidden="true" />
-          <div className="map-road map-road-east" aria-hidden="true" />
-          <div className="map-building building-a" aria-hidden="true"><span>광개토관</span></div>
-          <div className="map-building building-b" aria-hidden="true"><span>군자관</span></div>
-          <div className="map-building building-c" aria-hidden="true"><span>집현관</span></div>
-          <div className="map-building building-d" aria-hidden="true"><span>운동장</span></div>
-          <div className="map-building building-e" aria-hidden="true"><span>충무관</span></div>
-          <div className="plaza-rings" aria-hidden="true"><span /><span /><span /></div>
-
-          <div className="seal-path" aria-hidden="true">
-            <span className="path-one" />
-            <span className="path-two" />
-            <span className="path-three" />
-            <span className="path-four" />
-          </div>
-
-          {sealPoints.map((point, index) => {
-            const markerStyle = {
-              "--point-x": `${point.x}%`,
-              "--point-y": `${point.y}%`,
-              "--point-delay": `${index * 160}ms`,
-            } as CSSProperties;
-            const isSelected = selectedId === point.id;
-            return (
-              <button
-                key={point.id}
-                type="button"
-                className={`seal-marker is-${point.status}${isSelected ? " is-selected" : ""}`}
-                style={markerStyle}
-                aria-label={`${point.name}, ${point.statusLabel}`}
-                aria-pressed={isSelected}
-                onClick={() => setSelectedId(point.id)}
-              >
-                <span className="seal-signal" aria-hidden="true">
-                  <i />
-                  <b>{index + 1}</b>
-                </span>
-                <strong>{point.shortName}</strong>
-                <em>{point.statusLabel}</em>
+          <div className="login-list">
+            {["카카오 로그인", "Apple 로그인", "Google 로그인", "학교 이메일 로그인"].map((label) => (
+              <button key={label} type="button" onClick={() => moveToScene("incident")}>
+                <span>{label}</span>
+                <i>계속</i>
               </button>
-            );
-          })}
-
-          <div className="map-legend" aria-label="봉인 상태 범례">
-            <span><i className="legend-opened" />해방</span>
-            <span><i className="legend-signal" />감지</span>
-            <span><i className="legend-corrupted" />오염</span>
+            ))}
           </div>
-        </div>
+        </section>
+      )}
 
-        <article className={`seal-sheet sheet-${selectedSeal.status}`} aria-live="polite">
-          <div className="sheet-grab" aria-hidden="true" />
-          <div className="sheet-heading">
-            <div>
-              <span>{selectedSeal.chapter} · {selectedSeal.statusLabel}</span>
-              <h2>{selectedSeal.name}</h2>
-            </div>
-            <div className="echo-token" aria-hidden="true">
-              {selectedSeal.status === "locked" ? "?" : selectedSeal.echo.slice(0, 1)}
-            </div>
+      {scene === "incident" && (
+        <section className="screen incident-screen">
+          <div className="incident-header">
+            <p>로그인 완료</p>
+            <h2>시계탑 이상 현상 감지</h2>
           </div>
 
-          <div className="memory-card">
-            <span>이 장소에 남은 기억</span>
-            <p>“{selectedSeal.memory}”</p>
-          </div>
-
-          <div className="seal-detail">
-            <div>
-              <span>에코</span>
-              <strong>{selectedSeal.status === "locked" ? "아직 알 수 없음" : selectedSeal.echo}</strong>
+          <div className="clock-grid" aria-label="시계탑 네 방향 시간">
+            <div className="clock-card">
+              <ClockFace minuteOffset={-13} />
+              <span>동쪽</span>
+              <strong>14:19</strong>
             </div>
-            <div>
-              <span>현장 단서</span>
-              <p>{selectedSeal.clue}</p>
+            <div className="clock-card">
+              <ClockFace minuteOffset={15} />
+              <span>남쪽</span>
+              <strong>14:47</strong>
+            </div>
+            <div className="clock-card is-corrupted">
+              <ClockFace minuteOffset={-34} corrupted />
+              <span>서쪽</span>
+              <strong>13:58</strong>
+            </div>
+            <div className="clock-card is-unknown">
+              <ClockFace minuteOffset={0} unknown />
+              <span>북쪽</span>
+              <strong>확인 불가</strong>
             </div>
           </div>
 
-          <p className="state-description">{stateCopy[selectedSeal.status]}</p>
+          <div className="time-report">
+            <span>휴대폰 현재 시각</span>
+            <strong>{formatClockTime(now)}</strong>
+            <p>세종대학교 시계탑에는 동서남북을 향한 4개의 시계가 있습니다. 이상하게도 4개의 시계는 모두 실제 시간과 다릅니다.</p>
+          </div>
 
-          {selectedSeal.id === "clock-tower" && (
-            <div className="echo-preview" aria-label="세종 기린 3D 미리보기">
-              <model-viewer
-                src="/sejongGF.glb"
-                camera-orbit="45deg 72deg 3.2m"
-                field-of-view="28deg"
-                exposure="1.1"
-                auto-rotate
-                interaction-prompt="none"
-                disable-zoom
-                alt="시계탑 에코 세종 기린"
-              />
+          <div className="system-message">
+            <span>시스템</span>
+            <p>기계 고장과 일치하지 않는 움직임이 감지됐습니다.</p>
+          </div>
+
+          {messageStep !== "hidden" && (
+            <button
+              className="unknown-message"
+              type="button"
+              onClick={() => (messageStep === "first" ? setMessageStep("second") : moveToScene("mission"))}
+            >
+              <span>알 수 없는 발신자</span>
+              <strong>{messageStep === "first" ? "“시계가 틀린 건 내 잘못이야.”" : "“그런데 일부러 그런 건 아니었어.”"}</strong>
+              <em>{messageStep === "first" ? "메시지를 터치하세요" : "첫 미션 받기"}</em>
+            </button>
+          )}
+        </section>
+      )}
+
+      {scene === "mission" && (
+        <section className="screen mission-screen">
+          <div className="mission-copy">
+            <p>미션 1</p>
+            <h2>네 개의 시계를 확인하라</h2>
+            <span>시계탑 안의 제보자가 사실을 말하고 있는지 확인해야 합니다.</span>
+          </div>
+
+          <div className="campus-radar">
+            <div className="radar-map">
+              <span className="radar-road road-a" />
+              <span className="radar-road road-b" />
+              <span className="radar-zone" />
+              <span className="current-dot" />
+              <span className="clocktower-pin">시계탑</span>
+            </div>
+            <div className="radar-data">
               <div>
-                <span>오염된 에코</span>
-                <strong>세종 기린의 목소리가 끊겨 있다</strong>
+                <span>예상 거리</span>
+                <strong>{distance === null ? "위치 확인 필요" : `${distance}m`}</strong>
+              </div>
+              <div>
+                <span>조사 가능 범위</span>
+                <strong>{reachRadiusMeters}m</strong>
               </div>
             </div>
-          )}
-
-          <button
-            className="scan-action"
-            type="button"
-            disabled={selectedSeal.status === "locked"}
-            onClick={() => setScanNoticeOpen(true)}
-          >
-            {selectedSeal.status === "opened"
-              ? "복구된 기억 보기"
-              : selectedSeal.status === "locked"
-                ? "이전 봉인을 먼저 해방하세요"
-                : "현장 스캔 조건 확인"}
-          </button>
-        </article>
-
-        {scanNoticeOpen && (
-          <div className="notice-backdrop" role="presentation" onClick={() => setScanNoticeOpen(false)}>
-            <section
-              className="scan-notice"
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="scan-notice-title"
-              onClick={(event) => event.stopPropagation()}
-            >
-              <span>WEB AR 원칙</span>
-              <h2 id="scan-notice-title">실물 표식이 확인될 때만 에코가 열립니다</h2>
-              <p>
-                웹 버전에서는 GPS나 방향 센서로 출현을 흉내 내지 않습니다. 현장의 지정 이미지를
-                카메라가 인식한 뒤에만 3D 에코를 해당 이미지에 고정합니다.
-              </p>
-              <button type="button" onClick={() => setScanNoticeOpen(false)}>확인</button>
-            </section>
           </div>
-        )}
-      </section>
+
+          <p className="location-status">{locationStatus}</p>
+          <div className="mission-actions">
+            <button className="primary-action" type="button" onClick={checkLocation}>
+              현재 위치로 확인
+            </button>
+            <button className="secondary-action" type="button" onClick={() => moveToScene("arrival")}>
+              데모용 도착 처리
+            </button>
+          </div>
+        </section>
+      )}
+
+      {scene === "arrival" && (
+        <section className="screen arrival-screen">
+          <div className="arrival-copy">
+            <p>체크포인트 열림</p>
+            <h2>시계탑 신호 범위에 진입했습니다.</h2>
+            <span>시계탑을 한 바퀴 돌며 서로 다른 시계를 확인하세요.</span>
+          </div>
+
+          <div className="clue-list">
+            {clues.map((clue) => {
+              const active = foundClues.includes(clue.title);
+              return (
+                <button
+                  key={clue.title}
+                  className={active ? "is-found" : ""}
+                  type="button"
+                  onClick={() => toggleClue(clue.title)}
+                >
+                  <span>{clue.direction}</span>
+                  <strong>{clue.title}</strong>
+                  <p>{active ? clue.detail : "탭해서 흔적 조사"}</p>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className={`conclusion ${foundAllClues ? "is-open" : ""}`} aria-live="polite">
+            <span>조사 결론</span>
+            <strong>
+              {foundAllClues
+                ? "시계가 고장 난 것이 아니다. 시계탑 안에서 누군가 시곗바늘을 움직이고 있다."
+                : `${foundClues.length} / ${clues.length} 흔적 확인`}
+            </strong>
+            {foundAllClues && <p>다음 파트: 시계탑 안의 존재와 처음 접촉하기</p>}
+          </div>
+        </section>
+      )}
     </main>
+  );
+}
+
+function ClockFace({
+  minuteOffset,
+  corrupted = false,
+  unknown = false,
+}: {
+  minuteOffset: number;
+  corrupted?: boolean;
+  unknown?: boolean;
+}) {
+  const minuteAngle = unknown ? 0 : minuteOffset * 6;
+  const hourAngle = unknown ? 0 : 70 + minuteOffset * 0.5;
+  return (
+    <div className={`clock-face${corrupted ? " corrupted" : ""}${unknown ? " unknown" : ""}`}>
+      <span className="tick tick-a" />
+      <span className="tick tick-b" />
+      <i className="hand hour" style={{ transform: `rotate(${hourAngle}deg)` }} />
+      <i className="hand minute" style={{ transform: `rotate(${minuteAngle}deg)` }} />
+      <b />
+    </div>
   );
 }
