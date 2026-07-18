@@ -63,9 +63,23 @@
           <p>기계 고장과 일치하지 않는 움직임이 감지됐습니다.</p>
         </div>
         <button class="unknown-message" id="unknownMessage" type="button">
-          <div class="talk-notice-head"><span>카카오톡</span><em>지금</em></div>
+          <div class="talk-notice-head"><span>DROP LINK</span><em>지금</em></div>
           <div class="talk-notice-body"><img class="talk-logo" src="./campusdrop_logo.png" alt="" aria-hidden="true" /><div><b>CAMPUS DROP 운영본부</b><strong>사용자 인증이 완료됐습니다. 사건 CD-SJ-01에 임시 배정합니다.</strong><small>탭해서 사건 개요 보기</small></div></div>
         </button>
+        <div class="drop-link-modal" id="dropLinkModal" role="dialog" aria-modal="true" aria-labelledby="dropLinkTitle" hidden>
+          <div class="drop-link-panel">
+            <div class="drop-link-kicker">DROP LINK 보안 회선</div>
+            <h3 id="dropLinkTitle">현장 조사 배정 상세</h3>
+            <p>사용자 인증이 완료되어 세종대학교 시계탑 이상 현상 조사에 임시 배정됐습니다.</p>
+            <dl>
+              <div><dt>사건 번호</dt><dd>CD-SJ-01</dd></div>
+              <div><dt>사건명</dt><dd>시계탑 대형 생물 목격 사건</dd></div>
+              <div><dt>조사 상태</dt><dd>원인 미확인 · 현장 확인 필요</dd></div>
+            </dl>
+            <p class="drop-link-note">최근 30일 동안 시계탑 꼭대기에서 정체불명의 생물을 봤다는 신고가 7건 접수됐습니다. 본부는 별도의 현장 조사가 필요하다고 판단했습니다.</p>
+            <button class="primary-action" type="button" id="closeDropLinkModal">사건 개요 수신</button>
+          </div>
+        </div>
       </section>
 
       <section class="screen mission-screen" data-screen="mission">
