@@ -8,7 +8,10 @@ type MessageStep = "hidden" | "first" | "second";
 
 const clockTower = { lat: 37.550944, lng: 127.073765 };
 const reachRadiusMeters = 90;
-const dropLinkBriefing = "사용자 인증이 완료됐습니다. 사건 CD-SJ-01, 시계탑 대형 생물 목격 사건에 임시 배정합니다. 최근 30일 동안 정체불명의 생물 신고가 7건 접수됐습니다. 본부는 현장 조사가 필요하다고 판단했습니다.";
+const dropLinkBriefings = [
+  "사용자 인증이 완료됐습니다. 사건 CD-SJ-01, 시계탑 대형 생물 목격 사건에 임시 배정합니다.",
+  "최근 30일 동안 정체불명의 생물 신고가 7건 접수됐습니다. 본부는 현장 조사가 필요하다고 판단했습니다.",
+];
 
 const posterCopy: Record<string, string> = {
   student_hall: "학생회관 포스터를 통해 접속했습니다. 이 근처에서도 이상한 종소리가 들렸다는 제보가 있습니다.",
@@ -60,6 +63,7 @@ export default function Home() {
   const [caseModalOpen, setCaseModalOpen] = useState(false);
   const [dropLinkText, setDropLinkText] = useState("");
   const [caseTransferActive, setCaseTransferActive] = useState(false);
+  const [dropLinkLine, setDropLinkLine] = useState(0);
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(new Date()), 1000 * 20);
@@ -75,17 +79,18 @@ export default function Home() {
   useEffect(() => {
     if (!caseModalOpen) return;
 
+    const currentBriefing = dropLinkBriefings[dropLinkLine];
     let index = 0;
     const typer = window.setInterval(() => {
       index += 1;
-      setDropLinkText(dropLinkBriefing.slice(0, index));
-      if (index >= dropLinkBriefing.length) {
+      setDropLinkText(currentBriefing.slice(0, index));
+      if (index >= currentBriefing.length) {
         window.clearInterval(typer);
       }
     }, 34);
 
     return () => window.clearInterval(typer);
-  }, [caseModalOpen]);
+  }, [caseModalOpen, dropLinkLine]);
 
   const posterId = useMemo(() => {
     if (typeof window === "undefined") return "student_hall";
@@ -136,6 +141,7 @@ export default function Home() {
 
   function handleDropLink() {
     if (messageStep === "first") {
+      setDropLinkLine(0);
       setDropLinkText("");
       setCaseModalOpen(true);
       return;
@@ -143,7 +149,13 @@ export default function Home() {
     moveToScene("mission");
   }
 
-  function closeCaseModal() {
+  function advanceDropLinkDialogue() {
+    if (dropLinkLine < dropLinkBriefings.length - 1) {
+      setDropLinkText("");
+      setDropLinkLine((current) => current + 1);
+      return;
+    }
+
     setCaseTransferActive(true);
     window.setTimeout(() => {
       setCaseModalOpen(false);
@@ -254,10 +266,10 @@ export default function Home() {
                   <button
                     className="drop-link-next"
                     type="button"
-                    onClick={closeCaseModal}
-                    disabled={dropLinkText.length < dropLinkBriefing.length || caseTransferActive}
+                    onClick={advanceDropLinkDialogue}
+                    disabled={dropLinkText.length < dropLinkBriefings[dropLinkLine].length || caseTransferActive}
                   >
-                    사건 개요 수신
+                    {dropLinkLine < dropLinkBriefings.length - 1 ? "다음" : "사건 개요 수신"}
                   </button>
                 </div>
               </div>
