@@ -920,6 +920,37 @@ button:focus-visible {
   box-shadow: 0 18px 48px rgba(44, 39, 113, 0.28);
 }
 
+
+.talk-drop-core {
+  position: relative;
+  display: grid;
+  width: 40px;
+  aspect-ratio: 1;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 2px solid rgba(247, 241, 227, 0.94);
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(244, 196, 48, 0.38), transparent 42%),
+    linear-gradient(180deg, rgba(15, 23, 22, 0.98), rgba(8, 16, 17, 0.98));
+  color: #73f2df;
+  font-size: 8px;
+  font-weight: 950;
+  letter-spacing: 0;
+  box-shadow: 0 0 0 4px rgba(0, 184, 169, 0.08), 0 10px 22px rgba(8, 16, 17, 0.22);
+}
+
+.talk-drop-core::after {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border-radius: 999px;
+  background: conic-gradient(from 0deg, transparent 0 24deg, rgba(115, 242, 223, 0.86) 25deg 33deg, transparent 34deg 152deg, rgba(244, 196, 48, 0.8) 153deg 160deg, transparent 161deg 360deg);
+  -webkit-mask: radial-gradient(circle, transparent 56%, #000 57% 66%, transparent 67%);
+  mask: radial-gradient(circle, transparent 56%, #000 57% 66%, transparent 67%);
+  opacity: 0.82;
+}
+
 .talk-logo {
   width: 40px;
   height: 40px;
@@ -1062,9 +1093,11 @@ button:focus-visible {
   z-index: 120;
   inset: 0;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
-  padding: 20px 14px max(18px, env(safe-area-inset-bottom));
+  min-height: 100svh;
+  overflow: hidden;
+  padding: max(14px, env(safe-area-inset-top)) 14px max(14px, env(safe-area-inset-bottom));
   background:
     radial-gradient(circle at 50% 22%, rgba(0, 184, 169, 0.18), transparent 14rem),
     linear-gradient(180deg, rgba(8, 16, 17, 0.28), rgba(8, 16, 17, 0.82));
@@ -1387,6 +1420,165 @@ button:focus-visible {
 @keyframes case-brief-item {
   from { opacity: 0; transform: translateY(24px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+
+
+@media (max-width: 520px) {
+  .drop-link-modal {
+    align-items: center;
+    overflow: hidden;
+    padding: max(10px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));
+  }
+
+  .drop-link-reveal {
+    width: 96px;
+  }
+
+  .drop-link-reveal-core {
+    width: 60px;
+    border-radius: 18px;
+    font-size: 8px;
+  }
+
+  .drop-link-dialogue {
+    padding-top: 28px;
+  }
+
+  .drop-link-portrait {
+    left: 14px;
+    width: 60px;
+    border-radius: 18px;
+  }
+
+  .drop-link-portrait img {
+    width: 44px;
+    height: 44px;
+  }
+
+  .drop-link-speech {
+    min-height: 168px;
+    padding: 38px 14px 12px;
+  }
+
+  .drop-link-type {
+    min-height: 84px;
+    font-size: 16px;
+    line-height: 1.48;
+  }
+
+  .drop-link-next {
+    margin-top: 12px;
+    padding: 12px 14px;
+  }
+}
+
+@media (max-height: 720px) {
+  .drop-link-modal {
+    align-items: center;
+    padding: max(8px, env(safe-area-inset-top)) 12px max(10px, env(safe-area-inset-bottom));
+  }
+
+  .drop-link-reveal {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: 92px;
+    margin: 0 auto -8px;
+    transform: none;
+    animation-name: precious-reveal-compact;
+  }
+
+  .drop-link-reveal-core {
+    width: 58px;
+    border-radius: 18px;
+    font-size: 8px;
+  }
+
+  .drop-link-dialogue {
+    width: min(460px, 100%);
+    padding-top: 28px;
+  }
+
+  .drop-link-portrait {
+    left: 14px;
+    width: 58px;
+    border-radius: 18px;
+  }
+
+  .drop-link-portrait img {
+    width: 44px;
+    height: 44px;
+  }
+
+  .drop-link-speech {
+    min-height: 164px;
+    padding: 38px 14px 12px;
+    border-radius: 16px;
+  }
+
+  .drop-link-type {
+    min-height: 82px;
+    font-size: 16px;
+    line-height: 1.48;
+  }
+
+  .drop-link-next {
+    margin-top: 12px;
+    padding: 12px 14px;
+  }
+}
+
+@media (max-height: 620px) {
+  .drop-link-reveal {
+    width: 72px;
+    margin-bottom: -10px;
+  }
+
+  .drop-link-reveal-core {
+    width: 48px;
+    border-radius: 15px;
+    font-size: 7px;
+  }
+
+  .drop-link-dialogue {
+    padding-top: 22px;
+  }
+
+  .drop-link-portrait {
+    width: 48px;
+    border-width: 2px;
+    border-radius: 15px;
+  }
+
+  .drop-link-portrait img {
+    width: 36px;
+    height: 36px;
+  }
+
+  .drop-link-speech {
+    min-height: 142px;
+    padding: 30px 12px 10px;
+  }
+
+  .drop-link-type {
+    min-height: 70px;
+    font-size: 14px;
+    line-height: 1.42;
+  }
+
+  .drop-link-next {
+    margin-top: 10px;
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+}
+
+@keyframes precious-reveal-compact {
+  0% { opacity: 0; transform: translateY(-16px) scale(0.34); filter: blur(8px); }
+  34% { opacity: 1; transform: translateY(0) scale(1.08); filter: blur(0); }
+  64% { opacity: 1; transform: translateY(0) scale(0.98); }
+  100% { opacity: 0.82; transform: translateY(0) scale(0.78); }
 }
 
 @keyframes precious-reveal {
