@@ -111,12 +111,20 @@ document.addEventListener("click", (event) => {
     return;
   }
 
+  const closeDropLinkModal = event.target.closest("#closeDropLinkModal");
+  if (closeDropLinkModal) {
+    document.querySelector("#dropLinkModal").hidden = true;
+    const unknownMessage = document.querySelector("#unknownMessage");
+    messageStep = 1;
+    unknownMessage.querySelector("strong").textContent = "최근 30일 동안 시계탑 꼭대기에서 정체불명의 생물 신고가 7건 접수됐습니다.";
+    unknownMessage.querySelector("small").textContent = "탭해서 첫 미션 받기";
+    return;
+  }
+
   const unknownMessage = event.target.closest("#unknownMessage");
   if (unknownMessage) {
     if (messageStep === 0) {
-      messageStep = 1;
-      unknownMessage.querySelector("strong").textContent = "최근 30일 동안 시계탑 꼭대기에서 정체불명의 생물 신고가 7건 접수됐습니다.";
-      unknownMessage.querySelector("small").textContent = "탭해서 첫 미션 받기";
+      document.querySelector("#dropLinkModal").hidden = false;
     } else {
       showScreen("mission");
     }

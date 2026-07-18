@@ -56,6 +56,7 @@ export default function Home() {
   const [distance, setDistance] = useState<number | null>(null);
   const [locationStatus, setLocationStatus] = useState("위치 확인 전");
   const [foundClues, setFoundClues] = useState<string[]>([]);
+  const [caseModalOpen, setCaseModalOpen] = useState(false);
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(new Date()), 1000 * 20);
@@ -113,6 +114,19 @@ export default function Home() {
 
   function toggleClue(title: string) {
     setFoundClues((current) => (current.includes(title) ? current : [...current, title]));
+  }
+
+  function handleDropLink() {
+    if (messageStep === "first") {
+      setCaseModalOpen(true);
+      return;
+    }
+    moveToScene("mission");
+  }
+
+  function closeCaseModal() {
+    setCaseModalOpen(false);
+    setMessageStep("second");
   }
 
   return (
@@ -187,11 +201,28 @@ export default function Home() {
             <button
               className="unknown-message"
               type="button"
-              onClick={() => (messageStep === "first" ? setMessageStep("second") : moveToScene("mission"))}
+              onClick={handleDropLink}
             >
-              <div className="talk-notice-head"><span>카카오톡</span><em>지금</em></div>
+              <div className="talk-notice-head"><span>DROP LINK</span><em>지금</em></div>
               <div className="talk-notice-body"><Image className="talk-logo" src="/campusdrop_logo.png" alt="" width={40} height={40} aria-hidden="true" /><div><b>CAMPUS DROP 운영본부</b><strong>{messageStep === "first" ? "사용자 인증이 완료됐습니다. 사건 CD-SJ-01에 임시 배정합니다." : "최근 30일 동안 시계탑 꼭대기에서 정체불명의 생물 신고가 7건 접수됐습니다."}</strong><small>{messageStep === "first" ? "탭해서 사건 개요 보기" : "탭해서 첫 미션 받기"}</small></div></div>
             </button>
+          )}
+
+          {caseModalOpen && (
+            <div className="drop-link-modal" role="dialog" aria-modal="true" aria-labelledby="dropLinkTitle">
+              <div className="drop-link-panel">
+                <div className="drop-link-kicker">DROP LINK 보안 회선</div>
+                <h3 id="dropLinkTitle">현장 조사 배정 상세</h3>
+                <p>사용자 인증이 완료되어 세종대학교 시계탑 이상 현상 조사에 임시 배정됐습니다.</p>
+                <dl>
+                  <div><dt>사건 번호</dt><dd>CD-SJ-01</dd></div>
+                  <div><dt>사건명</dt><dd>시계탑 대형 생물 목격 사건</dd></div>
+                  <div><dt>조사 상태</dt><dd>원인 미확인 · 현장 확인 필요</dd></div>
+                </dl>
+                <p className="drop-link-note">최근 30일 동안 시계탑 꼭대기에서 정체불명의 생물을 봤다는 신고가 7건 접수됐습니다. 본부는 별도의 현장 조사가 필요하다고 판단했습니다.</p>
+                <button className="primary-action" type="button" onClick={closeCaseModal}>사건 개요 수신</button>
+              </div>
+            </div>
           )}
         </section>
       )}
