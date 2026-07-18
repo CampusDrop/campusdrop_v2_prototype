@@ -59,6 +59,7 @@ export default function Home() {
   const [foundClues, setFoundClues] = useState<string[]>([]);
   const [caseModalOpen, setCaseModalOpen] = useState(false);
   const [dropLinkText, setDropLinkText] = useState("");
+  const [caseTransferActive, setCaseTransferActive] = useState(false);
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(new Date()), 1000 * 20);
@@ -143,8 +144,13 @@ export default function Home() {
   }
 
   function closeCaseModal() {
-    setCaseModalOpen(false);
-    setMessageStep("second");
+    setCaseTransferActive(true);
+    window.setTimeout(() => {
+      setCaseModalOpen(false);
+      setCaseTransferActive(false);
+      setMessageStep("hidden");
+      moveToScene("mission");
+    }, 1500);
   }
 
   return (
@@ -227,13 +233,18 @@ export default function Home() {
           )}
 
           {caseModalOpen && (
-            <div className="drop-link-modal" role="dialog" aria-modal="true" aria-label="CAMPUS DROP 운영본부 메시지">
+            <div className={`drop-link-modal${caseTransferActive ? " is-transfer" : ""}`} role="dialog" aria-modal="true" aria-label="CAMPUS DROP 운영본부 메시지">
               <div className="drop-link-reveal" aria-hidden="true">
                 <span className="drop-link-reveal-ring" />
                 <span className="drop-link-reveal-core">DROP LINK</span>
                 <span className="drop-link-reveal-spark spark-a" />
                 <span className="drop-link-reveal-spark spark-b" />
                 <span className="drop-link-reveal-spark spark-c" />
+              </div>
+              <div className="drop-link-transfer" aria-hidden="true">
+                <span>CD-SJ-01</span>
+                <strong>현장 조사 개방</strong>
+                <i />
               </div>
               <div className="drop-link-dialogue">
                 <div className="drop-link-portrait" aria-hidden="true">
@@ -245,7 +256,7 @@ export default function Home() {
                     className="drop-link-next"
                     type="button"
                     onClick={closeCaseModal}
-                    disabled={dropLinkText.length < dropLinkBriefing.length}
+                    disabled={dropLinkText.length < dropLinkBriefing.length || caseTransferActive}
                   >
                     사건 개요 수신
                   </button>
@@ -259,9 +270,9 @@ export default function Home() {
       {scene === "mission" && (
         <section className="screen mission-screen">
           <div className="mission-copy">
-            <p>미션 1</p>
-            <h2>네 개의 시계를 확인하라</h2>
-            <span>현장 조사원은 시계탑 주변에서 정체불명의 대형 생물 흔적을 확인해 주세요.</span>
+            <p>사건 개요</p>
+            <h2>CD-SJ-01 현장 조사 개방</h2>
+            <span>세종대학교 시계탑으로 이동해 네 방향의 시계와 정체불명의 대형 생물 흔적을 확인하세요.</span>
           </div>
 
           <div className="campus-radar">

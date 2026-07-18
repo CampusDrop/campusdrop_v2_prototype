@@ -138,12 +138,16 @@ document.addEventListener("click", (event) => {
   const closeDropLinkModal = event.target.closest("#closeDropLinkModal");
   if (closeDropLinkModal) {
     if (closeDropLinkModal.disabled) return;
-    document.querySelector("#dropLinkModal").hidden = true;
+    const modal = document.querySelector("#dropLinkModal");
     window.clearInterval(dropLinkTyper);
-    const unknownMessage = document.querySelector("#unknownMessage");
-    messageStep = 1;
-    unknownMessage.querySelector("strong").textContent = "최근 30일 동안 시계탑 꼭대기에서 정체불명의 생물 신고가 7건 접수됐습니다.";
-    unknownMessage.querySelector("small").textContent = "탭해서 첫 미션 받기";
+    closeDropLinkModal.disabled = true;
+    modal.classList.add("is-transfer");
+    window.setTimeout(() => {
+      modal.hidden = true;
+      modal.classList.remove("is-transfer");
+      messageStep = 0;
+      showScreen("mission");
+    }, 1500);
     return;
   }
 
