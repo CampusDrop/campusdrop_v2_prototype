@@ -8,10 +8,9 @@ const posterCopy = {
   gate: "정문 포스터를 통해 접속했습니다. 방문자 기록에는 없는 종소리가 남아 있습니다.",
 };
 const clueDetails = {
-  "털": "바람에 날린 흔적이 아니라, 높은 곳에서 스친 것처럼 붙어 있습니다.",
-  "콧김": "유리 안쪽에만 남은 뿌연 곡선. 바깥 날씨와 맞지 않습니다.",
-  "나뭇잎": "사다리 없이는 닿기 어려운 위치에 젖은 잎이 끼어 있습니다.",
-  "흔적": "기계 내부 고장이 아니라 바깥에서 힘을 받은 방향입니다.",
+  "털": "표본 분석 중… 노란색 섬유는 인공 재료가 아닙니다. 대형 초식동물의 체모와 유사합니다.",
+  "나뭇잎": "표본 분석 중… 가장자리만 뜯긴 잎자국이 시계탑 꼭대기 근처에서 반복됩니다.",
+  "충격음": "음향 분석 중… 일정한 간격의 둔탁한 소리가 시계 장치 진동과 별도로 기록됩니다.",
 };
 
 let messageStep = 0;
@@ -87,17 +86,17 @@ function checkLocation() {
 function updateConclusion() {
   const conclusion = document.querySelector("#conclusion");
   const strong = conclusion.querySelector("strong");
-  if (foundClues.size === 4) {
+  if (foundClues.size === 3) {
     conclusion.classList.add("is-open");
-    strong.textContent = "시계가 고장 난 것이 아니다. 시계탑 안에서 누군가 시곗바늘을 움직이고 있다.";
+    strong.textContent = "분석 완료. 추정 개체 높이 4.5m 이상, 추정 분류 기린과, 현장 존재 가능성 93.7%.";
     if (!conclusion.querySelector("p")) {
       const next = document.createElement("p");
-      next.textContent = "다음 파트: 시계탑 안의 존재와 처음 접촉하기";
+      next.textContent = "다음 파트: 지정 이미지를 스캔해 관리 대상 확인하기";
       conclusion.appendChild(next);
     }
     return;
   }
-  strong.textContent = `${foundClues.size} / 4 흔적 확인`;
+  strong.textContent = `${foundClues.size} / 3 흔적 확인`;
 }
 
 document.addEventListener("click", (event) => {
@@ -116,7 +115,7 @@ document.addEventListener("click", (event) => {
   if (unknownMessage) {
     if (messageStep === 0) {
       messageStep = 1;
-      unknownMessage.querySelector("strong").textContent = "그런데 일부러 그런 건 아니었어.";
+      unknownMessage.querySelector("strong").textContent = "최근 30일 동안 시계탑 꼭대기에서 정체불명의 생물 신고가 7건 접수됐습니다.";
       unknownMessage.querySelector("small").textContent = "탭해서 첫 미션 받기";
     } else {
       showScreen("mission");
