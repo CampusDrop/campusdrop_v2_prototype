@@ -153,7 +153,7 @@ export default function Home() {
 
       {scene === "entry" && (
         <section className="screen case-entry">
-          <div className="brand-lockup"><Image src="/campusdrop_logo.png" alt="Campus Drop" width={42} height={42} priority /><div><span>Campus Drop</span><em>운영본부</em></div></div>
+          <div className="brand-lockup"><div><span>Campus Drop</span><em>운영본부</em></div></div>
           <div className="clocktower-window" aria-hidden="true">
             <span />
             <i />
