@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
 type Scene = "entry" | "incident" | "mission" | "arrival";
@@ -120,7 +121,7 @@ export default function Home() {
 
       {scene === "entry" && (
         <section className="screen case-entry">
-          <div className="case-mark">CAMPUS DROP</div>
+          <div className="brand-lockup"><Image src="/campusdrop_logo.png" alt="Campus Drop" width={42} height={42} priority /><div><span>Campus Drop</span><em>운영본부</em></div></div>
           <div className="clocktower-window" aria-hidden="true">
             <span />
             <i />
@@ -189,7 +190,7 @@ export default function Home() {
               onClick={() => (messageStep === "first" ? setMessageStep("second") : moveToScene("mission"))}
             >
               <div className="talk-notice-head"><span>카카오톡</span><em>지금</em></div>
-              <div className="talk-notice-body"><i aria-hidden="true">?</i><div><b>CAMPUS DROP 운영본부</b><strong>{messageStep === "first" ? "사용자 인증이 완료됐습니다. 사건 CD-SJ-01에 임시 배정합니다." : "최근 30일 동안 시계탑 꼭대기에서 정체불명의 생물 신고가 7건 접수됐습니다."}</strong><small>{messageStep === "first" ? "탭해서 사건 개요 보기" : "탭해서 첫 미션 받기"}</small></div></div>
+              <div className="talk-notice-body"><Image className="talk-logo" src="/campusdrop_logo.png" alt="" width={40} height={40} aria-hidden="true" /><div><b>CAMPUS DROP 운영본부</b><strong>{messageStep === "first" ? "사용자 인증이 완료됐습니다. 사건 CD-SJ-01에 임시 배정합니다." : "최근 30일 동안 시계탑 꼭대기에서 정체불명의 생물 신고가 7건 접수됐습니다."}</strong><small>{messageStep === "first" ? "탭해서 사건 개요 보기" : "탭해서 첫 미션 받기"}</small></div></div>
             </button>
           )}
         </section>

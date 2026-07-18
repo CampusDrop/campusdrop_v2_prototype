@@ -715,3 +715,245 @@ button:focus-visible {
     transform: translateY(0) scale(1);
   }
 }
+
+/* Campus Drop logo-led redesign */
+:root {
+  --brand: #6861ee;
+  --brand-soft: #8b86ff;
+  --brand-deep: #29255f;
+  --brand-ink: #14122b;
+  --brand-panel: rgba(255, 255, 255, 0.88);
+  --mint: #5ff0d0;
+  --cyan: #8edcff;
+  --gold: #ffd166;
+}
+
+.case-app {
+  background:
+    radial-gradient(circle at 74% 3%, rgba(104, 97, 238, 0.42), transparent 24rem),
+    radial-gradient(circle at 12% 78%, rgba(95, 240, 208, 0.18), transparent 22rem),
+    linear-gradient(160deg, #f8f8ff 0%, #ecebff 42%, #151432 100%);
+  color: #f9fbff;
+}
+
+.clock-noise {
+  opacity: 0.18;
+  background-image:
+    radial-gradient(circle, rgba(104, 97, 238, 0.16) 1px, transparent 1px),
+    linear-gradient(rgba(20, 18, 43, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(20, 18, 43, 0.045) 1px, transparent 1px);
+  background-size: 26px 26px, 32px 32px, 32px 32px;
+}
+
+.brand-lockup {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid rgba(104, 97, 238, 0.22);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.82);
+  padding: 9px 13px 9px 10px;
+  box-shadow: 0 18px 48px rgba(104, 97, 238, 0.18);
+  backdrop-filter: blur(18px);
+}
+
+.brand-lockup img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  border-radius: 14px;
+}
+
+.brand-lockup span {
+  display: block;
+  color: var(--brand);
+  font-size: 16px;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.brand-lockup em {
+  display: block;
+  margin-top: 4px;
+  color: rgba(20, 18, 43, 0.56);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+
+.clocktower-window {
+  border-radius: 0 0 34px 34px;
+  background:
+    linear-gradient(90deg, rgba(20, 18, 43, 0.9) 0 9%, transparent 9% 91%, rgba(20, 18, 43, 0.9) 91%),
+    radial-gradient(circle at 58% 44%, rgba(104, 97, 238, 0.46), transparent 9rem),
+    radial-gradient(circle at 38% 64%, rgba(255, 209, 102, 0.3), transparent 7rem),
+    linear-gradient(160deg, #38327e, #171532 68%);
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.12), 0 24px 56px rgba(31, 28, 80, 0.22);
+}
+
+.clocktower-window span {
+  background: linear-gradient(140deg, rgba(255, 209, 102, 0.42), rgba(104, 97, 238, 0.1));
+}
+
+.clocktower-window i {
+  background: rgba(255, 209, 102, 0.18);
+  box-shadow: 28px 24px 44px rgba(104, 97, 238, 0.32);
+}
+
+.case-title h1,
+.login-copy h2,
+.incident-header h2,
+.mission-copy h2,
+.arrival-copy h2 {
+  color: #171532;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.32);
+}
+
+.incident-screen .incident-header h2,
+.mission-screen .mission-copy h2,
+.arrival-screen .arrival-copy h2 {
+  color: #f8f8ff;
+  text-shadow: none;
+}
+
+.case-title p,
+.incident-header p,
+.mission-copy p,
+.arrival-copy p,
+.case-status span,
+.poster-source,
+.time-report span,
+.system-message span,
+.radar-data span,
+.clue-list span,
+.conclusion span {
+  color: var(--brand-soft);
+}
+
+.case-status,
+.time-report,
+.system-message,
+.campus-radar,
+.conclusion,
+.clue-list button,
+.clock-card {
+  border-color: rgba(104, 97, 238, 0.18);
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 54px rgba(22, 19, 55, 0.16);
+}
+
+.case-status strong {
+  color: var(--brand);
+}
+
+.case-status p,
+.warning-copy,
+.time-report p,
+.mission-copy span,
+.arrival-copy span,
+.location-status,
+.conclusion p,
+.clue-list p {
+  color: rgba(248, 251, 255, 0.76);
+}
+
+.case-entry .case-status p,
+.case-entry .warning-copy {
+  color: rgba(20, 18, 43, 0.62);
+}
+
+.poster-source {
+  border-left-color: var(--brand);
+  color: var(--brand-deep);
+}
+
+.primary-action {
+  background: linear-gradient(135deg, var(--brand), #8d86ff 58%, #5ff0d0);
+  color: #fff;
+  box-shadow: 0 20px 50px rgba(104, 97, 238, 0.36);
+}
+
+.secondary-action {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.13);
+}
+
+.clock-face {
+  border-color: rgba(139, 134, 255, 0.92);
+  background: radial-gradient(circle, rgba(139, 134, 255, 0.2), rgba(255, 255, 255, 0.03));
+}
+
+.hand {
+  background: var(--brand-soft);
+}
+
+.hand.minute,
+.clock-face b {
+  background: #fff;
+}
+
+.time-report strong,
+.clock-card strong {
+  color: #d8f7ff;
+}
+
+.system-message {
+  border-color: rgba(141, 134, 255, 0.32);
+}
+
+.system-message p {
+  color: #e4e2ff;
+}
+
+.unknown-message {
+  border-color: rgba(104, 97, 238, 0.24);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 18px 48px rgba(44, 39, 113, 0.28);
+}
+
+.talk-logo {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  object-fit: contain;
+  border-radius: 13px;
+  background: #fff;
+  box-shadow: 0 8px 20px rgba(104, 97, 238, 0.18);
+}
+
+.talk-notice-body b {
+  color: var(--brand);
+}
+
+.radar-map {
+  background:
+    radial-gradient(circle at 67% 30%, rgba(104, 97, 238, 0.24), transparent 8rem),
+    radial-gradient(circle at 35% 65%, rgba(95, 240, 208, 0.16), transparent 8rem),
+    linear-gradient(145deg, #2c2868, #171532);
+}
+
+.radar-zone {
+  border-color: rgba(139, 134, 255, 0.95);
+  background: rgba(104, 97, 238, 0.14);
+  box-shadow: 0 0 42px rgba(104, 97, 238, 0.32);
+}
+
+.clocktower-pin {
+  background: linear-gradient(135deg, var(--brand), var(--brand-soft));
+  color: #fff;
+}
+
+.current-dot {
+  background: var(--mint);
+  box-shadow: 0 0 26px rgba(95, 240, 208, 0.75);
+}
+
+.conclusion.is-open {
+  background: rgba(104, 97, 238, 0.22);
+}
+
+.conclusion.is-open strong {
+  color: #ffffff;
+}
