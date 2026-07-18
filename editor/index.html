@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Campus Drop | 미션 맵 에디터</title>
+    <meta name="description" content="Campus Drop 운영본부 미션 맵 제작 도구" />
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body>
+    <main class="editor-app">
+      <section class="editor-shell">
+        <header class="editor-header">
+          <a class="editor-home-link" href="../">데모로 돌아가기</a>
+          <div class="brand-lockup editor-brand">
+            <img src="../campusdrop_logo.png" alt="Campus Drop" />
+            <div><span>Campus Drop</span><em>미션 맵 에디터</em></div>
+          </div>
+          <div><p>운영본부 제작 도구</p><h1>현장 조사 미션을 설계하세요</h1></div>
+        </header>
+
+        <section class="editor-progress" aria-label="제작 준비도">
+          <div><span>제작 준비도</span><strong id="readyScore">75%</strong></div>
+          <i><b id="readyBar" style="width: 75%"></b></i>
+        </section>
+
+        <section class="editor-panel">
+          <div class="editor-step-title"><span>1</span><div><h2>몇 문제가 필요한가요?</h2><p>첫 데모는 3문제를 추천합니다. 너무 길면 현장 몰입이 끊깁니다.</p></div></div>
+          <div class="question-count-control">
+            <button type="button" id="countDown">-</button><strong id="questionCount">3</strong><button type="button" id="countUp">+</button>
+          </div>
+        </section>
+
+        <section class="editor-panel">
+          <div class="editor-step-title"><span>2</span><div><h2>어떤 방식으로 문제를 낼까요?</h2><p>질문형은 빠르게 만들 수 있고, 이미지형은 현장감이 강합니다.</p></div></div>
+          <div class="choice-grid" data-choice-group="prompt">
+            <button class="is-selected" type="button" data-value="question"><strong>질문</strong><span>텍스트 단서와 선택지/주관식 답을 중심으로 냅니다.</span></button>
+            <button type="button" data-value="image"><strong>이미지</strong><span>현장 사진, 포스터, 표식 이미지를 단서로 냅니다.</span></button>
+          </div>
+        </section>
+
+        <section class="editor-panel">
+          <div class="editor-step-title"><span>3</span><div><h2>어떤 방식으로 풀게 할까요?</h2><p>AR과 위치인식은 사진/좌표 샘플을 여러 개 모아야 안정적입니다.</p></div></div>
+          <div class="choice-grid solve-grid" data-choice-group="solve">
+            <button type="button" data-value="quiz"><strong>그냥 퀴즈</strong><span>사용자가 정답 텍스트를 입력하면 완료됩니다.</span></button>
+            <button class="is-selected" type="button" data-value="ar"><strong>AR</strong><span>지정 이미지나 현장 표식을 인식하면 AR 오브젝트가 열립니다.</span></button>
+            <button type="button" data-value="location"><strong>위치인식</strong><span>GPS 반경 안에 들어오면 조사 가능 상태가 됩니다.</span></button>
+          </div>
+        </section>
+
+        <section class="editor-panel answer-panel">
+          <div class="editor-step-title"><span>4</span><div><h2>정답은 무엇인가요?</h2><p id="answerHint">현장 사진을 최소 5장 정도 모으는 것을 추천합니다.</p></div></div>
+          <label class="answer-input"><span>정답 텍스트</span><input id="answerText" placeholder="예: 운영본부 보안 기록으로 전송" /></label>
+          <div class="capture-tools">
+            <button type="button" id="saveLocation">현재 위치 저장</button>
+            <label>사진 찍기<input id="photoInput" accept="image/*" capture="environment" type="file" /></label>
+          </div>
+          <div class="capture-status"><span>저장 위치</span><strong id="locationText">위치 미저장</strong></div>
+          <div class="capture-list" id="captureList"><p>아직 저장된 정답 사진이 없습니다. 현장 표식은 정면, 좌측, 우측, 가까운 거리, 먼 거리로 찍는 것을 추천합니다.</p></div>
+        </section>
+
+        <aside class="editor-summary">
+          <span>미션 맵 초안</span>
+          <strong id="summaryText">3문제 · 질문 출제 · AR 풀이</strong>
+          <p>현재는 브라우저 안에서만 동작하는 데모입니다. 다음 단계에서 저장/불러오기와 실제 이미지 타깃 생성으로 확장할 수 있습니다.</p>
+        </aside>
+      </section>
+    </main>
+    <script>
+      const state = { count: 3, prompt: "question", solve: "ar", location: "위치 미저장", captures: [], answer: "" };
+      const recommended = { quiz: 1, ar: 5, location: 3 };
+      const promptLabels = { question: "질문", image: "이미지" };
+      const solveLabels = { quiz: "그냥 퀴즈", ar: "AR", location: "위치인식" };
+
+      function render() {
+        document.querySelector("#questionCount").textContent = state.count;
+        document.querySelector("#locationText").textContent = state.location;
+        document.querySelector("#answerHint").textContent =
+          state.solve === "quiz" ? "퀴즈 정답을 입력하세요. 필요하면 참고 사진도 추가할 수 있습니다." : `현장 사진을 최소 ${recommended[state.solve]}장 정도 모으는 것을 추천합니다.`;
+        document.querySelector("#summaryText").textContent = `${state.count}문제 · ${promptLabels[state.prompt]} 출제 · ${solveLabels[state.solve]} 풀이`;
+        const ready = 25 + 25 + 25 + (state.answer.trim() || state.captures.length >= recommended[state.solve] ? 25 : 0);
+        document.querySelector("#readyScore").textContent = `${ready}%`;
+        document.querySelector("#readyBar").style.width = `${ready}%`;
+        const list = document.querySelector("#captureList");
+        if (!state.captures.length) {
+          list.innerHTML = "<p>아직 저장된 정답 사진이 없습니다. 현장 표식은 정면, 좌측, 우측, 가까운 거리, 먼 거리로 찍는 것을 추천합니다.</p>";
+          return;
+        }
+        list.innerHTML = state.captures.map((capture, index) => `<article><span>정답 사진 ${index + 1}</span><strong>${capture.fileName}</strong><p>${capture.location}</p></article>`).join("");
+      }
+
+      document.querySelector("#countDown").addEventListener("click", () => { state.count = Math.max(1, state.count - 1); render(); });
+      document.querySelector("#countUp").addEventListener("click", () => { state.count = Math.min(8, state.count + 1); render(); });
+      document.querySelector("#answerText").addEventListener("input", (event) => { state.answer = event.target.value; render(); });
+      document.querySelectorAll("[data-choice-group]").forEach((group) => {
+        group.addEventListener("click", (event) => {
+          const button = event.target.closest("button[data-value]");
+          if (!button) return;
+          group.querySelectorAll("button").forEach((item) => item.classList.toggle("is-selected", item === button));
+          state[group.dataset.choiceGroup] = button.dataset.value;
+          render();
+        });
+      });
+      document.querySelector("#saveLocation").addEventListener("click", () => {
+        if (!navigator.geolocation) { state.location = "이 브라우저에서는 위치 저장을 사용할 수 없습니다."; render(); return; }
+        state.location = "현재 위치 저장 중..."; render();
+        navigator.geolocation.getCurrentPosition(
+          (position) => { state.location = `${position.coords.latitude.toFixed(6)}, ${position.coords.longitude.toFixed(6)}`; render(); },
+          () => { state.location = "위치 권한이 필요합니다."; render(); },
+          { enableHighAccuracy: true, timeout: 10000 },
+        );
+      });
+      document.querySelector("#photoInput").addEventListener("change", (event) => {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+        state.captures.push({ fileName: file.name, location: state.location });
+        event.target.value = "";
+        render();
+      });
+      render();
+    </script>
+  </body>
+</html>
