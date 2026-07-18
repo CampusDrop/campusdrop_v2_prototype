@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-type Scene = "entry" | "login" | "incident" | "mission" | "arrival";
+type Scene = "entry" | "incident" | "mission" | "arrival";
 type MessageStep = "hidden" | "first" | "second";
 
 const clockTower = { lat: 37.550944, lng: 127.073765 };
@@ -140,38 +140,16 @@ export default function Home() {
             <p>아직 원인은 밝혀지지 않았습니다.</p>
           </div>
           <p className="poster-source">{posterText}</p>
-          <button className="primary-action" type="button" onClick={() => moveToScene("login")}>
+          <button className="primary-action" type="button" onClick={() => moveToScene("incident")}>
             조사 참여하기
           </button>
           <p className="warning-copy">※ 시계탑 꼭대기를 너무 오래 올려다보지 마세요.</p>
         </section>
       )}
-
-      {scene === "login" && (
-        <section className="screen login-screen">
-          <button className="text-back" type="button" onClick={() => moveToScene("entry")}>
-            돌아가기
-          </button>
-          <div className="login-copy">
-            <p>조사 기록 연결</p>
-            <h2>중간에 나가도 현재 단서부터 계속할 수 있어요.</h2>
-            <span>회원가입이 아니라, 조사 기록을 보존하기 위한 계정 연결입니다.</span>
-          </div>
-          <div className="login-list">
-            {["카카오 로그인", "Apple 로그인", "Google 로그인", "학교 이메일 로그인"].map((label) => (
-              <button key={label} type="button" onClick={() => moveToScene("incident")}>
-                <span>{label}</span>
-                <i>계속</i>
-              </button>
-            ))}
-          </div>
-        </section>
-      )}
-
       {scene === "incident" && (
         <section className="screen incident-screen">
           <div className="incident-header">
-            <p>로그인 완료</p>
+            <p>카카오 로그인 완료</p>
             <h2>시계탑 이상 현상 감지</h2>
           </div>
 
