@@ -2,6 +2,7 @@ const app = document.querySelector("#app");
 const screens = [...document.querySelectorAll("[data-screen]")];
 const reachRadiusMeters = 90;
 const clockTower = { lat: 37.550944, lng: 127.073765 };
+const dropLinkBriefing = "사용자 인증이 완료됐습니다. 사건 CD-SJ-01, 시계탑 대형 생물 목격 사건에 임시 배정합니다. 최근 30일 동안 정체불명의 생물 신고가 7건 접수됐습니다. 본부는 현장 조사가 필요하다고 판단했습니다.";
 const posterCopy = {
   student_hall: "학생회관 포스터를 통해 접속했습니다. 이 근처에서도 이상한 종소리가 들렸다는 제보가 있습니다.",
   library: "학술정보원 포스터를 통해 접속했습니다. 오늘 새벽, 시계탑 쪽에서 같은 제보가 반복됐습니다.",
@@ -14,6 +15,7 @@ const clueDetails = {
 };
 
 let messageStep = 0;
+let dropLinkTyper = null;
 const foundClues = new Set();
 
 function showScreen(name) {
@@ -83,6 +85,28 @@ function checkLocation() {
   );
 }
 
+function startDropLinkTyping() {
+  const typeTarget = document.querySelector("#dropLinkType");
+  const nextButton = document.querySelector("#closeDropLinkModal");
+  window.clearInterval(dropLinkTyper);
+  typeTarget.textContent = "";
+  const cursor = document.createElement("i");
+  cursor.setAttribute("aria-hidden", "true");
+  typeTarget.appendChild(cursor);
+  nextButton.disabled = true;
+
+  let index = 0;
+  dropLinkTyper = window.setInterval(() => {
+    index += 1;
+    typeTarget.textContent = dropLinkBriefing.slice(0, index);
+    typeTarget.appendChild(cursor);
+    if (index >= dropLinkBriefing.length) {
+      window.clearInterval(dropLinkTyper);
+      nextButton.disabled = false;
+    }
+  }, 34);
+}
+
 function updateConclusion() {
   const conclusion = document.querySelector("#conclusion");
   const strong = conclusion.querySelector("strong");
@@ -113,7 +137,9 @@ document.addEventListener("click", (event) => {
 
   const closeDropLinkModal = event.target.closest("#closeDropLinkModal");
   if (closeDropLinkModal) {
+    if (closeDropLinkModal.disabled) return;
     document.querySelector("#dropLinkModal").hidden = true;
+    window.clearInterval(dropLinkTyper);
     const unknownMessage = document.querySelector("#unknownMessage");
     messageStep = 1;
     unknownMessage.querySelector("strong").textContent = "최근 30일 동안 시계탑 꼭대기에서 정체불명의 생물 신고가 7건 접수됐습니다.";
@@ -125,6 +151,7 @@ document.addEventListener("click", (event) => {
   if (unknownMessage) {
     if (messageStep === 0) {
       document.querySelector("#dropLinkModal").hidden = false;
+      startDropLinkTyping();
     } else {
       showScreen("mission");
     }
