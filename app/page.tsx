@@ -160,12 +160,8 @@ export default function Home() {
 
       {scene === "entry" && (
         <section className="screen case-entry">
-          <div className="clocktower-window" aria-hidden="true">
-            <span />
-            <i />
-          </div>
           <div className="case-title">
-            <p>CD-SJ-01 목격 신고 접수</p>
+            <p>CD-SJ-01</p>
             <h1>시계탑 꼭대기에서 무언가 목격됐다</h1>
           </div>
           <div className="case-status">
