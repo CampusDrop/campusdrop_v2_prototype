@@ -159,7 +159,6 @@ export default function Home() {
 
       {scene === "entry" && (
         <section className="screen case-entry">
-          <div className="brand-lockup"><div><span>Campus Drop</span><em>운영본부</em></div></div>
           <div className="clocktower-window" aria-hidden="true">
             <span />
             <i />
