@@ -16,24 +16,19 @@ const posterCopy: Record<string, string> = {
 
 const clues = [
   {
-    direction: "동쪽 시계",
-    title: "시곗바늘 옆 노란 털",
-    detail: "바람에 날린 흔적이 아니라, 높은 곳에서 스친 것처럼 붙어 있습니다.",
+    direction: "시계탑 꼭대기",
+    title: "높은 위치에서 사라진 나뭇잎",
+    detail: "표본 분석 중… 가장자리만 뜯긴 잎자국이 시계탑 꼭대기 근처에서 반복됩니다.",
   },
   {
-    direction: "남쪽 시계",
-    title: "시계판 안쪽 콧김 자국",
-    detail: "유리 안쪽에만 남은 뿌연 곡선. 바깥 날씨와 맞지 않습니다.",
+    direction: "건물 외벽",
+    title: "건물 외벽의 노란색 털",
+    detail: "표본 분석 중… 노란색 섬유는 인공 재료가 아닙니다. 대형 초식동물의 체모와 유사합니다.",
   },
   {
-    direction: "서쪽 시계",
-    title: "높은 곳에 붙은 나뭇잎",
-    detail: "사다리 없이는 닿기 어려운 위치에 젖은 잎이 끼어 있습니다.",
-  },
-  {
-    direction: "북쪽 시계",
-    title: "바깥쪽에서 밀린 흔적",
-    detail: "기계 내부 고장이 아니라 바깥에서 힘을 받은 방향입니다.",
+    direction: "시계탑 상부",
+    title: "꼭대기에서 발생하는 충격음",
+    detail: "음향 분석 중… 일정한 간격의 둔탁한 소리가 시계 장치 진동과 별도로 기록됩니다.",
   },
 ];
 
@@ -194,7 +189,7 @@ export default function Home() {
               onClick={() => (messageStep === "first" ? setMessageStep("second") : moveToScene("mission"))}
             >
               <div className="talk-notice-head"><span>카카오톡</span><em>지금</em></div>
-              <div className="talk-notice-body"><i aria-hidden="true">?</i><div><b>알 수 없는 발신자</b><strong>{messageStep === "first" ? "시계가 틀린 건 내 잘못이야." : "그런데 일부러 그런 건 아니었어."}</strong><small>{messageStep === "first" ? "탭해서 다음 메시지 보기" : "탭해서 첫 미션 받기"}</small></div></div>
+              <div className="talk-notice-body"><i aria-hidden="true">?</i><div><b>CAMPUS DROP 운영본부</b><strong>{messageStep === "first" ? "사용자 인증이 완료됐습니다. 사건 CD-SJ-01에 임시 배정합니다." : "최근 30일 동안 시계탑 꼭대기에서 정체불명의 생물 신고가 7건 접수됐습니다."}</strong><small>{messageStep === "first" ? "탭해서 사건 개요 보기" : "탭해서 첫 미션 받기"}</small></div></div>
             </button>
           )}
         </section>
@@ -205,7 +200,7 @@ export default function Home() {
           <div className="mission-copy">
             <p>미션 1</p>
             <h2>네 개의 시계를 확인하라</h2>
-            <span>시계탑 안의 제보자가 사실을 말하고 있는지 확인해야 합니다.</span>
+            <span>현장 조사원은 시계탑 주변에서 정체불명의 대형 생물 흔적을 확인해 주세요.</span>
           </div>
 
           <div className="campus-radar">
@@ -270,10 +265,10 @@ export default function Home() {
             <span>조사 결론</span>
             <strong>
               {foundAllClues
-                ? "시계가 고장 난 것이 아니다. 시계탑 안에서 누군가 시곗바늘을 움직이고 있다."
+                ? "분석 완료. 추정 개체 높이 4.5m 이상, 추정 분류 기린과, 현장 존재 가능성 93.7%."
                 : `${foundClues.length} / ${clues.length} 흔적 확인`}
             </strong>
-            {foundAllClues && <p>다음 파트: 시계탑 안의 존재와 처음 접촉하기</p>}
+            {foundAllClues && <p>다음 파트: 지정 이미지를 스캔해 관리 대상 확인하기</p>}
           </div>
         </section>
       )}
