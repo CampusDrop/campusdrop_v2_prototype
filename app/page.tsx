@@ -1,9 +1,34 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type Scene = "entry" | "incident" | "mission" | "arrival";
 type MessageStep = "hidden" | "first";
+
+type KakaoLatLng = object;
+type KakaoMap = object;
+
+type KakaoMapsApi = {
+  load: (callback: () => void) => void;
+  LatLng: new (lat: number, lng: number) => KakaoLatLng;
+  Map: new (container: HTMLElement, options: { center: KakaoLatLng; level: number }) => KakaoMap;
+  Marker: new (options: { position: KakaoLatLng; title?: string }) => { setMap: (map: KakaoMap) => void };
+  Circle: new (options: {
+    center: KakaoLatLng;
+    radius: number;
+    strokeWeight: number;
+    strokeColor: string;
+    strokeOpacity: number;
+    fillColor: string;
+    fillOpacity: number;
+  }) => { setMap: (map: KakaoMap) => void };
+};
+
+declare global {
+  interface Window {
+    kakao?: { maps: KakaoMapsApi };
+  }
+}
 
 const clockTower = { lat: 37.550944, lng: 127.073765 };
 const reachRadiusMeters = 90;
@@ -265,13 +290,7 @@ export default function Home() {
           </div>
 
           <div className="campus-radar">
-            <div className="radar-map">
-              <span className="radar-road road-a" />
-              <span className="radar-road road-b" />
-              <span className="radar-zone" />
-              <span className="current-dot" />
-              <span className="clocktower-pin">시계탑</span>
-            </div>
+            <MissionMap />
             <div className="radar-data">
               <div>
                 <span>예상 거리</span>
@@ -334,5 +353,81 @@ export default function Home() {
         </section>
       )}
     </main>
+  );
+}
+
+function MissionMap() {
+  const mapRef = useRef<HTMLDivElement | null>(null);
+  const [mapState, setMapState] = useState<"loading" | "ready" | "fallback">("loading");
+
+  useEffect(() => {
+    const key = new URLSearchParams(window.location.search).get("kakaoKey");
+    if (!key || !mapRef.current) {
+      setMapState("fallback");
+      return;
+    }
+
+    let cancelled = false;
+    const renderMap = () => {
+      if (cancelled || !mapRef.current || !window.kakao?.maps) return;
+      const center = new window.kakao.maps.LatLng(clockTower.lat, clockTower.lng);
+      const map = new window.kakao.maps.Map(mapRef.current, { center, level: 3 });
+      new window.kakao.maps.Marker({ position: center, title: "세종대학교 시계탑" }).setMap(map);
+      new window.kakao.maps.Circle({
+        center,
+        radius: reachRadiusMeters,
+        strokeWeight: 2,
+        strokeColor: "#73f2df",
+        strokeOpacity: 0.9,
+        fillColor: "#00b8a9",
+        fillOpacity: 0.14,
+      }).setMap(map);
+      setMapState("ready");
+    };
+
+    if (window.kakao?.maps) {
+      window.kakao.maps.load(renderMap);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    const existingScript = document.querySelector<HTMLScriptElement>("#kakao-map-sdk");
+    if (existingScript) {
+      existingScript.addEventListener("load", () => window.kakao?.maps.load(renderMap), { once: true });
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    const script = document.createElement("script");
+    script.id = "kakao-map-sdk";
+    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${encodeURIComponent(key)}&autoload=false`;
+    script.async = true;
+    script.onload = () => window.kakao?.maps.load(renderMap);
+    script.onerror = () => setMapState("fallback");
+    document.head.appendChild(script);
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const fallbackSrc = `https://www.openstreetmap.org/export/embed.html?bbox=${clockTower.lng - 0.003}%2C${clockTower.lat - 0.002}%2C${clockTower.lng + 0.003}%2C${clockTower.lat + 0.002}&layer=mapnik&marker=${clockTower.lat}%2C${clockTower.lng}`;
+
+  return (
+    <div className="real-map-shell">
+      {mapState === "fallback" ? (
+        <iframe className="real-map-frame" title="세종대학교 시계탑 지도" src={fallbackSrc} loading="lazy" />
+      ) : (
+        <div ref={mapRef} className="real-map-canvas" aria-label="세종대학교 시계탑 실제 지도" />
+      )}
+      <div className="map-target-panel">
+        <span>조사 지점</span>
+        <strong>세종대학교 시계탑</strong>
+      </div>
+      {mapState === "loading" && <p className="map-loading">지도 불러오는 중...</p>}
+      {mapState === "fallback" && <p className="map-loading">Kakao 키 없이 실제 지도 미리보기 표시 중</p>}
+    </div>
   );
 }

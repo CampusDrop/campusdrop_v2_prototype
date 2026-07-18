@@ -476,6 +476,81 @@ button:focus-visible {
   padding: 12px;
 }
 
+.real-map-shell {
+  position: relative;
+  height: 340px;
+  overflow: hidden;
+  border: 1px solid rgba(115, 242, 223, 0.18);
+  border-radius: 18px;
+  background: #101819;
+  box-shadow: inset 0 0 0 1px rgba(244, 196, 48, 0.08);
+}
+
+.real-map-canvas,
+.real-map-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.real-map-canvas {
+  filter: saturate(0.75) brightness(0.72) contrast(1.08);
+}
+
+.real-map-frame {
+  filter: saturate(0.72) brightness(0.7) contrast(1.08);
+}
+
+.map-target-panel {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 2;
+  border: 1px solid rgba(247, 241, 227, 0.18);
+  border-radius: 14px;
+  background: rgba(8, 16, 17, 0.78);
+  padding: 12px 13px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
+}
+
+.map-target-panel span {
+  display: block;
+  color: #73f2df;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.06em;
+}
+
+.map-target-panel strong {
+  display: block;
+  margin-top: 4px;
+  color: #ffd86b;
+  font-size: 18px;
+  font-weight: 950;
+}
+
+.map-loading {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: 12px;
+  z-index: 2;
+  margin: 0;
+  border: 1px solid rgba(115, 242, 223, 0.18);
+  border-radius: 999px;
+  background: rgba(8, 16, 17, 0.72);
+  color: rgba(247, 241, 227, 0.82);
+  padding: 8px 11px;
+  font-size: 12px;
+  font-weight: 850;
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+
 .radar-map {
   position: relative;
   height: 340px;
