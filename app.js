@@ -3,18 +3,18 @@ const screens = [...document.querySelectorAll("[data-screen]")];
 const reachRadiusMeters = 90;
 const clockTower = { lat: 37.550944, lng: 127.073765 };
 const dropLinkBriefings = [
-  "사용자 인증이 완료됐습니다. 사건 CD-SJ-01, 시계탑 대형 생물 목격 사건에 임시 배정합니다.",
-  "최근 30일 동안 정체불명의 생물 신고가 7건 접수됐습니다. 본부는 현장 조사가 필요하다고 판단했습니다.",
+  "사용자 인증 완료. 임시 현장 조사원으로 등록합니다. 사건 번호 CD-SJ-01, 사건명 시계탑 대형 생물 목격 사건.",
+  "세종대학교에는 오래된 소문이 하나 있습니다. 시계탑 꼭대기에는 기린이 산다. 본부는 목격 신고 7건을 근거로 현장 조사가 필요하다고 판단했습니다.",
 ];
 const posterCopy = {
-  student_hall: "학생회관 포스터를 통해 접속했습니다. 이 근처에서도 이상한 종소리가 들렸다는 제보가 있습니다.",
-  library: "학술정보원 포스터를 통해 접속했습니다. 오늘 새벽, 시계탑 쪽에서 같은 제보가 반복됐습니다.",
-  gate: "정문 포스터를 통해 접속했습니다. 방문자 기록에는 없는 종소리가 남아 있습니다.",
+  student_hall: "학생회관 포스터를 통해 접속했습니다. 창문 뒤로 긴 그림자를 봤다는 제보가 남아 있습니다.",
+  library: "학술정보원 포스터를 통해 접속했습니다. 새벽 시간대 시계탑 꼭대기 목격 신고가 반복됐습니다.",
+  gate: "정문 포스터를 통해 접속했습니다. 최근 30일 동안 같은 소문과 관련된 신고가 7건 접수됐습니다.",
 };
 const clueDetails = {
-  "털": "표본 분석 중… 노란색 섬유는 인공 재료가 아닙니다. 대형 초식동물의 체모와 유사합니다.",
-  "나뭇잎": "표본 분석 중… 가장자리만 뜯긴 잎자국이 시계탑 꼭대기 근처에서 반복됩니다.",
-  "충격음": "음향 분석 중… 일정한 간격의 둔탁한 소리가 시계 장치 진동과 별도로 기록됩니다.",
+  "털": "표본을 확인했습니다. 인공 섬유가 아닙니다. 기린과 동물의 체모와 유사하지만 단독 증거로는 확정할 수 없습니다.",
+  "나뭇잎": "사람의 손이 닿지 않는 높이에서만 나뭇잎이 사라져 있습니다. 대형 초식동물의 섭식 흔적과 유사합니다.",
+  "충격음": "단단한 바닥을 밟는 발굽 소리로 분류됐습니다. 발굽이 바닥에 닿는 간격이 대형 개체 보행 패턴과 일치합니다.",
 };
 
 let messageStep = 0;
@@ -35,16 +35,6 @@ function showScreen(name) {
     message.classList.remove("is-visible");
     window.setTimeout(() => message.classList.add("is-visible"), 5200);
   }
-}
-
-function updateCurrentTime() {
-  const current = document.querySelector("#currentTime");
-  if (!current) return;
-  current.textContent = new Date().toLocaleTimeString("ko-KR", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
 }
 
 function getDistanceMeters(from, to) {
@@ -76,7 +66,7 @@ function checkLocation() {
       );
       distanceText.textContent = `${distance}m`;
       if (distance <= reachRadiusMeters) {
-        status.textContent = "시계탑 신호 범위에 진입했습니다.";
+        status.textContent = "시계탑 조사 범위에 진입했습니다.";
         showScreen("arrival");
         return;
       }
@@ -119,10 +109,10 @@ function updateConclusion() {
   const strong = conclusion.querySelector("strong");
   if (foundClues.size === 3) {
     conclusion.classList.add("is-open");
-    strong.textContent = "분석 완료. 추정 개체 높이 4.5m 이상, 추정 분류 기린과, 현장 존재 가능성 93.7%.";
+    strong.textContent = "분석 완료. 추정 개체 높이 4.5m 이상, 추정 분류 기린과, 실제 개체 존재 가능성 93.7%.";
     if (!conclusion.querySelector("p")) {
       const next = document.createElement("p");
-      next.textContent = "다음 파트: 지정 이미지를 스캔해 관리 대상 확인하기";
+      next.textContent = "기존 기록과 일치하는 개체가 확인됐습니다. 다음 파트: 지정 이미지를 스캔해 세린이와 첫 접촉하기";
       conclusion.appendChild(next);
     }
     return;
@@ -188,6 +178,4 @@ document.addEventListener("click", (event) => {
 
 const posterId = new URLSearchParams(window.location.search).get("poster_id") ?? "student_hall";
 document.querySelector("#posterSource").textContent = posterCopy[posterId] ?? posterCopy.student_hall;
-updateCurrentTime();
-window.setInterval(updateCurrentTime, 1000 * 20);
 showScreen("entry");
