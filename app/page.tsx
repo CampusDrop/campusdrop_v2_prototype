@@ -8,6 +8,7 @@ type MessageStep = "hidden" | "first" | "second";
 
 const clockTower = { lat: 37.550944, lng: 127.073765 };
 const reachRadiusMeters = 90;
+const dropLinkBriefing = "사용자 인증이 완료됐습니다. 사건 CD-SJ-01, 시계탑 대형 생물 목격 사건에 임시 배정합니다. 최근 30일 동안 정체불명의 생물 신고가 7건 접수됐습니다. 본부는 현장 조사가 필요하다고 판단했습니다.";
 
 const posterCopy: Record<string, string> = {
   student_hall: "학생회관 포스터를 통해 접속했습니다. 이 근처에서도 이상한 종소리가 들렸다는 제보가 있습니다.",
@@ -57,6 +58,7 @@ export default function Home() {
   const [locationStatus, setLocationStatus] = useState("위치 확인 전");
   const [foundClues, setFoundClues] = useState<string[]>([]);
   const [caseModalOpen, setCaseModalOpen] = useState(false);
+  const [dropLinkText, setDropLinkText] = useState("");
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(new Date()), 1000 * 20);
@@ -68,6 +70,21 @@ export default function Home() {
     const first = window.setTimeout(() => setMessageStep("first"), 5200);
     return () => window.clearTimeout(first);
   }, [scene]);
+
+  useEffect(() => {
+    if (!caseModalOpen) return;
+
+    let index = 0;
+    const typer = window.setInterval(() => {
+      index += 1;
+      setDropLinkText(dropLinkBriefing.slice(0, index));
+      if (index >= dropLinkBriefing.length) {
+        window.clearInterval(typer);
+      }
+    }, 34);
+
+    return () => window.clearInterval(typer);
+  }, [caseModalOpen]);
 
   const posterId = useMemo(() => {
     if (typeof window === "undefined") return "student_hall";
@@ -118,6 +135,7 @@ export default function Home() {
 
   function handleDropLink() {
     if (messageStep === "first") {
+      setDropLinkText("");
       setCaseModalOpen(true);
       return;
     }
@@ -210,17 +228,25 @@ export default function Home() {
 
           {caseModalOpen && (
             <div className="drop-link-modal" role="dialog" aria-modal="true" aria-labelledby="dropLinkTitle">
-              <div className="drop-link-panel">
-                <div className="drop-link-kicker">DROP LINK 보안 회선</div>
-                <h3 id="dropLinkTitle">현장 조사 배정 상세</h3>
-                <p>사용자 인증이 완료되어 세종대학교 시계탑 이상 현상 조사에 임시 배정됐습니다.</p>
-                <dl>
-                  <div><dt>사건 번호</dt><dd>CD-SJ-01</dd></div>
-                  <div><dt>사건명</dt><dd>시계탑 대형 생물 목격 사건</dd></div>
-                  <div><dt>조사 상태</dt><dd>원인 미확인 · 현장 확인 필요</dd></div>
-                </dl>
-                <p className="drop-link-note">최근 30일 동안 시계탑 꼭대기에서 정체불명의 생물을 봤다는 신고가 7건 접수됐습니다. 본부는 별도의 현장 조사가 필요하다고 판단했습니다.</p>
-                <button className="primary-action" type="button" onClick={closeCaseModal}>사건 개요 수신</button>
+              <div className="drop-link-dialogue">
+                <div className="drop-link-portrait" aria-hidden="true">
+                  <Image src="/campusdrop_logo.png" alt="" width={58} height={58} />
+                </div>
+                <div className="drop-link-speech">
+                  <div className="drop-link-speaker">
+                    <span id="dropLinkTitle">DROP LINK</span>
+                    <em>CAMPUS DROP 운영본부</em>
+                  </div>
+                  <p className="drop-link-type">{dropLinkText}<i aria-hidden="true" /></p>
+                  <button
+                    className="drop-link-next"
+                    type="button"
+                    onClick={closeCaseModal}
+                    disabled={dropLinkText.length < dropLinkBriefing.length}
+                  >
+                    사건 개요 수신
+                  </button>
+                </div>
               </div>
             </div>
           )}
