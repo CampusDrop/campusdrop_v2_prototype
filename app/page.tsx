@@ -193,9 +193,8 @@ export default function Home() {
               type="button"
               onClick={() => (messageStep === "first" ? setMessageStep("second") : moveToScene("mission"))}
             >
-              <span>알 수 없는 발신자</span>
-              <strong>{messageStep === "first" ? "“시계가 틀린 건 내 잘못이야.”" : "“그런데 일부러 그런 건 아니었어.”"}</strong>
-              <em>{messageStep === "first" ? "메시지를 터치하세요" : "첫 미션 받기"}</em>
+              <div className="talk-notice-head"><span>카카오톡</span><em>지금</em></div>
+              <div className="talk-notice-body"><i aria-hidden="true">?</i><div><b>알 수 없는 발신자</b><strong>{messageStep === "first" ? "시계가 틀린 건 내 잘못이야." : "그런데 일부러 그런 건 아니었어."}</strong><small>{messageStep === "first" ? "탭해서 다음 메시지 보기" : "탭해서 첫 미션 받기"}</small></div></div>
             </button>
           )}
         </section>

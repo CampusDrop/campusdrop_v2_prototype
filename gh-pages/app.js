@@ -116,8 +116,8 @@ document.addEventListener("click", (event) => {
   if (unknownMessage) {
     if (messageStep === 0) {
       messageStep = 1;
-      unknownMessage.querySelector("strong").textContent = "“그런데 일부러 그런 건 아니었어.”";
-      unknownMessage.querySelector("em").textContent = "첫 미션 받기";
+      unknownMessage.querySelector("strong").textContent = "그런데 일부러 그런 건 아니었어.";
+      unknownMessage.querySelector("small").textContent = "탭해서 첫 미션 받기";
     } else {
       showScreen("mission");
     }
