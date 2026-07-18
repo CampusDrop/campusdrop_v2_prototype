@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
 type Scene = "entry" | "incident" | "mission" | "arrival";
@@ -244,9 +243,6 @@ export default function Home() {
                 <i />
               </div>
               <div className="drop-link-dialogue">
-                <div className="drop-link-portrait" aria-hidden="true">
-                  <Image src="/campusdrop_logo.png" alt="" width={58} height={58} />
-                </div>
                 <div className="drop-link-speech">
                   <p className="drop-link-type">{dropLinkText}<i aria-hidden="true" /></p>
                   <button
