@@ -166,8 +166,8 @@ export default function Home() {
             <i />
           </div>
           <div className="case-title">
-            <p>시계탑 대형 생물 목격 사건</p>
-            <h1>세종대 시계탑 꼭대기에는 정말 기린이 살고 있을까?</h1>
+            <p>CD-SJ-01 목격 신고 접수</p>
+            <h1>시계탑 꼭대기에서 무언가 목격됐다</h1>
           </div>
           <div className="case-status">
             <span>최근 목격 신고</span>

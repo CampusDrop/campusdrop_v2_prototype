@@ -23,9 +23,9 @@ export async function generateMetadata(): Promise<Metadata> {
     requestHeaders.get("x-forwarded-proto") ??
     (host.startsWith("localhost") ? "http" : "https");
   const metadataBase = new URL(`${protocol}://${host}`);
-  const title = "Campus Drop | 시계탑 대형 생물 목격 사건";
+  const title = "Campus Drop | 시계탑 목격 신고 접수";
   const description =
-    "QR 포스터에서 시작되는 Campus Drop 시계탑 대형 생물 목격 사건 웹 데모.";
+    "QR 포스터에서 시작되는 Campus Drop 시계탑 목격 신고 조사 웹 데모.";
   const socialImage = new URL("/og.png", metadataBase).toString();
 
   return {
