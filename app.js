@@ -2,7 +2,10 @@ const app = document.querySelector("#app");
 const screens = [...document.querySelectorAll("[data-screen]")];
 const reachRadiusMeters = 90;
 const clockTower = { lat: 37.550944, lng: 127.073765 };
-const dropLinkBriefing = "사용자 인증이 완료됐습니다. 사건 CD-SJ-01, 시계탑 대형 생물 목격 사건에 임시 배정합니다. 최근 30일 동안 정체불명의 생물 신고가 7건 접수됐습니다. 본부는 현장 조사가 필요하다고 판단했습니다.";
+const dropLinkBriefings = [
+  "사용자 인증이 완료됐습니다. 사건 CD-SJ-01, 시계탑 대형 생물 목격 사건에 임시 배정합니다.",
+  "최근 30일 동안 정체불명의 생물 신고가 7건 접수됐습니다. 본부는 현장 조사가 필요하다고 판단했습니다.",
+];
 const posterCopy = {
   student_hall: "학생회관 포스터를 통해 접속했습니다. 이 근처에서도 이상한 종소리가 들렸다는 제보가 있습니다.",
   library: "학술정보원 포스터를 통해 접속했습니다. 오늘 새벽, 시계탑 쪽에서 같은 제보가 반복됐습니다.",
@@ -16,6 +19,7 @@ const clueDetails = {
 
 let messageStep = 0;
 let dropLinkTyper = null;
+let dropLinkLine = 0;
 const foundClues = new Set();
 
 function showScreen(name) {
@@ -95,12 +99,15 @@ function startDropLinkTyping() {
   typeTarget.appendChild(cursor);
   nextButton.disabled = true;
 
+  const currentBriefing = dropLinkBriefings[dropLinkLine];
+  nextButton.textContent = dropLinkLine < dropLinkBriefings.length - 1 ? "다음" : "사건 개요 수신";
+
   let index = 0;
   dropLinkTyper = window.setInterval(() => {
     index += 1;
-    typeTarget.textContent = dropLinkBriefing.slice(0, index);
+    typeTarget.textContent = currentBriefing.slice(0, index);
     typeTarget.appendChild(cursor);
-    if (index >= dropLinkBriefing.length) {
+    if (index >= currentBriefing.length) {
       window.clearInterval(dropLinkTyper);
       nextButton.disabled = false;
     }
@@ -138,6 +145,12 @@ document.addEventListener("click", (event) => {
   const closeDropLinkModal = event.target.closest("#closeDropLinkModal");
   if (closeDropLinkModal) {
     if (closeDropLinkModal.disabled) return;
+    if (dropLinkLine < dropLinkBriefings.length - 1) {
+      dropLinkLine += 1;
+      startDropLinkTyping();
+      return;
+    }
+
     const modal = document.querySelector("#dropLinkModal");
     window.clearInterval(dropLinkTyper);
     closeDropLinkModal.disabled = true;
@@ -146,6 +159,7 @@ document.addEventListener("click", (event) => {
       modal.hidden = true;
       modal.classList.remove("is-transfer");
       messageStep = 0;
+      dropLinkLine = 0;
       showScreen("mission");
     }, 1500);
     return;
@@ -154,6 +168,7 @@ document.addEventListener("click", (event) => {
   const unknownMessage = event.target.closest("#unknownMessage");
   if (unknownMessage) {
     if (messageStep === 0) {
+      dropLinkLine = 0;
       document.querySelector("#dropLinkModal").hidden = false;
       startDropLinkTyping();
     } else {
