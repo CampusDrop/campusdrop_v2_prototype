@@ -239,7 +239,7 @@ export default function Home() {
               onClick={handleDropLink}
             >
               <div className="talk-notice-head"><span>DROP LINK</span><em>지금</em></div>
-              <div className="talk-notice-body"><Image className="talk-logo" src="/campusdrop_logo.png" alt="" width={40} height={40} aria-hidden="true" /><div><b>CAMPUS DROP 운영본부</b><strong>{messageStep === "first" ? "사용자 인증이 완료됐습니다. 사건 CD-SJ-01, 시계탑 대형 생물 목격 사건에 임시 배정합니다." : "최근 30일 동안 시계탑 꼭대기에서 정체불명의 생물 신고가 7건 접수됐습니다."}</strong><small>{messageStep === "first" ? "탭해서 사건 개요 보기" : "탭해서 첫 미션 받기"}</small></div></div>
+              <div className="talk-notice-body"><span className="talk-drop-core" aria-hidden="true">DROP</span><div><b>CAMPUS DROP 운영본부</b><strong>{messageStep === "first" ? "사용자 인증이 완료됐습니다. 사건 CD-SJ-01, 시계탑 대형 생물 목격 사건에 임시 배정합니다." : "최근 30일 동안 시계탑 꼭대기에서 정체불명의 생물 신고가 7건 접수됐습니다."}</strong><small>{messageStep === "first" ? "탭해서 사건 개요 보기" : "탭해서 첫 미션 받기"}</small></div></div>
             </button>
           )}
 
