@@ -534,7 +534,7 @@ export default function Home() {
           </div>
 
           <div className="campus-radar">
-            <MissionMap userLocation={userLocation} />
+            <MissionMap />
             <div className="radar-data">
               <div>
                 <span>예상 거리</span>
@@ -846,10 +846,8 @@ function getMapPointStyle(location: { lat: number; lng: number }, bounds: { lngM
   return { left: `${point.x}%`, top: `${point.y}%` };
 }
 
-function MissionMap({ userLocation }: { userLocation: { lat: number; lng: number } | null }) {
+function MissionMap() {
   const mapRef = useRef<HTMLDivElement | null>(null);
-  const kakaoMapRef = useRef<KakaoMap | null>(null);
-  const userMarkerRef = useRef<KakaoMarker | null>(null);
   const [mapState, setMapState] = useState<"loading" | "ready" | "fallback">("loading");
 
   useEffect(() => {
@@ -864,7 +862,6 @@ function MissionMap({ userLocation }: { userLocation: { lat: number; lng: number
       if (cancelled || !mapRef.current || !window.kakao?.maps) return;
       const center = new window.kakao.maps.LatLng(missionTarget.lat, missionTarget.lng);
       const map = new window.kakao.maps.Map(mapRef.current, { center, level: 3 });
-      kakaoMapRef.current = map;
       const markerSize = new window.kakao.maps.Size(48, 60);
       const markerOffset = new window.kakao.maps.Point(24, 60);
       const markerImage = new window.kakao.maps.MarkerImage(investigationMarkerSrc, markerSize, { offset: markerOffset });
@@ -909,18 +906,8 @@ function MissionMap({ userLocation }: { userLocation: { lat: number; lng: number
     };
   }, []);
 
-  useEffect(() => {
-    if (!userLocation || !window.kakao?.maps || !kakaoMapRef.current) return;
-    const position = new window.kakao.maps.LatLng(userLocation.lat, userLocation.lng);
-    if (!userMarkerRef.current) {
-      userMarkerRef.current = new window.kakao.maps.Marker({ position, title: "내 위치" });
-      userMarkerRef.current.setMap(kakaoMapRef.current);
-      return;
-    }
-    userMarkerRef.current.setPosition?.(position);
-  }, [userLocation]);
 
-  const fallbackSrc = `https://www.openstreetmap.org/export/embed.html?bbox=${missionTarget.lng - 0.003}%2C${missionTarget.lat - 0.002}%2C${missionTarget.lng + 0.003}%2C${missionTarget.lat + 0.002}&layer=mapnik&marker=${missionTarget.lat}%2C${missionTarget.lng}`;
+  const fallbackSrc = `https://www.openstreetmap.org/export/embed.html?bbox=${missionTarget.lng - 0.003}%2C${missionTarget.lat - 0.002}%2C${missionTarget.lng + 0.003}%2C${missionTarget.lat + 0.002}&layer=mapnik`;
 
   return (
     <div className="real-map-shell">
@@ -929,8 +916,6 @@ function MissionMap({ userLocation }: { userLocation: { lat: number; lng: number
       ) : (
         <div ref={mapRef} className="real-map-canvas" aria-label="농동로 209 잔디밭 실제 지도" />
       )}
-      <div className="map-investigation-marker" aria-hidden="true" />
-      {userLocation && <div className="map-user-marker" aria-hidden="true" style={getFallbackUserMarkerStyle(userLocation)} />}
       <div className="map-target-panel">
         <span>조사 지점</span>
         <strong>농동로 209 잔디밭</strong>
@@ -942,12 +927,3 @@ function MissionMap({ userLocation }: { userLocation: { lat: number; lng: number
 }
 
 
-function getFallbackUserMarkerStyle(location: { lat: number; lng: number }) {
-  const lngMin = missionTarget.lng - 0.003;
-  const lngMax = missionTarget.lng + 0.003;
-  const latMin = missionTarget.lat - 0.002;
-  const latMax = missionTarget.lat + 0.002;
-  const x = Math.min(88, Math.max(12, ((location.lng - lngMin) / (lngMax - lngMin)) * 100));
-  const y = Math.min(88, Math.max(12, (1 - (location.lat - latMin) / (latMax - latMin)) * 100));
-  return { left: `${x}%`, top: `${y}%` };
-}
