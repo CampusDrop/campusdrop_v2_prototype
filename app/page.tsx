@@ -1312,33 +1312,47 @@ export default function Home() {
 
       {scene === "imagination" && (
         <section className="screen imagination-screen">
-          <div className="mission-copy">
+          <div className="mission-copy imagination-hero-copy">
             <p>3장</p>
-            <h2>나만의 상상</h2>
-            <span>2장에서 확보한 세 기록을 시간순으로 다시 비교합니다. CAMPUSDROP은 아직 차이를 특정하지 못했습니다.</span>
+            <h2>기록 재분석실</h2>
+            <span>이미 정렬된 세 기록을 다시 열어, 시간의 흐름 속에서 달라진 외형 신호를 찾아냅니다.</span>
           </div>
 
-          <div className="order-quiz-panel imagination-panel">
-            <div className="order-quiz-copy">
+          <div className="imagination-lab-panel">
+            <div className="lab-status-header">
               <span>CAMPUSDROP 증거 분석 지시</span>
-              <strong>획득한 세 건의 증거물을 시간순으로 비교하십시오.</strong>
-              <p>기록 속 개체의 외형에서 달라진 점이나 특별한 특징이 발견된다면, 해당 요소를 영문으로 보고하십시오.</p>
+              <strong>세 기록의 외형 변화만 추적하십시오.</strong>
+              <p>순서는 이미 확정되었습니다. 이번 조사는 배열이 아니라, 같은 개체가 시대별로 어떻게 달라졌는지 비교하는 단계입니다.</p>
+              <div className="lab-signal-row" aria-label="분석 상태">
+                <i>ORDER LOCKED</i>
+                <i>VISUAL SCAN</i>
+                <i>{starSolved ? "FEATURE FOUND" : "FEATURE UNKNOWN"}</i>
+              </div>
             </div>
+
             <div className={`imagination-record-grid${starSolved ? " is-solved" : ""}`} aria-label="시간순 기록 비교">
               {chapterThreeRecords.map((record, index) => (
                 <button key={record.id} type="button" className="imagination-record-card" onClick={() => setChapterThreePreviewIndex(index)}>
-                  <span>{record.name}</span>
+                  <span>{String(index + 1).padStart(2, "0")}</span>
                   <div style={{ backgroundImage: `url(${record.photo})` }} role="img" aria-label={record.recordTitle} />
                   <strong>{record.recordTitle}</strong>
+                  <small>{index === 0 ? "최초 기록" : index === 1 ? "중간 기록" : "최근 기록"}</small>
                 </button>
               ))}
             </div>
-            <label className="word-submit">
-              <span>특징 보고</span>
-              <input value={starAnswer} onChange={(event) => setStarAnswer(event.target.value)} placeholder="영문 정답 입력" aria-label="특징 보고" disabled={starSolved} />
-            </label>
-            <button className="primary-action" type="button" onClick={submitStarAnswer} disabled={starSolved}>분석 보고 제출</button>
-            <p className={`order-feedback${starSolved ? " is-correct" : ""}`}>{starFeedback}</p>
+
+            <div className="feature-report-console">
+              <div>
+                <span>외형 변화 보고</span>
+                <strong>기록 속 개체에서 반복되거나 새로 나타난 특징을 영문으로 입력하세요.</strong>
+              </div>
+              <label className="word-submit">
+                <span>특징 보고</span>
+                <input value={starAnswer} onChange={(event) => setStarAnswer(event.target.value)} placeholder="영문 정답 입력" aria-label="특징 보고" disabled={starSolved} />
+              </label>
+              <button className="primary-action" type="button" onClick={submitStarAnswer} disabled={starSolved}>분석 보고 제출</button>
+              <p className={`order-feedback${starSolved ? " is-correct" : ""}`}>{starFeedback}</p>
+            </div>
           </div>
 
           {starSolved && (
