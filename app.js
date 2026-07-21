@@ -144,6 +144,7 @@ function initMissionMap() {
 
   missionMapReady = true;
   shell.querySelector("iframe")?.remove();
+  shell.querySelectorAll(".mission-fallback-overlay").forEach((item) => item.remove());
   const canvas = document.createElement("div");
   canvas.className = "real-map-canvas";
   canvas.setAttribute("aria-label", "농동로 209 잔디밭 실제 지도");

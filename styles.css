@@ -535,6 +535,29 @@ button:focus-visible {
 
 
 
+
+
+.map-range-circle {
+  position: absolute;
+  z-index: 2;
+  width: 124px;
+  aspect-ratio: 1;
+  border: 2px solid rgba(56, 211, 159, 0.88);
+  border-radius: 999px;
+  background: rgba(56, 211, 159, 0.14);
+  box-shadow: 0 0 24px rgba(56, 211, 159, 0.24), inset 0 0 24px rgba(56, 211, 159, 0.12);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+.map-range-circle::after {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border: 1px solid rgba(56, 211, 159, 0.2);
+  border-radius: inherit;
+}
+
 .map-investigation-marker {
   position: absolute;
   left: 50%;
