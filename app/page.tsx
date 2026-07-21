@@ -501,6 +501,7 @@ export default function Home() {
           evidenceTimerRef.current = null;
           window.setTimeout(() => {
             setEvidenceSending(false);
+            moveToScene("witness");
             setDropLinkMode("clue");
             setDropLinkLine(0);
             setDropLinkText("");
