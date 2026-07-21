@@ -59,6 +59,7 @@ let evidenceSending = false;
 let evidenceProgress = 0;
 let evidenceTimer = null;
 let missionMapReady = false;
+let witnessMapReady = false;
 let locationRefreshTimer = null;
 let locationInReach = false;
 let witnessRefreshTimer = null;
@@ -263,7 +264,71 @@ function stopMissionLocationUpdates() {
 }
 
 function initWitnessScene() {
+  initWitnessMap();
   updateWitnessUi();
+}
+
+function initWitnessMap() {
+  if (witnessMapReady) return;
+  const shell = document.querySelector("#witnessMap");
+  const loading = document.querySelector("#witnessMapLoading");
+  const key = new URLSearchParams(window.location.search).get("kakaoKey");
+  if (!shell || !key) return;
+
+  witnessMapReady = true;
+  shell.querySelector("iframe")?.remove();
+  shell.querySelector("#witnessLines")?.remove();
+  shell.querySelector(".tower-target-marker")?.remove();
+  shell.querySelectorAll("[data-witness-map]").forEach((item) => item.remove());
+  shell.querySelector("#witnessUserMarker")?.remove();
+  shell.querySelector(".witness-map-panel")?.remove();
+  const canvas = document.createElement("div");
+  canvas.className = "real-map-canvas";
+  canvas.setAttribute("aria-label", "에너지 지점 실제 지도");
+  shell.prepend(canvas);
+  if (loading) loading.textContent = "지도 불러오는 중...";
+
+  const renderMap = () => {
+    if (!window.kakao?.maps) return;
+    window.kakao.maps.load(() => {
+      const center = new window.kakao.maps.LatLng(37.55106257128708, 127.07392616012359);
+      const map = new window.kakao.maps.Map(canvas, { center, level: 3 });
+      witnesses.forEach((witness) => {
+        const marker = document.createElement("button");
+        marker.type = "button";
+        marker.className = `witness-map-marker${activeWitnessId === witness.id ? " is-active" : ""}${visitedWitnesses[witness.id] ? " is-visited" : ""}`;
+        marker.dataset.witnessOverlay = witness.id;
+        marker.textContent = witness.id;
+        marker.setAttribute("aria-label", `${witness.name} 위치`);
+        marker.addEventListener("click", () => selectWitness(witness.id));
+        const position = new window.kakao.maps.LatLng(witness.location.lat, witness.location.lng);
+        new window.kakao.maps.CustomOverlay({ position, content: marker, xAnchor: 0.5, yAnchor: 0.5 }).setMap(map);
+      });
+      if (loading) loading.hidden = true;
+    });
+  };
+
+  if (window.kakao?.maps) {
+    renderMap();
+    return;
+  }
+
+  const existingScript = document.querySelector("#kakao-map-sdk");
+  if (existingScript) {
+    existingScript.addEventListener("load", renderMap, { once: true });
+    return;
+  }
+
+  const script = document.createElement("script");
+  script.id = "kakao-map-sdk";
+  script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${encodeURIComponent(key)}&autoload=false`;
+  script.async = true;
+  script.onload = renderMap;
+  script.onerror = () => {
+    witnessMapReady = false;
+    if (loading) loading.textContent = "지도를 불러오지 못했습니다. Kakao JavaScript 키를 확인해 주세요.";
+  };
+  document.head.appendChild(script);
 }
 
 function applyWitnessLocation(position, options = {}) {
@@ -381,6 +446,8 @@ function updateWitnessUi() {
     document.querySelector(`[data-witness-card="${witness.id}"]`)?.classList.toggle("is-visited", visitedWitnesses[witness.id]);
     document.querySelector(`[data-witness-map="${witness.id}"]`)?.classList.toggle("is-active", activeWitnessId === witness.id);
     document.querySelector(`[data-witness-map="${witness.id}"]`)?.classList.toggle("is-visited", visitedWitnesses[witness.id]);
+    document.querySelector(`[data-witness-overlay="${witness.id}"]`)?.classList.toggle("is-active", activeWitnessId === witness.id);
+    document.querySelector(`[data-witness-overlay="${witness.id}"]`)?.classList.toggle("is-visited", visitedWitnesses[witness.id]);
     const photo = document.querySelector(`[data-witness-photo="${witness.id}"]`);
     if (photo) {
       photo.classList.toggle("is-open", visitedWitnesses[witness.id]);

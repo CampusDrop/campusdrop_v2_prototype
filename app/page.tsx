@@ -21,6 +21,7 @@ type KakaoMapsApi = {
   Point: new (x: number, y: number) => object;
   MarkerImage: new (src: string, size: object, options?: { offset?: object }) => KakaoMarkerImage;
   Marker: new (options: { position: KakaoLatLng; title?: string; image?: KakaoMarkerImage }) => KakaoMarker;
+  CustomOverlay: new (options: { position: KakaoLatLng; content: HTMLElement; xAnchor?: number; yAnchor?: number }) => { setMap: (map: KakaoMap) => void };
   Circle: new (options: {
     center: KakaoLatLng;
     radius: number;
@@ -929,7 +930,17 @@ function WitnessMap({
     const renderMap = () => {
       if (cancelled || !mapRef.current || !window.kakao?.maps) return;
       const center = new window.kakao.maps.LatLng(towerTarget.lat, towerTarget.lng);
-      new window.kakao.maps.Map(mapRef.current, { center, level: 3 });
+      const map = new window.kakao.maps.Map(mapRef.current, { center, level: 3 });
+      witnesses.forEach((witness) => {
+        const position = new window.kakao.maps.LatLng(witness.location.lat, witness.location.lng);
+        const marker = document.createElement("button");
+        marker.type = "button";
+        marker.className = `witness-map-marker${activeWitnessId === witness.id ? " is-active" : ""}${visitedWitnesses[witness.id] ? " is-visited" : ""}`;
+        marker.textContent = witness.id;
+        marker.setAttribute("aria-label", `${witness.name} 위치`);
+        marker.addEventListener("click", () => onSelectWitness(witness.id));
+        new window.kakao.maps.CustomOverlay({ position, content: marker, xAnchor: 0.5, yAnchor: 0.5 }).setMap(map);
+      });
       setMapState("ready");
     };
 
@@ -959,7 +970,7 @@ function WitnessMap({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [activeWitnessId, onSelectWitness, visitedWitnesses]);
 
   const points = [...witnesses.map((witness) => witness.location), towerTarget];
   const lngValues = points.map((point) => point.lng);
@@ -979,7 +990,7 @@ function WitnessMap({
       ) : (
         <div ref={mapRef} className="real-map-canvas" aria-label="목격 지점 실제 지도" />
       )}
-      <svg className="witness-line-layer" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      {mapState === "fallback" && <svg className="witness-line-layer" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
         {witnesses.map((witness) => {
           const direction = witnessDirections[witness.id];
           if (!direction) return null;
@@ -996,9 +1007,8 @@ function WitnessMap({
             />
           );
         })}
-      </svg>
-      <div className="tower-target-marker" style={getMapPointStyle(towerTarget, bounds)} aria-hidden="true"><span /></div>
-      {witnesses.map((witness) => (
+      </svg>}
+      {mapState === "fallback" && witnesses.map((witness) => (
         <button
           key={witness.id}
           type="button"
@@ -1010,8 +1020,8 @@ function WitnessMap({
           {witness.id}
         </button>
       ))}
-      {userLocation && <div className="map-user-marker" aria-hidden="true" style={getMapPointStyle(userLocation, bounds)} />}
-      <div className="map-target-panel witness-map-panel"><span>추정 교차 지점</span><strong>대양타워 상부</strong></div>
+      {mapState === "fallback" && userLocation && <div className="map-user-marker" aria-hidden="true" style={getMapPointStyle(userLocation, bounds)} />}
+      
       {mapState === "loading" && <p className="map-loading">지도 불러오는 중...</p>}
       {mapState === "fallback" && <p className="map-loading">Kakao 키 없이 실제 지도 미리보기 표시 중</p>}
     </div>
