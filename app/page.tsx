@@ -463,14 +463,27 @@ export default function Home() {
       return;
     }
 
+    const nextScene = dropLinkMode === "case" ? "mission" : "witness";
+    if (dropLinkMode === "clue") {
+      setCaseModalOpen(false);
+      setCaseTransferActive(false);
+      setMessageStep("hidden");
+      setDropLinkMode("case");
+      setDropLinkLine(0);
+      setDropLinkText("");
+      moveToScene("witness");
+      return;
+    }
+
     setCaseTransferActive(true);
     window.setTimeout(() => {
       setCaseModalOpen(false);
       setCaseTransferActive(false);
       setMessageStep("hidden");
+      setDropLinkMode("case");
       setDropLinkLine(0);
       setDropLinkText("");
-      moveToScene(dropLinkMode === "case" ? "mission" : "witness");
+      moveToScene(nextScene);
     }, 1500);
   }
 

@@ -704,6 +704,15 @@ document.addEventListener("click", (event) => {
     const modal = document.querySelector("#dropLinkModal");
     window.clearInterval(dropLinkTyper);
     closeDropLinkModal.disabled = true;
+    if (dropLinkMode === "clue") {
+      modal.hidden = true;
+      messageStep = 0;
+      dropLinkLine = 0;
+      dropLinkMode = "case";
+      closeDropLinkModal.disabled = false;
+      showScreen("witness");
+      return;
+    }
     modal.classList.add("is-transfer");
     window.setTimeout(() => {
       modal.hidden = true;
@@ -712,6 +721,7 @@ document.addEventListener("click", (event) => {
       dropLinkLine = 0;
       showScreen(dropLinkMode === "case" ? "mission" : "witness");
       dropLinkMode = "case";
+      closeDropLinkModal.disabled = false;
     }, 1500);
     return;
   }
