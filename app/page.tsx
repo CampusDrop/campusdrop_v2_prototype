@@ -484,7 +484,7 @@ export default function Home() {
     if (evidenceTimerRef.current !== null) window.clearInterval(evidenceTimerRef.current);
     evidenceTimerRef.current = window.setInterval(() => {
       setEvidenceProgress((current) => {
-        const next = Math.min(100, current + 4);
+        const next = Math.min(100, current + 1);
         if (next >= 100) {
           if (evidenceTimerRef.current !== null) window.clearInterval(evidenceTimerRef.current);
           evidenceTimerRef.current = null;
@@ -495,11 +495,11 @@ export default function Home() {
             setDropLinkText("");
             setCaseModalOpen(true);
             triggerDropLinkVibration();
-          }, 520);
+          }, 2000);
         }
         return next;
       });
-    }, 46);
+    }, 50);
   }
 
   return (

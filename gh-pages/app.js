@@ -500,7 +500,7 @@ function startEvidenceTransmission() {
   updateEvidenceTransmissionUi();
   if (evidenceTimer !== null) window.clearInterval(evidenceTimer);
   evidenceTimer = window.setInterval(() => {
-    evidenceProgress = Math.min(100, evidenceProgress + 4);
+    evidenceProgress = Math.min(100, evidenceProgress + 1);
     updateEvidenceTransmissionUi();
     if (evidenceProgress >= 100) {
       window.clearInterval(evidenceTimer);
@@ -513,9 +513,9 @@ function startEvidenceTransmission() {
         document.querySelector("#dropLinkModal").hidden = false;
         startDropLinkTyping();
         triggerDropLinkVibration();
-      }, 520);
+      }, 2000);
     }
-  }, 46);
+  }, 50);
 }
 
 function checkLocation() {
