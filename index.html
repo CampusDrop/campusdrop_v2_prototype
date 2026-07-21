@@ -8,7 +8,7 @@
       name="description"
       content="QR 포스터에서 시작되는 Campus Drop 시계탑 목격 신고 조사 웹 데모"
     />
-    <link rel="stylesheet" href="./styles.css?v=chapter2-cleanup" />
+    <link rel="stylesheet" href="./styles.css?v=report-submit-flow" />
   </head>
   <body>
     <main class="case-app scene-entry" id="app">
@@ -188,6 +188,21 @@
           </div>
         </div>
       </section>
+
+
+      <div class="transmission-modal report-transmission-modal" id="witnessReportModal" role="dialog" aria-modal="true" aria-label="보고서 제출 중" hidden>
+        <div class="transmission-card">
+          <span>DROPLINK REPORT</span>
+          <strong id="witnessReportModalTitle">보고서를 운영본부에 제출 중</strong>
+          <p id="witnessReportModalCopy">식별 문자와 생물 명칭 보고를 묶어 보안 분석 서버로 전송합니다.</p>
+          <div class="transmission-steps">
+            <div><span>01</span><strong>식별 문자 결합</strong><em data-report-step="34">대기</em></div>
+            <div><span>02</span><strong>생물 명칭 검증</strong><em data-report-step="68">대기</em></div>
+            <div><span>03</span><strong>추가 분석 채널 개방</strong><em data-report-step="100">대기</em></div>
+            <div class="transmission-progress" aria-label="보고서 제출 진행률"><i id="witnessReportProgressBar"></i><strong id="witnessReportProgressText">0%</strong></div>
+          </div>
+        </div>
+      </div>
 
 
       <div class="order-analysis-modal" id="orderAnalysisModal" role="dialog" aria-modal="true" aria-label="기록 배열 분석 중" hidden>
@@ -405,6 +420,6 @@
         <button class="primary-action" type="button" id="closeEvidencePreview">닫기</button>
       </div>
     </div>
-    <script src="./app.js?v=chapter2-cleanup"></script>
+    <script src="./app.js?v=report-submit-flow"></script>
   </body>
 </html>
