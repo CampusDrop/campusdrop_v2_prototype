@@ -3097,7 +3097,7 @@ button:focus-visible {
 }
 
 .restore-page-image {
-  background-image: url('/originGF.png');
+  background-image: url('originGF.png');
   background-position: center;
   background-size: cover;
   filter: saturate(0.96) contrast(1.02);
