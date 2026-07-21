@@ -64,8 +64,6 @@ let messageStep = 0;
 let dropLinkTyper = null;
 let dropLinkLine = 0;
 let missionMapReady = false;
-let missionMapInstance = null;
-let userMarker = null;
 let locationRefreshTimer = null;
 let locationInReach = false;
 let witnessRefreshTimer = null;
@@ -154,7 +152,6 @@ function initMissionMap() {
     window.kakao.maps.load(() => {
       const center = new window.kakao.maps.LatLng(missionTarget.lat, missionTarget.lng);
       const map = new window.kakao.maps.Map(canvas, { center, level: 3 });
-      missionMapInstance = map;
       const markerSize = new window.kakao.maps.Size(48, 60);
       const markerOffset = new window.kakao.maps.Point(24, 60);
       const markerImage = new window.kakao.maps.MarkerImage(investigationMarkerSrc, markerSize, { offset: markerOffset });
@@ -216,29 +213,6 @@ function updateScanStartButton() {
   button.textContent = locationInReach ? "카메라로 노란털 조사 시작" : "20m 안에서 조사 시작 가능";
 }
 
-function updateMapUserMarker(location) {
-  const fallbackMarker = document.querySelector("#missionMap .map-user-marker");
-  if (fallbackMarker) {
-    const lngMin = missionTarget.lng - 0.003;
-    const lngMax = missionTarget.lng + 0.003;
-    const latMin = missionTarget.lat - 0.002;
-    const latMax = missionTarget.lat + 0.002;
-    const x = Math.min(88, Math.max(12, ((location.lng - lngMin) / (lngMax - lngMin)) * 100));
-    const y = Math.min(88, Math.max(12, (1 - (location.lat - latMin) / (latMax - latMin)) * 100));
-    fallbackMarker.style.left = `${x}%`;
-    fallbackMarker.style.top = `${y}%`;
-    fallbackMarker.hidden = false;
-  }
-
-  if (!window.kakao?.maps || !missionMapInstance) return;
-  const position = new window.kakao.maps.LatLng(location.lat, location.lng);
-  if (!userMarker) {
-    userMarker = new window.kakao.maps.Marker({ position, title: "내 위치" });
-    userMarker.setMap(missionMapInstance);
-    return;
-  }
-  userMarker.setPosition(position);
-}
 
 function applyMissionLocation(position, options = {}) {
   const location = { lat: position.coords.latitude, lng: position.coords.longitude };
@@ -247,7 +221,6 @@ function applyMissionLocation(position, options = {}) {
   document.querySelector("#locationUpdatedText").textContent = new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
   locationInReach = distance <= reachRadiusMeters;
   updateScanStartButton();
-  updateMapUserMarker(location);
 
   if (options.silent) return;
   const status = document.querySelector("#locationStatus");
