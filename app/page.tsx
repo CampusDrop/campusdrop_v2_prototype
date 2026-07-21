@@ -225,6 +225,7 @@ export default function Home() {
   const [witnessStatus, setWitnessStatus] = useState("에너지 반응이 강한 지점 3곳을 방문해 자료 이미지를 확보하세요.");
   const [acquiredWitnessId, setAcquiredWitnessId] = useState<string | null>(null);
   const [arrangeBriefingQueued, setArrangeBriefingQueued] = useState(false);
+  const arrangeBriefingQueuedRef = useRef(false);
   const [witnessOrder, setWitnessOrder] = useState<string[]>(["A", "C", "B"]);
   const [selectedOrderCardId, setSelectedOrderCardId] = useState<string | null>(null);
   const [witnessOrderSubmitted, setWitnessOrderSubmitted] = useState(false);
@@ -371,13 +372,15 @@ export default function Home() {
     triggerEvidenceVibration();
     setWitnessStatus(`${witness.name} 자료 이미지를 확보했습니다. 획득 자료를 확인하세요.`);
     if (witnesses.every((item) => nextVisited[item.id])) {
+      arrangeBriefingQueuedRef.current = true;
       setArrangeBriefingQueued(true);
     }
   }
 
   function closeWitnessAcquisition() {
     setAcquiredWitnessId(null);
-    if (!arrangeBriefingQueued) return;
+    if (!arrangeBriefingQueuedRef.current && !arrangeBriefingQueued) return;
+    arrangeBriefingQueuedRef.current = false;
     setArrangeBriefingQueued(false);
     window.setTimeout(() => {
       setDropLinkMode("arrange");
