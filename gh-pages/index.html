@@ -169,7 +169,7 @@
         <div class="mission-copy">
           <p>2장</p>
           <h2>목격 지점을 연결하라</h2>
-          <span>세 목표 지점의 반경 10m 안에 들어가 증거 사진을 확보한 뒤, 운영본부 지시에 따라 방향을 표시하세요.</span>
+          <span>지도에 표시된 세 에너지 지점의 반경 10m 안에 들어가 현장 사진을 확보하세요.</span>
         </div>
         <div class="campus-radar witness-radar">
           <div class="real-map-shell witness-map-shell" id="witnessMap">
@@ -186,38 +186,35 @@
           <div class="radar-data witness-data">
             <div><span>조사 범위</span><strong>10m</strong></div>
             <div><span>확보한 사진</span><strong id="visitedWitnessText">0/3</strong></div>
-            <div><span>방향 표시</span><strong id="directionWitnessText">0/3</strong></div>
+            <div><span>에너지 방향</span><strong id="directionWitnessText">0/3</strong></div>
           </div>
         </div>
-        <p class="location-status" id="witnessStatus">목격 지점 3곳을 방문해 진술과 방향을 확인하세요.</p>
+        <p class="location-status" id="witnessStatus">에너지 지점 3곳을 방문해 현장 사진을 확보하세요.</p>
         <div class="mission-actions witness-actions">
           <button class="secondary-action" type="button" id="checkWitnessLocation">현재 위치 즉시 갱신</button>
           <button class="text-scan-refresh" type="button" id="adminArriveWitness">관리자 권한으로 도착 완료</button>
         </div>
-        <div class="witness-list" aria-label="목격자 진술 목록">
+        <div class="witness-list" aria-label="에너지 지점 사진 목록">
           <article class="witness-card is-active" data-witness-card="A">
             <button type="button" class="witness-card-head" data-select-witness="A"><span>목격자 A</span><strong>잔디밭 남서쪽</strong><em data-witness-distance="A">거리 측정 전</em></button>
-            <div class="witness-statement"><p data-witness-statement="A">현장 반경 10m 안에 들어가면 증거 사진을 획득하고 진술이 열립니다.</p></div>
             <div class="witness-photo is-locked" data-witness-photo="A"><img src="./gfPhoto_03.png" alt="목격자 A 목격 기록 사진" hidden><span>현장 사진 잠김</span></div>
             <div class="direction-picker" data-direction-picker="A"></div>
           </article>
           <article class="witness-card" data-witness-card="B">
             <button type="button" class="witness-card-head" data-select-witness="B"><span>목격자 B</span><strong>북쪽 보행로</strong><em data-witness-distance="B">거리 측정 전</em></button>
-            <div class="witness-statement"><p data-witness-statement="B">현장 반경 10m 안에 들어가면 증거 사진을 획득하고 진술이 열립니다.</p></div>
             <div class="witness-photo is-locked" data-witness-photo="B"><img src="./gfPhoto_02.png" alt="목격자 B 목격 기록 사진" hidden><span>현장 사진 잠김</span></div>
             <div class="direction-picker" data-direction-picker="B"></div>
           </article>
           <article class="witness-card" data-witness-card="C">
             <button type="button" class="witness-card-head" data-select-witness="C"><span>목격자 C</span><strong>동쪽 진입로</strong><em data-witness-distance="C">거리 측정 전</em></button>
-            <div class="witness-statement"><p data-witness-statement="C">현장 반경 10m 안에 들어가면 증거 사진을 획득하고 진술이 열립니다.</p></div>
             <div class="witness-photo is-locked" data-witness-photo="C"><img src="./gfPhoto_01.png" alt="목격자 C 목격 기록 사진" hidden><span>현장 사진 잠김</span></div>
             <div class="direction-picker" data-direction-picker="C"></div>
           </article>
         </div>
         <div class="conclusion witness-conclusion" id="witnessConclusion" aria-live="polite">
           <span>운영본부 분석 대기</span>
-          <strong>세 목격자의 위치와 방향을 모두 표시하세요.</strong>
-          <p>현장 관찰을 바탕으로 목격자가 바라본 방향을 선택하면 지도 위에 추정선이 표시됩니다.</p>
+          <strong>세 지점의 사진을 확보하고 에너지 방향을 표시하세요.</strong>
+          <p>확보한 사진을 바탕으로 에너지 방향을 선택하면 지도 위에 추정선이 표시됩니다.</p>
         </div>
       </section>
     </main>
@@ -227,7 +224,7 @@
         <span>Evidence Acquired</span>
         <strong id="witnessAcquisitionTitle">증거 사진 획득</strong>
         <div class="witness-acquisition-photo" id="witnessAcquisitionPhoto" role="img" aria-label="증거 사진"></div>
-        <p>목표 지점 반경 10m 안에서 현장 기록을 확보했습니다. 카드에 저장된 진술과 사진을 비교하세요.</p>
+        <p>목표 지점 반경 10m 안에서 현장 사진을 확보했습니다. 사진은 2장 분석 카드에 저장됩니다.</p>
         <button class="primary-action" type="button" id="closeWitnessAcquisition">자료 확인 완료</button>
       </div>
     </div>

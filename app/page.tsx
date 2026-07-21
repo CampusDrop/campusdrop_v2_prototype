@@ -77,7 +77,6 @@ const witnesses = [
     place: "잔디밭 남서쪽",
     location: { lat: 37.55009418972363, lng: 127.0736196575354 },
     photo: "/gfPhoto_03.png",
-    statement: "분명히 위쪽이었습니다. 나무보다 훨씬 높은 곳에서 긴 그림자가 시계탑 쪽으로 움직였어요.",
     correctDirection: "N" as DirectionKey,
   },
   {
@@ -86,7 +85,6 @@ const witnesses = [
     place: "북쪽 보행로",
     location: { lat: 37.55143211168644, lng: 127.07371716568217 },
     photo: "/gfPhoto_02.png",
-    statement: "대양타워 쪽을 내려다보는 것 같았어요. 창문 위로 노란 무늬가 잠깐 스쳤습니다.",
     correctDirection: "SE" as DirectionKey,
   },
   {
@@ -95,7 +93,6 @@ const witnesses = [
     place: "동쪽 진입로",
     location: { lat: 37.550652047104954, lng: 127.0748310833212 },
     photo: "/gfPhoto_01.png",
-    statement: "처음엔 조형물인 줄 알았는데, 고개가 천천히 북서쪽으로 돌아갔습니다.",
     correctDirection: "NW" as DirectionKey,
   },
 ];
@@ -106,11 +103,12 @@ const dropLinkBriefings = [
 const clueTransmissionBriefings = [
   "표본 A 수신 완료. 위치 기록과 촬영 시점이 현장 조사 로그에 정상 연결됐습니다.",
   "노란색 섬유는 인공 재료가 아닙니다. 기존 동물 자료와 정확히 일치하지 않지만, 대형 초식동물의 체모 특성과 유사합니다.",
-  "같은 구역에서 접수된 세 건의 목격 기록을 개방합니다. 다음 미션은 목격 지점을 연결하는 현장 추론 조사입니다.",
+  "표본 분석 중 같은 구역에서 비정상적인 에너지 반응 3곳을 확인했습니다. 해당 지점을 지도상에 표시합니다.",
+  "각 목적지 반경 10m 안에 진입하면 현장 사진이 자동으로 확보됩니다. 세 사진을 모두 회수한 뒤, 에너지 방향을 연결해 대상을 추론하세요.",
 ];
 const witnessArrangeBriefings = [
   "목격 기록 사진 3건이 모두 확보됐습니다. 각 기록은 서로 다른 시점과 위치에서 수집된 자료입니다.",
-  "이제 세 목격자가 바라본 방향을 순서대로 표시하세요. 현장 사진과 진술을 비교해 시선이 교차하는 지점을 찾아야 합니다.",
+  "이제 세 지점에서 감지된 에너지 방향을 순서대로 표시하세요. 확보한 사진을 비교해 반응이 교차하는 지점을 찾아야 합니다.",
   "세 방향선이 하나의 지점에서 겹치면, 목격 대상이 어디에 있었는지 운영본부가 분석할 수 있습니다.",
 ];
 
@@ -262,7 +260,7 @@ export default function Home() {
     if (!witness) return;
     setActiveWitnessId(witness.id);
     if (visitedWitnesses[witness.id]) {
-      if (!options.silent) setWitnessStatus(`${witness.name} 기록은 이미 확보했습니다. 진술을 확인하고 바라본 방향을 표시하세요.`);
+      if (!options.silent) setWitnessStatus(`${witness.name} 사진은 이미 확보했습니다. 사진을 확인하고 에너지 방향을 표시하세요.`);
       return;
     }
 
@@ -609,7 +607,7 @@ export default function Home() {
                     onClick={advanceDropLinkDialogue}
                     disabled={dropLinkText.length < getActiveDropLinkBriefings(dropLinkMode)[dropLinkLine].length || caseTransferActive}
                   >
-                    {dropLinkLine < getActiveDropLinkBriefings(dropLinkMode).length - 1 ? "다음" : dropLinkMode === "case" ? "사건 개요 수신" : dropLinkMode === "arrange" ? "배열 미션 시작" : "다음 미션 수신"}
+                    {dropLinkLine < getActiveDropLinkBriefings(dropLinkMode).length - 1 ? "다음" : dropLinkMode === "case" ? "사건 개요 수신" : dropLinkMode === "arrange" ? "배열 미션 시작" : "2장으로 이동"}
                   </button>
                 </div>
               </div>
@@ -759,7 +757,7 @@ export default function Home() {
           <div className="mission-copy">
             <p>2장</p>
             <h2>목격 지점을 연결하라</h2>
-            <span>세 목표 지점의 반경 10m 안에 들어가 증거 사진을 확보한 뒤, 운영본부 지시에 따라 방향을 표시하세요.</span>
+            <span>지도에 표시된 세 에너지 지점의 반경 10m 안에 들어가 현장 사진을 확보하세요.</span>
           </div>
 
           <div className="campus-radar witness-radar">
@@ -773,7 +771,7 @@ export default function Home() {
             <div className="radar-data witness-data">
               <div><span>조사 범위</span><strong>{witnessReachRadiusMeters}m</strong></div>
               <div><span>확보한 사진</span><strong>{witnesses.filter((witness) => visitedWitnesses[witness.id]).length}/3</strong></div>
-              <div><span>방향 표시</span><strong>{witnesses.filter((witness) => witnessDirections[witness.id]).length}/3</strong></div>
+              <div><span>에너지 방향</span><strong>{witnesses.filter((witness) => witnessDirections[witness.id]).length}/3</strong></div>
             </div>
           </div>
 
@@ -783,7 +781,7 @@ export default function Home() {
             <button className="text-scan-refresh" type="button" onClick={markActiveWitnessArrived}>관리자 권한으로 도착 완료</button>
           </div>
 
-          <div className="witness-list" aria-label="목격자 진술 목록">
+          <div className="witness-list" aria-label="에너지 지점 사진 목록">
             {witnesses.map((witness) => {
               const isActive = activeWitnessId === witness.id;
               const isVisited = visitedWitnesses[witness.id];
@@ -795,9 +793,6 @@ export default function Home() {
                     <strong>{witness.place}</strong>
                     <em>{witnessDistances[witness.id] === null ? "거리 측정 전" : `${witnessDistances[witness.id]}m`}</em>
                   </button>
-                  <div className="witness-statement">
-                    <p>{isVisited ? witness.statement : "현장 반경 10m 안에 들어가면 증거 사진을 획득하고 진술이 열립니다."}</p>
-                  </div>
                   <div className={`witness-photo${isVisited ? " is-open" : " is-locked"}`}>
                     {isVisited ? (
                       <div
@@ -830,8 +825,8 @@ export default function Home() {
 
           <div className={`conclusion witness-conclusion${witnessSolved ? " is-open" : ""}`} aria-live="polite">
             <span>{witnessSolved ? "분석 완료" : "운영본부 분석 대기"}</span>
-            <strong>{witnessSolved ? "세 방향선이 대양타워 상부에서 교차합니다." : "세 목격자의 위치와 방향을 모두 표시하세요."}</strong>
-            <p>{witnessSolved ? "세 목격자는 서로 다른 것을 본 게 아니었습니다. 모두 시계탑 상부에서 잔디밭을 내려다보던, 목이 긴 존재를 본 것입니다. 사건 분류를 ‘미확인 생명체 조사’로 전환합니다." : "현장 관찰을 바탕으로 목격자가 바라본 방향을 선택하면 지도 위에 추정선이 표시됩니다."}</p>
+            <strong>{witnessSolved ? "세 에너지 방향선이 대양타워 상부에서 교차합니다." : "세 지점의 사진을 확보하고 에너지 방향을 표시하세요."}</strong>
+            <p>{witnessSolved ? "세 지점의 반응은 서로 다른 현상이 아니었습니다. 모두 시계탑 상부에서 잔디밭을 내려다보던, 목이 긴 존재를 가리킵니다. 사건 분류를 ‘미확인 생명체 조사’로 전환합니다." : "확보한 사진을 바탕으로 에너지 방향을 선택하면 지도 위에 추정선이 표시됩니다."}</p>
           </div>
         </section>
       )}
@@ -845,7 +840,7 @@ export default function Home() {
               <span>Evidence Acquired</span>
               <strong>{witness.name} 증거 사진 획득</strong>
               <div className="witness-acquisition-photo" style={{ backgroundImage: `url(${witness.photo})` }} role="img" aria-label={`${witness.name} 증거 사진`} />
-              <p>목표 지점 반경 10m 안에서 현장 기록을 확보했습니다. 카드에 저장된 진술과 사진을 비교하세요.</p>
+              <p>목표 지점 반경 10m 안에서 현장 사진을 확보했습니다. 사진은 2장 분석 카드에 저장됩니다.</p>
               <button className="primary-action" type="button" onClick={closeWitnessAcquisition}>자료 확인 완료</button>
             </div>
           </div>
