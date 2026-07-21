@@ -473,6 +473,10 @@ export default function Home() {
             <span>{cameraStatus}</span>
           </div>
           <div className="camera-scan-line" aria-hidden="true" />
+          <div className="camera-clue-pin" aria-hidden="true">
+            <i />
+            <b />
+          </div>
           <div className="camera-evidence-lock" aria-hidden="true">
             <i />
             <i />
