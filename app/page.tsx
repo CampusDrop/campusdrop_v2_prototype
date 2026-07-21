@@ -377,18 +377,20 @@ export default function Home() {
     }
   }
 
+  function openArrangeBriefing() {
+    arrangeBriefingQueuedRef.current = false;
+    setArrangeBriefingQueued(false);
+    setDropLinkMode("arrange");
+    setDropLinkLine(0);
+    setDropLinkText("");
+    setCaseModalOpen(true);
+    triggerDropLinkVibration();
+  }
+
   function closeWitnessAcquisition() {
     setAcquiredWitnessId(null);
     if (!arrangeBriefingQueuedRef.current && !arrangeBriefingQueued) return;
-    arrangeBriefingQueuedRef.current = false;
-    setArrangeBriefingQueued(false);
-    window.setTimeout(() => {
-      setDropLinkMode("arrange");
-      setDropLinkLine(0);
-      setDropLinkText("");
-      setCaseModalOpen(true);
-      triggerDropLinkVibration();
-    }, 260);
+    window.setTimeout(openArrangeBriefing, 260);
   }
 
   function applyWitnessLocation(position: GeolocationPosition, options: { silent?: boolean } = {}) {
@@ -1161,6 +1163,13 @@ export default function Home() {
             <button className="secondary-action" type="button" onClick={() => requestWitnessLocation()}>현재 위치 즉시 갱신</button>
             <button className="text-scan-refresh" type="button" onClick={markActiveWitnessArrived}>관리자 권한으로 도착 완료</button>
           </div>
+          {allWitnessImagesAcquired && !witnessOrderSolved && (
+            <div className="next-briefing-panel">
+              <span>자료 이미지 3건 확보</span>
+              <strong>DROP LINK 배열 지시를 수신할 수 있습니다.</strong>
+              <button className="primary-action" type="button" onClick={openArrangeBriefing}>DROP LINK 배열 지시 수신</button>
+            </div>
+          )}
 
           <div className="witness-list" aria-label="에너지 지점 자료 목록">
             {witnesses.map((witness) => {
@@ -1595,7 +1604,7 @@ export default function Home() {
               <strong>{witness.name} 자료 이미지 획득</strong>
               <div className="witness-acquisition-photo" style={{ backgroundImage: `url(${witness.photo})` }} role="img" aria-label={`${witness.name} 자료 이미지`} />
               <p>목표 지점 반경 10m 안에서 자료 이미지를 확보했습니다. 이미지는 2장 분석 카드에 저장됩니다.</p>
-              <button className="primary-action" type="button" onClick={closeWitnessAcquisition}>자료 확인 완료</button>
+              <button className="primary-action" type="button" onClick={closeWitnessAcquisition}>{allWitnessImagesAcquired ? "자료 확인 완료 · 배열 지시 수신" : "자료 확인 완료"}</button>
             </div>
           </div>
         );

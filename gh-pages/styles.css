@@ -3725,3 +3725,30 @@ button:focus-visible {
 .witness-admin-arrive[hidden] {
   display: none !important;
 }
+
+.next-briefing-panel {
+  margin: 14px 0 18px;
+  padding: 16px;
+  border: 1px solid rgba(0, 124, 117, 0.28);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(232, 247, 242, 0.96), rgba(255, 252, 239, 0.94));
+  box-shadow: 0 18px 38px rgba(15, 50, 45, 0.12);
+  display: grid;
+  gap: 8px;
+}
+.next-briefing-panel[hidden] { display: none; }
+.next-briefing-panel span {
+  color: var(--field-teal);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+.next-briefing-panel strong {
+  color: var(--ink);
+  font-size: 1rem;
+  line-height: 1.35;
+}
+.next-briefing-panel .primary-action {
+  width: 100%;
+  margin-top: 4px;
+}

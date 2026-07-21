@@ -535,18 +535,20 @@ function openWitnessAcquisition(witness) {
   modal.hidden = false;
 }
 
+function openArrangeBriefing() {
+  arrangeBriefingQueued = false;
+  dropLinkMode = "arrange";
+  dropLinkLine = 0;
+  document.querySelector("#dropLinkModal").hidden = false;
+  startDropLinkTyping();
+  triggerDropLinkVibration();
+}
+
 function closeWitnessAcquisition() {
   const modal = document.querySelector("#witnessAcquisitionModal");
   if (modal) modal.hidden = true;
   if (!arrangeBriefingQueued) return;
-  arrangeBriefingQueued = false;
-  window.setTimeout(() => {
-    dropLinkMode = "arrange";
-    dropLinkLine = 0;
-    document.querySelector("#dropLinkModal").hidden = false;
-    startDropLinkTyping();
-    triggerDropLinkVibration();
-  }, 260);
+  window.setTimeout(openArrangeBriefing, 260);
 }
 
 function markActiveWitnessArrived() {
@@ -578,6 +580,11 @@ function updateWitnessUi() {
 
   document.querySelector("#visitedWitnessText").textContent = `${Object.values(visitedWitnesses).filter(Boolean).length}/3`;
   document.querySelector("#directionWitnessText").textContent = witnessOrderSubmitted ? "완료" : `${witnessOrder.filter((id) => visitedWitnesses[id]).length}/3`;
+  const allVisited = witnesses.every((witness) => visitedWitnesses[witness.id]);
+  const briefingPanel = document.querySelector("#nextWitnessBriefingPanel");
+  if (briefingPanel) briefingPanel.hidden = !allVisited || witnessOrderSubmitted;
+  const acquisitionButton = document.querySelector("#closeWitnessAcquisition");
+  if (acquisitionButton) acquisitionButton.textContent = allVisited ? "자료 확인 완료 · 배열 지시 수신" : "자료 확인 완료";
   renderOrderQuiz();
   updateWitnessConclusion();
 }
@@ -1347,6 +1354,11 @@ document.addEventListener("click", (event) => {
 
   if (event.target.closest("#adminArriveWitness")) {
     markActiveWitnessArrived();
+    return;
+  }
+
+  if (event.target.closest("#openArrangeBriefing")) {
+    openArrangeBriefing();
     return;
   }
 
