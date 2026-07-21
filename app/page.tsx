@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 type Scene = "entry" | "incident" | "mission" | "camera" | "arrival" | "witness";
 type MessageStep = "hidden" | "first";
-type DropLinkMode = "case" | "clue";
+type DropLinkMode = "case" | "clue" | "arrange";
 type DirectionKey = "N" | "NE" | "E" | "SE" | "S" | "SW" | "W" | "NW";
 
 type KakaoLatLng = object;
@@ -108,6 +108,11 @@ const clueTransmissionBriefings = [
   "노란색 섬유는 인공 재료가 아닙니다. 기존 동물 자료와 정확히 일치하지 않지만, 대형 초식동물의 체모 특성과 유사합니다.",
   "같은 구역에서 접수된 세 건의 목격 기록을 개방합니다. 다음 미션은 목격 지점을 연결하는 현장 추론 조사입니다.",
 ];
+const witnessArrangeBriefings = [
+  "목격 기록 사진 3건이 모두 확보됐습니다. 각 기록은 서로 다른 시점과 위치에서 수집된 자료입니다.",
+  "이제 세 목격자가 바라본 방향을 순서대로 표시하세요. 현장 사진과 진술을 비교해 시선이 교차하는 지점을 찾아야 합니다.",
+  "세 방향선이 하나의 지점에서 겹치면, 목격 대상이 어디에 있었는지 운영본부가 분석할 수 있습니다.",
+];
 
 const posterCopy: Record<string, string> = {
   student_hall: "학생회관 포스터를 통해 접속했습니다. 창문 뒤로 긴 그림자를 봤다는 제보가 남아 있습니다.",
@@ -160,7 +165,9 @@ export default function Home() {
   const [witnessDistances, setWitnessDistances] = useState<Record<string, number | null>>(() => Object.fromEntries(witnesses.map((witness) => [witness.id, null])));
   const [visitedWitnesses, setVisitedWitnesses] = useState<Record<string, boolean>>(() => Object.fromEntries(witnesses.map((witness) => [witness.id, false])));
   const [witnessDirections, setWitnessDirections] = useState<Record<string, DirectionKey | null>>(() => Object.fromEntries(witnesses.map((witness) => [witness.id, null])));
-  const [witnessStatus, setWitnessStatus] = useState("목격 지점 3곳을 방문해 진술과 방향을 확인하세요.");
+  const [witnessStatus, setWitnessStatus] = useState("목격 지점 3곳을 방문해 증거 사진을 확보하세요.");
+  const [acquiredWitnessId, setAcquiredWitnessId] = useState<string | null>(null);
+  const [arrangeBriefingQueued, setArrangeBriefingQueued] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const cameraStreamRef = useRef<MediaStream | null>(null);
   const cameraWatchRef = useRef<number | null>(null);
@@ -178,7 +185,7 @@ export default function Home() {
   useEffect(() => {
     if (!caseModalOpen) return;
 
-    const activeBriefings = dropLinkMode === "case" ? dropLinkBriefings : clueTransmissionBriefings;
+    const activeBriefings = getActiveDropLinkBriefings(dropLinkMode);
     const currentBriefing = activeBriefings[dropLinkLine];
     let index = 0;
     const typer = window.setInterval(() => {
@@ -198,6 +205,12 @@ export default function Home() {
   }, []);
 
   const posterText = posterCopy[posterId] ?? posterCopy.student_hall;
+
+  function getActiveDropLinkBriefings(mode: DropLinkMode) {
+    if (mode === "case") return dropLinkBriefings;
+    if (mode === "clue") return clueTransmissionBriefings;
+    return witnessArrangeBriefings;
+  }
 
   function stopCameraScan() {
     cameraStreamRef.current?.getTracks().forEach((track) => track.stop());
@@ -244,6 +257,38 @@ export default function Home() {
     );
   }
 
+  function acquireWitnessEvidence(witnessId: string, options: { admin?: boolean; silent?: boolean } = {}) {
+    const witness = witnesses.find((item) => item.id === witnessId);
+    if (!witness) return;
+    setActiveWitnessId(witness.id);
+    if (visitedWitnesses[witness.id]) {
+      if (!options.silent) setWitnessStatus(`${witness.name} 기록은 이미 확보했습니다. 진술을 확인하고 바라본 방향을 표시하세요.`);
+      return;
+    }
+
+    const nextVisited = { ...visitedWitnesses, [witness.id]: true };
+    setVisitedWitnesses(nextVisited);
+    setAcquiredWitnessId(witness.id);
+    triggerEvidenceVibration();
+    setWitnessStatus(`${witness.name} 증거 사진을 확보했습니다. 획득 자료를 확인하세요.`);
+    if (witnesses.every((item) => nextVisited[item.id])) {
+      setArrangeBriefingQueued(true);
+    }
+  }
+
+  function closeWitnessAcquisition() {
+    setAcquiredWitnessId(null);
+    if (!arrangeBriefingQueued) return;
+    setArrangeBriefingQueued(false);
+    window.setTimeout(() => {
+      setDropLinkMode("arrange");
+      setDropLinkLine(0);
+      setDropLinkText("");
+      setCaseModalOpen(true);
+      triggerDropLinkVibration();
+    }, 260);
+  }
+
   function applyWitnessLocation(position: GeolocationPosition, options: { silent?: boolean } = {}) {
     const nextLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
     setUserLocation(nextLocation);
@@ -255,14 +300,10 @@ export default function Home() {
 
     const arrivedWitness = witnesses.find((witness) => nextDistances[witness.id] <= witnessReachRadiusMeters);
     if (arrivedWitness) {
-      setActiveWitnessId(arrivedWitness.id);
-      setVisitedWitnesses((current) => ({ ...current, [arrivedWitness.id]: true }));
-      if (!options.silent) {
-        setWitnessStatus(`${arrivedWitness.name} 위치에 도착했습니다. 진술을 확인하고 바라본 방향을 표시하세요.`);
-      }
+      acquireWitnessEvidence(arrivedWitness.id, options);
       return;
     }
-    if (!options.silent) setWitnessStatus("가장 가까운 목격 지점으로 이동하세요. 반경 10m 안에서 진술이 열립니다.");
+    if (!options.silent) setWitnessStatus("가장 가까운 목격 지점으로 이동하세요. 반경 10m 안에서 증거 사진이 열립니다.");
   }
 
   function requestWitnessLocation(options: { silent?: boolean } = {}) {
@@ -400,8 +441,7 @@ export default function Home() {
   }
 
   function markActiveWitnessArrived() {
-    setVisitedWitnesses((current) => ({ ...current, [activeWitnessId]: true }));
-    setWitnessStatus(`${witnesses.find((witness) => witness.id === activeWitnessId)?.name ?? "목격자"} 위치를 관리자 권한으로 도착 처리했습니다.`);
+    acquireWitnessEvidence(activeWitnessId, { admin: true });
   }
 
   const witnessSolved = witnesses.every((witness) => witnessDirections[witness.id] === witness.correctDirection);
@@ -418,7 +458,7 @@ export default function Home() {
   }
 
   function advanceDropLinkDialogue() {
-    const activeBriefings = dropLinkMode === "case" ? dropLinkBriefings : clueTransmissionBriefings;
+    const activeBriefings = getActiveDropLinkBriefings(dropLinkMode);
     if (dropLinkLine < activeBriefings.length - 1) {
       setDropLinkText("");
       setDropLinkLine((current) => current + 1);
@@ -566,9 +606,9 @@ export default function Home() {
                     className="drop-link-next"
                     type="button"
                     onClick={advanceDropLinkDialogue}
-                    disabled={dropLinkText.length < (dropLinkMode === "case" ? dropLinkBriefings : clueTransmissionBriefings)[dropLinkLine].length || caseTransferActive}
+                    disabled={dropLinkText.length < getActiveDropLinkBriefings(dropLinkMode)[dropLinkLine].length || caseTransferActive}
                   >
-                    {dropLinkLine < (dropLinkMode === "case" ? dropLinkBriefings : clueTransmissionBriefings).length - 1 ? "다음" : dropLinkMode === "case" ? "사건 개요 수신" : "다음 미션 수신"}
+                    {dropLinkLine < getActiveDropLinkBriefings(dropLinkMode).length - 1 ? "다음" : dropLinkMode === "case" ? "사건 개요 수신" : dropLinkMode === "arrange" ? "배열 미션 시작" : "다음 미션 수신"}
                   </button>
                 </div>
               </div>
@@ -714,7 +754,7 @@ export default function Home() {
           <div className="mission-copy">
             <p>2장</p>
             <h2>목격 지점을 연결하라</h2>
-            <span>세 목격자가 서 있던 위치와 진술을 확인하고, 각자가 바라본 방향을 지도에 표시하세요.</span>
+            <span>세 목표 지점의 반경 10m 안에 들어가 증거 사진을 확보한 뒤, 운영본부 지시에 따라 방향을 표시하세요.</span>
           </div>
 
           <div className="campus-radar witness-radar">
@@ -727,7 +767,7 @@ export default function Home() {
             />
             <div className="radar-data witness-data">
               <div><span>조사 범위</span><strong>{witnessReachRadiusMeters}m</strong></div>
-              <div><span>확인한 지점</span><strong>{witnesses.filter((witness) => visitedWitnesses[witness.id]).length}/3</strong></div>
+              <div><span>확보한 사진</span><strong>{witnesses.filter((witness) => visitedWitnesses[witness.id]).length}/3</strong></div>
               <div><span>방향 표시</span><strong>{witnesses.filter((witness) => witnessDirections[witness.id]).length}/3</strong></div>
             </div>
           </div>
@@ -751,7 +791,7 @@ export default function Home() {
                     <em>{witnessDistances[witness.id] === null ? "거리 측정 전" : `${witnessDistances[witness.id]}m`}</em>
                   </button>
                   <div className="witness-statement">
-                    <p>{isVisited ? witness.statement : "현장 반경 10m 안에 들어가면 목격자의 진술과 사진 자료를 확인할 수 있습니다."}</p>
+                    <p>{isVisited ? witness.statement : "현장 반경 10m 안에 들어가면 증거 사진을 획득하고 진술이 열립니다."}</p>
                   </div>
                   <div className={`witness-photo${isVisited ? " is-open" : " is-locked"}`}>
                     {isVisited ? (
@@ -790,6 +830,22 @@ export default function Home() {
           </div>
         </section>
       )}
+
+      {acquiredWitnessId && (() => {
+        const witness = witnesses.find((item) => item.id === acquiredWitnessId);
+        if (!witness) return null;
+        return (
+          <div className="witness-acquisition-modal" role="dialog" aria-modal="true" aria-label="증거 사진 획득">
+            <div className="witness-acquisition-card">
+              <span>Evidence Acquired</span>
+              <strong>{witness.name} 증거 사진 획득</strong>
+              <div className="witness-acquisition-photo" style={{ backgroundImage: `url(${witness.photo})` }} role="img" aria-label={`${witness.name} 증거 사진`} />
+              <p>목표 지점 반경 10m 안에서 현장 기록을 확보했습니다. 카드에 저장된 진술과 사진을 비교하세요.</p>
+              <button className="primary-action" type="button" onClick={closeWitnessAcquisition}>자료 확인 완료</button>
+            </div>
+          </div>
+        );
+      })()}
     </main>
   );
 }

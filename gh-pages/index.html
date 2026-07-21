@@ -166,7 +166,7 @@
         <div class="mission-copy">
           <p>2장</p>
           <h2>목격 지점을 연결하라</h2>
-          <span>세 목격자가 서 있던 위치와 진술을 확인하고, 각자가 바라본 방향을 지도에 표시하세요.</span>
+          <span>세 목표 지점의 반경 10m 안에 들어가 증거 사진을 확보한 뒤, 운영본부 지시에 따라 방향을 표시하세요.</span>
         </div>
         <div class="campus-radar witness-radar">
           <div class="real-map-shell witness-map-shell" id="witnessMap">
@@ -182,7 +182,7 @@
           </div>
           <div class="radar-data witness-data">
             <div><span>조사 범위</span><strong>10m</strong></div>
-            <div><span>확인한 지점</span><strong id="visitedWitnessText">0/3</strong></div>
+            <div><span>확보한 사진</span><strong id="visitedWitnessText">0/3</strong></div>
             <div><span>방향 표시</span><strong id="directionWitnessText">0/3</strong></div>
           </div>
         </div>
@@ -194,19 +194,19 @@
         <div class="witness-list" aria-label="목격자 진술 목록">
           <article class="witness-card is-active" data-witness-card="A">
             <button type="button" class="witness-card-head" data-select-witness="A"><span>목격자 A</span><strong>잔디밭 남서쪽</strong><em data-witness-distance="A">거리 측정 전</em></button>
-            <div class="witness-statement"><p data-witness-statement="A">현장 반경 10m 안에 들어가면 목격자의 진술과 사진 자료를 확인할 수 있습니다.</p></div>
+            <div class="witness-statement"><p data-witness-statement="A">현장 반경 10m 안에 들어가면 증거 사진을 획득하고 진술이 열립니다.</p></div>
             <div class="witness-photo is-locked" data-witness-photo="A"><img src="./gfPhoto_03.png" alt="목격자 A 목격 기록 사진" hidden><span>현장 사진 잠김</span></div>
             <div class="direction-picker" data-direction-picker="A"></div>
           </article>
           <article class="witness-card" data-witness-card="B">
             <button type="button" class="witness-card-head" data-select-witness="B"><span>목격자 B</span><strong>북쪽 보행로</strong><em data-witness-distance="B">거리 측정 전</em></button>
-            <div class="witness-statement"><p data-witness-statement="B">현장 반경 10m 안에 들어가면 목격자의 진술과 사진 자료를 확인할 수 있습니다.</p></div>
+            <div class="witness-statement"><p data-witness-statement="B">현장 반경 10m 안에 들어가면 증거 사진을 획득하고 진술이 열립니다.</p></div>
             <div class="witness-photo is-locked" data-witness-photo="B"><img src="./gfPhoto_02.png" alt="목격자 B 목격 기록 사진" hidden><span>현장 사진 잠김</span></div>
             <div class="direction-picker" data-direction-picker="B"></div>
           </article>
           <article class="witness-card" data-witness-card="C">
             <button type="button" class="witness-card-head" data-select-witness="C"><span>목격자 C</span><strong>동쪽 진입로</strong><em data-witness-distance="C">거리 측정 전</em></button>
-            <div class="witness-statement"><p data-witness-statement="C">현장 반경 10m 안에 들어가면 목격자의 진술과 사진 자료를 확인할 수 있습니다.</p></div>
+            <div class="witness-statement"><p data-witness-statement="C">현장 반경 10m 안에 들어가면 증거 사진을 획득하고 진술이 열립니다.</p></div>
             <div class="witness-photo is-locked" data-witness-photo="C"><img src="./gfPhoto_01.png" alt="목격자 C 목격 기록 사진" hidden><span>현장 사진 잠김</span></div>
             <div class="direction-picker" data-direction-picker="C"></div>
           </article>
@@ -218,6 +218,16 @@
         </div>
       </section>
     </main>
+
+    <div class="witness-acquisition-modal" id="witnessAcquisitionModal" role="dialog" aria-modal="true" aria-label="증거 사진 획득" hidden>
+      <div class="witness-acquisition-card">
+        <span>Evidence Acquired</span>
+        <strong id="witnessAcquisitionTitle">증거 사진 획득</strong>
+        <div class="witness-acquisition-photo" id="witnessAcquisitionPhoto" role="img" aria-label="증거 사진"></div>
+        <p>목표 지점 반경 10m 안에서 현장 기록을 확보했습니다. 카드에 저장된 진술과 사진을 비교하세요.</p>
+        <button class="primary-action" type="button" id="closeWitnessAcquisition">자료 확인 완료</button>
+      </div>
+    </div>
     <script src="./app.js"></script>
   </body>
 </html>
