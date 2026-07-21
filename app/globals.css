@@ -3145,3 +3145,122 @@ button:focus-visible {
   from { opacity: 0; transform: translateY(18px) scale(0.96); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
+
+/* Chapter 2 ordering quiz */
+.order-quiz-panel {
+  display: grid;
+  gap: 14px;
+  border: 1px solid rgba(115, 242, 223, 0.18);
+  border-radius: 22px;
+  background: rgba(7, 16, 16, 0.66);
+  padding: 16px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03), 0 18px 42px rgba(0,0,0,0.18);
+}
+
+.order-quiz-copy span,
+.word-submit span {
+  color: #73f2df;
+  font-size: 11px;
+  font-weight: 950;
+}
+
+.order-quiz-copy strong {
+  display: block;
+  margin-top: 5px;
+  color: #f7f1e3;
+  font-size: 18px;
+  font-weight: 950;
+}
+
+.order-quiz-copy p {
+  margin: 6px 0 0;
+  color: rgba(247, 241, 227, 0.68);
+  font-size: 13px;
+  font-weight: 760;
+  line-height: 1.5;
+}
+
+.order-dropzone {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.order-card {
+  min-width: 0;
+  border: 1px solid rgba(115, 242, 223, 0.16);
+  border-radius: 16px;
+  background: rgba(247, 241, 227, 0.08);
+  padding: 8px;
+  cursor: grab;
+  transition: transform 180ms ease, border-color 180ms ease, opacity 180ms ease;
+}
+
+.order-card.is-dragging {
+  opacity: 0.55;
+  transform: scale(0.97);
+}
+
+.order-card > span {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: rgba(115, 242, 223, 0.14);
+  color: #73f2df;
+  font-size: 11px;
+  font-weight: 950;
+}
+
+.order-card > div {
+  height: 94px;
+  margin-top: 7px;
+  border-radius: 12px;
+  background-position: center;
+  background-size: cover;
+  filter: saturate(0.92) contrast(1.04);
+}
+
+.order-card > strong {
+  display: block;
+  margin-top: 7px;
+  color: #f7f1e3;
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.word-submit {
+  display: grid;
+  gap: 7px;
+}
+
+.word-submit input {
+  width: 100%;
+  border: 1px solid rgba(115, 242, 223, 0.22);
+  border-radius: 14px;
+  background: rgba(2, 7, 8, 0.56);
+  color: #f7f1e3;
+  padding: 13px 14px;
+  font-size: 16px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.order-feedback {
+  margin: 0;
+  color: rgba(247, 241, 227, 0.7);
+  font-size: 13px;
+  font-weight: 820;
+  line-height: 1.45;
+}
+
+.order-feedback.is-correct {
+  color: #8ff5c7;
+}
+
+@media (max-width: 390px) {
+  .order-dropzone { gap: 7px; }
+  .order-card { padding: 7px; }
+  .order-card > div { height: 82px; }
+}

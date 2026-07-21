@@ -50,16 +50,6 @@ const missionMapBounds = {
   latMin: missionTarget.lat - 0.002,
   latMax: missionTarget.lat + 0.002,
 };
-const directionOptions: { key: DirectionKey; label: string }[] = [
-  { key: "N", label: "북쪽" },
-  { key: "NE", label: "북동쪽" },
-  { key: "E", label: "동쪽" },
-  { key: "SE", label: "남동쪽" },
-  { key: "S", label: "남쪽" },
-  { key: "SW", label: "남서쪽" },
-  { key: "W", label: "서쪽" },
-  { key: "NW", label: "북서쪽" },
-];
 const directionVectors: Record<DirectionKey, { x: number; y: number }> = {
   N: { x: 0, y: -1 },
   NE: { x: 0.7, y: -0.7 },
@@ -103,14 +93,13 @@ const dropLinkBriefings = [
 const clueTransmissionBriefings = [
   "표본 A 수신 완료. 위치 기록과 촬영 시점이 현장 조사 로그에 정상 연결됐습니다.",
   "노란색 섬유는 인공 재료가 아닙니다. 기존 동물 자료와 정확히 일치하지 않지만, 대형 초식동물의 체모 특성과 유사합니다.",
-  "표본 A 수신 완료. 위치 기록과 촬영 시점이 현장 조사 로그에 정상 연결됐습니다.",
   "분석 결과, 시계탑 주변 세 지점에서 비정상 에너지 반응이 강하게 감지됩니다. 해당 위치를 지도상에 표시했습니다.",
   "각 목적지 반경 10m 안에 진입해 현장 자료 이미지를 확보하세요. 도착 전에는 자료 접근 권한이 열리지 않습니다.",
 ];
 const witnessArrangeBriefings = [
   "자료 이미지 3건이 모두 확보됐습니다. 각 기록은 서로 다른 시점과 위치에서 수집된 자료입니다.",
-  "이제 세 지점에서 감지된 에너지 방향을 순서대로 표시하세요. 확보한 자료 이미지를 비교해 반응이 교차하는 지점을 찾아야 합니다.",
-  "세 방향선이 하나의 지점에서 겹치면, 목격 대상이 어디에 있었는지 운영본부가 분석할 수 있습니다.",
+  "세 자료 이미지를 오래된 순서대로 배열하십시오. 이미지 속에 남은 글자 조각이 하나의 단어를 구성합니다.",
+  "배열을 완료한 뒤 증거물이 나타내는 단어를 영문으로 제출하세요. 대소문자는 구분하지 않습니다.",
 ];
 
 const posterCopy: Record<string, string> = {
@@ -163,10 +152,13 @@ export default function Home() {
   const [activeWitnessId, setActiveWitnessId] = useState(witnesses[0].id);
   const [witnessDistances, setWitnessDistances] = useState<Record<string, number | null>>(() => Object.fromEntries(witnesses.map((witness) => [witness.id, null])));
   const [visitedWitnesses, setVisitedWitnesses] = useState<Record<string, boolean>>(() => Object.fromEntries(witnesses.map((witness) => [witness.id, false])));
-  const [witnessDirections, setWitnessDirections] = useState<Record<string, DirectionKey | null>>(() => Object.fromEntries(witnesses.map((witness) => [witness.id, null])));
+  const [witnessDirections] = useState<Record<string, DirectionKey | null>>(() => Object.fromEntries(witnesses.map((witness) => [witness.id, null])));
   const [witnessStatus, setWitnessStatus] = useState("에너지 반응이 강한 지점 3곳을 방문해 자료 이미지를 확보하세요.");
   const [acquiredWitnessId, setAcquiredWitnessId] = useState<string | null>(null);
   const [arrangeBriefingQueued, setArrangeBriefingQueued] = useState(false);
+  const [witnessOrder, setWitnessOrder] = useState<string[]>(["A", "B", "C"]);
+  const [witnessAnswer, setWitnessAnswer] = useState("");
+  const [draggedWitnessId, setDraggedWitnessId] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const cameraStreamRef = useRef<MediaStream | null>(null);
   const cameraWatchRef = useRef<number | null>(null);
@@ -261,7 +253,7 @@ export default function Home() {
     if (!witness) return;
     setActiveWitnessId(witness.id);
     if (visitedWitnesses[witness.id]) {
-      if (!options.silent) setWitnessStatus(`${witness.name} 자료 이미지는 이미 확보했습니다. 자료를 확인하고 에너지 방향을 표시하세요.`);
+      if (!options.silent) setWitnessStatus(`${witness.name} 자료 이미지는 이미 확보했습니다. 자료 이미지를 확인하고 순서를 배열하세요.`);
       return;
     }
 
@@ -443,7 +435,19 @@ export default function Home() {
     acquireWitnessEvidence(activeWitnessId, { admin: true });
   }
 
-  const witnessSolved = witnesses.every((witness) => witnessDirections[witness.id] === witness.correctDirection);
+  function moveWitnessOrder(sourceId: string, targetId: string) {
+    if (sourceId === targetId) return;
+    setWitnessOrder((current) => {
+      const next = current.filter((id) => id !== sourceId);
+      const targetIndex = next.indexOf(targetId);
+      next.splice(targetIndex, 0, sourceId);
+      return next;
+    });
+  }
+
+  const allWitnessImagesAcquired = witnesses.every((witness) => visitedWitnesses[witness.id]);
+  const witnessOrderSolved = witnessOrder.join("") === "CBA";
+  const witnessSolved = witnessOrderSolved && witnessAnswer.trim().toUpperCase() === "GIRAFFE";
 
   function handleDropLink() {
     if (messageStep === "first") {
@@ -786,7 +790,7 @@ export default function Home() {
             <div className="radar-data witness-data">
               <div><span>조사 범위</span><strong>{witnessReachRadiusMeters}m</strong></div>
               <div><span>확보한 자료</span><strong>{witnesses.filter((witness) => visitedWitnesses[witness.id]).length}/3</strong></div>
-              <div><span>에너지 방향</span><strong>{witnesses.filter((witness) => witnessDirections[witness.id]).length}/3</strong></div>
+              <div><span>배열 상태</span><strong>{witnessOrderSolved ? "완료" : `${witnessOrder.filter((id) => visitedWitnesses[id]).length}/3`}</strong></div>
             </div>
           </div>
 
@@ -800,7 +804,6 @@ export default function Home() {
             {witnesses.map((witness) => {
               const isActive = activeWitnessId === witness.id;
               const isVisited = visitedWitnesses[witness.id];
-              const selectedDirection = witnessDirections[witness.id];
               return (
                 <article key={witness.id} className={`witness-card${isActive ? " is-active" : ""}${isVisited ? " is-visited" : ""}`}>
                   <button type="button" className="witness-card-head" onClick={() => setActiveWitnessId(witness.id)}>
@@ -820,28 +823,61 @@ export default function Home() {
                       <span>도착 전 접근 잠김</span>
                     )}
                   </div>
-                  <div className="direction-picker" aria-label={`${witness.name} 방향 선택`}>
-                    {directionOptions.map((direction) => (
-                      <button
-                        key={direction.key}
-                        type="button"
-                        className={selectedDirection === direction.key ? "is-selected" : ""}
-                        disabled={!isVisited}
-                        onClick={() => setWitnessDirections((current) => ({ ...current, [witness.id]: direction.key }))}
-                      >
-                        {direction.label}
-                      </button>
-                    ))}
-                  </div>
                 </article>
               );
             })}
           </div>
 
+
+
+          {allWitnessImagesAcquired && (
+            <div className="order-quiz-panel">
+              <div className="order-quiz-copy">
+                <span>CAMPUSDROP 분석 지시</span>
+                <strong>자료 이미지를 오래된 순서대로 배열하세요.</strong>
+                <p>카드를 드래그해 순서를 바꾼 뒤, 세 자료가 나타내는 영문 단어를 제출하세요.</p>
+              </div>
+              <div className="order-dropzone" aria-label="자료 이미지 순서 배열">
+                {witnessOrder.map((id, index) => {
+                  const witness = witnesses.find((item) => item.id === id)!;
+                  return (
+                    <article
+                      key={id}
+                      className={`order-card${draggedWitnessId === id ? " is-dragging" : ""}`}
+                      draggable
+                      onDragStart={(event) => {
+                        setDraggedWitnessId(id);
+                        event.dataTransfer.setData("text/plain", id);
+                      }}
+                      onDragOver={(event) => event.preventDefault()}
+                      onDrop={(event) => {
+                        event.preventDefault();
+                        const sourceId = draggedWitnessId || event.dataTransfer.getData("text/plain");
+                        if (sourceId) moveWitnessOrder(sourceId, id);
+                      }}
+                      onDragEnd={() => setDraggedWitnessId(null)}
+                    >
+                      <span>{String(index + 1).padStart(2, "0")}</span>
+                      <div style={{ backgroundImage: `url(${witness.photo})` }} role="img" aria-label={`${witness.name} 자료 이미지`} />
+                      <strong>{witness.name}</strong>
+                    </article>
+                  );
+                })}
+              </div>
+              <label className="word-submit">
+                <span>증거물이 나타내는 단어</span>
+                <input value={witnessAnswer} onChange={(event) => setWitnessAnswer(event.target.value)} placeholder="영문 정답 입력" aria-label="증거물이 나타내는 단어" />
+              </label>
+              <p className={`order-feedback${witnessSolved ? " is-correct" : ""}`}>
+                {!witnessAnswer ? "순서를 정한 뒤 단어를 제출하세요." : witnessSolved ? "GIRAFFE 확인. 세 자료는 같은 존재를 가리킵니다." : witnessOrderSolved ? "순서는 맞습니다. 글자 조각이 만드는 단어를 다시 확인하세요." : "자료의 시대 순서가 아직 맞지 않습니다."}
+              </p>
+            </div>
+          )}
+
           <div className={`conclusion witness-conclusion${witnessSolved ? " is-open" : ""}`} aria-live="polite">
             <span>{witnessSolved ? "분석 완료" : "운영본부 분석 대기"}</span>
-            <strong>{witnessSolved ? "세 에너지 방향선이 대양타워 상부에서 교차합니다." : "세 지점의 자료 이미지를 확보하고 에너지 방향을 표시하세요."}</strong>
-            <p>{witnessSolved ? "세 지점의 반응은 서로 다른 현상이 아니었습니다. 모두 시계탑 상부에서 잔디밭을 내려다보던, 목이 긴 존재를 가리킵니다. 사건 분류를 ‘미확인 생명체 조사’로 전환합니다." : "확보한 자료 이미지를 바탕으로 에너지 방향을 선택하면 지도 위에 추정선이 표시됩니다."}</p>
+            <strong>{witnessSolved ? "증거물이 나타내는 단어는 GIRAFFE입니다." : allWitnessImagesAcquired ? "자료 이미지를 순서대로 배열하고 단어를 제출하세요." : "세 지점의 자료 이미지를 모두 확보하세요."}</strong>
+            <p>{witnessSolved ? "세 자료는 서로 다른 장소에서 얻은 이미지지만, 같은 존재를 가리키고 있습니다. 사건 분류를 ‘미확인 생명체 조사’로 전환합니다." : allWitnessImagesAcquired ? "자료 카드의 순서를 바꾸면 숨은 글자 조각이 하나의 단어로 연결됩니다." : "각 에너지 지점 반경 10m 안에 들어가야 자료 이미지가 열립니다."}</p>
           </div>
         </section>
       )}

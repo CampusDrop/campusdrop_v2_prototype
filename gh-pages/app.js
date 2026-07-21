@@ -5,26 +5,6 @@ const clueRevealRadiusMeters = 10;
 const witnessReachRadiusMeters = 10;
 const missionTarget = { lat: 37.55041617275794, lng: 127.07381801425053 };
 const investigationMarkerSrc = "./investigation-marker-v2.png";
-const directionOptions = [
-  { key: "N", label: "북쪽" },
-  { key: "NE", label: "북동쪽" },
-  { key: "E", label: "동쪽" },
-  { key: "SE", label: "남동쪽" },
-  { key: "S", label: "남쪽" },
-  { key: "SW", label: "남서쪽" },
-  { key: "W", label: "서쪽" },
-  { key: "NW", label: "북서쪽" },
-];
-const directionVectors = {
-  N: { x: 0, y: -1 },
-  NE: { x: 0.7, y: -0.7 },
-  E: { x: 1, y: 0 },
-  SE: { x: 0.7, y: 0.7 },
-  S: { x: 0, y: 1 },
-  SW: { x: -0.7, y: 0.7 },
-  W: { x: -1, y: 0 },
-  NW: { x: -0.7, y: -0.7 },
-};
 const witnesses = [
   {
     id: "A",
@@ -58,14 +38,13 @@ const dropLinkBriefings = [
 const clueTransmissionBriefings = [
   "표본 A 수신 완료. 위치 기록과 촬영 시점이 현장 조사 로그에 정상 연결됐습니다.",
   "노란색 섬유는 인공 재료가 아닙니다. 기존 동물 자료와 정확히 일치하지 않지만, 대형 초식동물의 체모 특성과 유사합니다.",
-  "표본 A 수신 완료. 위치 기록과 촬영 시점이 현장 조사 로그에 정상 연결됐습니다.",
   "분석 결과, 시계탑 주변 세 지점에서 비정상 에너지 반응이 강하게 감지됩니다. 해당 위치를 지도상에 표시했습니다.",
   "각 목적지 반경 10m 안에 진입해 현장 자료 이미지를 확보하세요. 도착 전에는 자료 접근 권한이 열리지 않습니다.",
 ];
 const witnessArrangeBriefings = [
   "자료 이미지 3건이 모두 확보됐습니다. 각 기록은 서로 다른 시점과 위치에서 수집된 자료입니다.",
-  "이제 세 지점에서 감지된 에너지 방향을 순서대로 표시하세요. 확보한 자료 이미지를 비교해 반응이 교차하는 지점을 찾아야 합니다.",
-  "세 방향선이 하나의 지점에서 겹치면, 목격 대상이 어디에 있었는지 운영본부가 분석할 수 있습니다.",
+  "세 자료 이미지를 오래된 순서대로 배열하십시오. 이미지 속에 남은 글자 조각이 하나의 단어를 구성합니다.",
+  "배열을 완료한 뒤 증거물이 나타내는 단어를 영문으로 제출하세요. 대소문자는 구분하지 않습니다.",
 ];
 const posterCopy = {
   student_hall: "학생회관 포스터를 통해 접속했습니다. 창문 뒤로 긴 그림자를 봤다는 제보가 남아 있습니다.",
@@ -85,7 +64,9 @@ let locationInReach = false;
 let witnessRefreshTimer = null;
 let activeWitnessId = "A";
 let visitedWitnesses = { A: false, B: false, C: false };
-let witnessDirections = { A: null, B: null, C: null };
+let witnessOrder = ["A", "B", "C"];
+let draggedWitnessId = null;
+let witnessWordAnswer = "";
 let cameraStream = null;
 let cameraWatch = null;
 let cameraFoundTimer = null;
@@ -282,18 +263,7 @@ function stopMissionLocationUpdates() {
 }
 
 function initWitnessScene() {
-  renderDirectionPickers();
   updateWitnessUi();
-}
-
-function renderDirectionPickers() {
-  witnesses.forEach((witness) => {
-    const picker = document.querySelector(`[data-direction-picker="${witness.id}"]`);
-    if (!picker || picker.childElementCount) return;
-    picker.innerHTML = directionOptions
-      .map((direction) => `<button type="button" data-witness-direction="${witness.id}:${direction.key}" disabled>${direction.label}</button>`)
-      .join("");
-  });
 }
 
 function applyWitnessLocation(position, options = {}) {
@@ -363,7 +333,7 @@ function acquireWitnessEvidence(id, options = {}) {
   if (!witness) return;
   activeWitnessId = witness.id;
   if (visitedWitnesses[witness.id]) {
-    if (!options.silent) document.querySelector("#witnessStatus").textContent = `${witness.name} 자료 이미지는 이미 확보했습니다. 자료를 확인하고 에너지 방향을 표시하세요.`;
+    if (!options.silent) document.querySelector("#witnessStatus").textContent = `${witness.name} 자료 이미지는 이미 확보했습니다. 자료 이미지를 확인하고 순서를 배열하세요.`;
     updateWitnessUi();
     return;
   }
@@ -405,12 +375,6 @@ function markActiveWitnessArrived() {
   acquireWitnessEvidence(activeWitnessId, { admin: true });
 }
 
-function chooseWitnessDirection(id, direction) {
-  if (!visitedWitnesses[id]) return;
-  witnessDirections[id] = direction;
-  updateWitnessUi();
-}
-
 function updateWitnessUi() {
   witnesses.forEach((witness) => {
     document.querySelector(`[data-witness-card="${witness.id}"]`)?.classList.toggle("is-active", activeWitnessId === witness.id);
@@ -424,46 +388,46 @@ function updateWitnessUi() {
       photo.querySelector("img")?.toggleAttribute("hidden", !visitedWitnesses[witness.id]);
       photo.querySelector("span")?.toggleAttribute("hidden", visitedWitnesses[witness.id]);
     }
-    document.querySelectorAll(`[data-witness-direction^="${witness.id}:"]`).forEach((button) => {
-      const direction = button.dataset.witnessDirection.split(":")[1];
-      button.disabled = !visitedWitnesses[witness.id];
-      button.classList.toggle("is-selected", witnessDirections[witness.id] === direction);
-    });
   });
 
   document.querySelector("#visitedWitnessText").textContent = `${Object.values(visitedWitnesses).filter(Boolean).length}/3`;
-  document.querySelector("#directionWitnessText").textContent = `${Object.values(witnessDirections).filter(Boolean).length}/3`;
-  drawWitnessLines();
+  const orderSolved = witnessOrder.join("") === "CBA";
+  document.querySelector("#directionWitnessText").textContent = orderSolved ? "완료" : `${witnessOrder.filter((id) => visitedWitnesses[id]).length}/3`;
+  renderOrderQuiz();
   updateWitnessConclusion();
 }
 
-function drawWitnessLines() {
-  const layer = document.querySelector("#witnessLines");
-  if (!layer) return;
-  layer.innerHTML = "";
-  witnesses.forEach((witness) => {
-    const direction = witnessDirections[witness.id];
-    if (!direction) return;
-    const vector = directionVectors[direction];
-    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    line.setAttribute("x1", witness.point.x);
-    line.setAttribute("y1", witness.point.y);
-    line.setAttribute("x2", witness.point.x + vector.x * 42);
-    line.setAttribute("y2", witness.point.y + vector.y * 42);
-    if (direction === witness.correctDirection) line.classList.add("is-correct");
-    layer.appendChild(line);
-  });
+function renderOrderQuiz() {
+  const panel = document.querySelector("#orderQuizPanel");
+  const zone = document.querySelector("#orderDropzone");
+  if (!panel || !zone) return;
+  const allVisited = witnesses.every((witness) => visitedWitnesses[witness.id]);
+  panel.hidden = !allVisited;
+  if (!allVisited) return;
+  zone.innerHTML = witnessOrder.map((id, index) => {
+    const witness = witnesses.find((item) => item.id === id);
+    return `<article class="order-card" draggable="true" data-order-card="${id}"><span>${String(index + 1).padStart(2, "0")}</span><div style="background-image:url(${witness.photo})" role="img" aria-label="${witness.name} 자료 이미지"></div><strong>${witness.name}</strong></article>`;
+  }).join("");
+  const input = document.querySelector("#witnessWordAnswer");
+  if (input && input.value !== witnessWordAnswer) input.value = witnessWordAnswer;
 }
 
 function updateWitnessConclusion() {
-  const solved = witnesses.every((witness) => witnessDirections[witness.id] === witness.correctDirection);
+  const orderSolved = witnessOrder.join("") === "CBA";
+  const solved = orderSolved && witnessWordAnswer.trim().toUpperCase() === "GIRAFFE";
+  const allVisited = witnesses.every((witness) => visitedWitnesses[witness.id]);
   const conclusion = document.querySelector("#witnessConclusion");
+  const feedback = document.querySelector("#orderFeedback");
   conclusion.classList.toggle("is-open", solved);
   conclusion.querySelector("span").textContent = solved ? "분석 완료" : "운영본부 분석 대기";
-  conclusion.querySelector("strong").textContent = solved ? "세 에너지 방향선이 대양타워 상부에서 교차합니다." : "세 지점의 자료 이미지를 확보하고 에너지 방향을 표시하세요.";
+  conclusion.querySelector("strong").textContent = solved ? "증거물이 나타내는 단어는 GIRAFFE입니다." : allVisited ? "자료 이미지를 순서대로 배열하고 단어를 제출하세요." : "세 지점의 자료 이미지를 모두 확보하세요.";
   conclusion.querySelector("p").textContent = solved
-    ? "세 지점의 반응은 서로 다른 현상이 아니었습니다. 모두 시계탑 상부에서 잔디밭을 내려다보던, 목이 긴 존재를 가리킵니다. 사건 분류를 ‘미확인 생명체 조사’로 전환합니다."
-    : "확보한 자료 이미지를 바탕으로 에너지 방향을 선택하면 지도 위에 추정선이 표시됩니다.";
+    ? "세 자료는 서로 다른 장소에서 얻은 이미지지만, 같은 존재를 가리키고 있습니다. 사건 분류를 ‘미확인 생명체 조사’로 전환합니다."
+    : allVisited ? "자료 카드의 순서를 바꾸면 숨은 글자 조각이 하나의 단어로 연결됩니다." : "각 에너지 지점 반경 10m 안에 들어가야 자료 이미지가 열립니다.";
+  if (feedback) {
+    feedback.classList.toggle("is-correct", solved);
+    feedback.textContent = !witnessWordAnswer ? "순서를 정한 뒤 단어를 제출하세요." : solved ? "GIRAFFE 확인. 세 자료는 같은 존재를 가리킵니다." : orderSolved ? "순서는 맞습니다. 글자 조각이 만드는 단어를 다시 확인하세요." : "자료의 시대 순서가 아직 맞지 않습니다.";
+  }
 }
 
 function updateEvidenceTransmissionUi() {
@@ -633,6 +597,39 @@ function startDropLinkTyping() {
   }, 34);
 }
 
+document.addEventListener("dragstart", (event) => {
+  const card = event.target.closest("[data-order-card]");
+  if (!card) return;
+  draggedWitnessId = card.dataset.orderCard;
+  card.classList.add("is-dragging");
+});
+
+document.addEventListener("dragover", (event) => {
+  if (event.target.closest("[data-order-card]")) event.preventDefault();
+});
+
+document.addEventListener("drop", (event) => {
+  const card = event.target.closest("[data-order-card]");
+  if (!card || !draggedWitnessId || draggedWitnessId === card.dataset.orderCard) return;
+  const next = witnessOrder.filter((id) => id !== draggedWitnessId);
+  next.splice(next.indexOf(card.dataset.orderCard), 0, draggedWitnessId);
+  witnessOrder = next;
+  draggedWitnessId = null;
+  updateWitnessUi();
+});
+
+document.addEventListener("dragend", () => {
+  draggedWitnessId = null;
+  document.querySelectorAll(".order-card.is-dragging").forEach((card) => card.classList.remove("is-dragging"));
+});
+
+document.addEventListener("input", (event) => {
+  if (event.target.matches("#witnessWordAnswer")) {
+    witnessWordAnswer = event.target.value;
+    updateWitnessConclusion();
+  }
+});
+
 document.addEventListener("click", (event) => {
   const goButton = event.target.closest("[data-go]");
   if (goButton) {
@@ -658,13 +655,6 @@ document.addEventListener("click", (event) => {
   const witnessSelect = event.target.closest("[data-select-witness], [data-witness-map]");
   if (witnessSelect) {
     selectWitness(witnessSelect.dataset.selectWitness || witnessSelect.dataset.witnessMap);
-    return;
-  }
-
-  const witnessDirection = event.target.closest("[data-witness-direction]");
-  if (witnessDirection) {
-    const [id, direction] = witnessDirection.dataset.witnessDirection.split(":");
-    chooseWitnessDirection(id, direction);
     return;
   }
 
