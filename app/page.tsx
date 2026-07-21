@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { PointerEvent } from "react";
 
-type Scene = "entry" | "incident" | "mission" | "camera" | "arrival" | "witness" | "imagination";
+type Scene = "entry" | "incident" | "mission" | "camera" | "arrival" | "witness" | "imagination" | "emptyRecord";
 type MessageStep = "hidden" | "first";
 type DropLinkMode = "case" | "clue" | "arrange";
 type DirectionKey = "N" | "NE" | "E" | "SE" | "S" | "SW" | "W" | "NW";
@@ -123,6 +123,18 @@ const imaginationResults = [
   "최초 기록의 내용이 이후 학생들에게 전해졌을 가능성이 있습니다.",
   "그러나 현재 확보된 자료만으로 기록 사이의 관계를 확정할 수 없습니다.",
 ];
+const emptyRecordMasks: Record<string, { x: number; y: number; width: number; height: number; radius: number }> = {
+  C: { x: 32, y: 18, width: 40, height: 54, radius: 28 },
+  B: { x: 24, y: 28, width: 42, height: 48, radius: 27 },
+  A: { x: 35, y: 45, width: 34, height: 38, radius: 25 },
+};
+const emptyRecordResults = [
+  "[수동 복원 완료] 삭제된 개체 정보가 다시 확인되었습니다.",
+  "탐사원이 입력한 정보는 위치 좌표뿐입니다. 해당 정보만으로 개체의 외형이 복원된 원인을 설명할 수 없습니다.",
+  "외부 데이터 사용 기록 없음. 원본 이미지 복구 기록 없음. 탐사원의 수동 지정 직후 개체 영역 재생성.",
+  "[개체 안정성 경고] 복원된 개체 정보가 다시 감소하고 있습니다. 현재 방식으로는 상태를 유지할 수 없습니다.",
+  "기린을 잠깐 되돌리는 것이 아니라, 사라지지 않도록 유지할 방법을 찾아야 합니다.",
+];
 
 const posterCopy: Record<string, string> = {
   student_hall: "학생회관 포스터를 통해 접속했습니다. 창문 뒤로 긴 그림자를 봤다는 제보가 남아 있습니다.",
@@ -195,6 +207,11 @@ export default function Home() {
   const [imagineAnswer, setImagineAnswer] = useState("");
   const [imagineFeedback, setImagineFeedback] = useState("복원된 페이지에서 강조된 단어를 확인하십시오.");
   const [imagineSolved, setImagineSolved] = useState(false);
+  const [emptyAutoProgress, setEmptyAutoProgress] = useState(0);
+  const [activeEmptyRecordId, setActiveEmptyRecordId] = useState(chapterThreeRecords[0].id);
+  const [emptyRecordHits, setEmptyRecordHits] = useState<Record<string, boolean>>(() => Object.fromEntries(chapterThreeRecords.map((record) => [record.id, false])));
+  const [emptyRecordFeedback, setEmptyRecordFeedback] = useState("[증거물 상태 변화 감지] 현재 기록이 최초 확보본과 일치하지 않습니다. 배경과 문자 정보에는 변화가 없습니다.");
+  const [emptyRecordComplete, setEmptyRecordComplete] = useState(false);
   const [draggedWitnessId, setDraggedWitnessId] = useState<string | null>(null);
   const restoreBoardRef = useRef<HTMLDivElement | null>(null);
   const restoreTouchedRef = useRef<Set<string>>(new Set());
@@ -373,6 +390,26 @@ export default function Home() {
     };
     // Witness location polling is intentionally tied to entering/leaving chapter 2.
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scene]);
+
+  useEffect(() => {
+    if (scene !== "emptyRecord") return;
+    let timer: number | null = null;
+    const starter = window.setTimeout(() => {
+      setEmptyAutoProgress(0);
+      setEmptyRecordFeedback("[증거물 상태 변화 감지] 현재 기록이 최초 확보본과 일치하지 않습니다. 배경과 문자 정보에는 변화가 없습니다. 개체로 분류된 영역에서만 정보 손실이 확인됩니다. 원인은 확인되지 않았습니다.");
+      timer = window.setInterval(() => {
+        setEmptyAutoProgress((current) => {
+          const next = Math.min(100, current + 4);
+          if (next >= 100 && timer !== null) window.clearInterval(timer);
+          return next;
+        });
+      }, 90);
+    }, 0);
+    return () => {
+      window.clearTimeout(starter);
+      if (timer !== null) window.clearInterval(timer);
+    };
   }, [scene]);
 
   function completeCameraScan() {
@@ -591,6 +628,30 @@ export default function Home() {
     }
     setImagineSolved(true);
     setImagineFeedback("기록 복원이 완료되었습니다.");
+  }
+
+  function handleEmptyRecordPoint(recordId: string, event: PointerEvent<HTMLButtonElement>) {
+    if (emptyRecordComplete) return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = ((event.clientX - rect.left) / rect.width) * 100;
+    const y = ((event.clientY - rect.top) / rect.height) * 100;
+    const mask = emptyRecordMasks[recordId];
+    const centerX = mask.x + mask.width / 2;
+    const centerY = mask.y + mask.height / 2;
+    const distance = Math.hypot(x - centerX, y - centerY);
+    setActiveEmptyRecordId(recordId);
+    if (distance > mask.radius) {
+      setEmptyRecordFeedback("지정한 영역에서 개체의 기존 좌표가 확인되지 않습니다.");
+      return;
+    }
+    const nextHits = { ...emptyRecordHits, [recordId]: true };
+    setEmptyRecordHits(nextHits);
+    if (chapterThreeRecords.every((record) => nextHits[record.id])) {
+      setEmptyRecordComplete(true);
+      setEmptyRecordFeedback("[수동 복원 완료] 삭제된 개체 정보가 다시 확인되었습니다.");
+      return;
+    }
+    setEmptyRecordFeedback("개체 영역 일부가 희미하게 재생성되었습니다. 남은 기록에서도 기존 위치를 지정하십시오.");
   }
 
   const allWitnessImagesAcquired = witnesses.every((witness) => visitedWitnesses[witness.id]);
@@ -1134,6 +1195,71 @@ export default function Home() {
             <span>{imagineSolved ? "3장 조사 완료" : "분석 대기"}</span>
             <strong>{imagineSolved ? "상상과 이후 기록 사이의 연결 가능성이 확인되었습니다." : "정답 입력 전에는 3장을 완료할 수 없습니다."}</strong>
             <p>{imagineSolved ? imaginationResults.join(" ") : "CAMPUSDROP은 아직 기린의 발생 원리를 확정하지 않았습니다."}</p>
+            {imagineSolved && <button className="primary-action" type="button" onClick={() => moveToScene("emptyRecord")}>4장 비어 있는 기록 확인</button>}
+          </div>
+        </section>
+      )}
+
+      {scene === "emptyRecord" && (
+        <section className="screen empty-record-screen">
+          <div className="mission-copy">
+            <p>4장</p>
+            <h2>비어 있는 기록</h2>
+            <span>증거물 세 장을 다시 불러오는 동안, 개체로 분류된 영역에서만 정보 손실이 발생했습니다.</span>
+          </div>
+
+          <div className="order-quiz-panel empty-status-panel">
+            <div className="order-quiz-copy">
+              <span>CAMPUSDROP 증거물 상태 변화 감지</span>
+              <strong>현재 기록이 최초 확보본과 일치하지 않습니다.</strong>
+              <p>배경과 문자 정보에는 변화가 없습니다. 개체로 분류된 영역에서만 정보 손실이 확인됩니다. 원인은 확인되지 않았습니다.</p>
+            </div>
+            <div className="transmission-progress restore-progress" aria-label={`자동 복원 진행률 ${emptyAutoProgress}%`}>
+              <i style={{ width: `${emptyAutoProgress}%` }} />
+              <strong>{emptyAutoProgress}%</strong>
+            </div>
+            {emptyAutoProgress >= 100 && <p className="order-feedback">[자동 복원 결과] 개체 영역의 원본 정보가 존재하지 않습니다. 자동 복원에 실패했습니다. 탐사원의 수동 확인이 필요합니다.</p>}
+          </div>
+
+          <div className="order-quiz-panel empty-manual-panel">
+            <div className="order-quiz-copy">
+              <span>CAMPUSDROP 수동 복원 지시</span>
+              <strong>최초 분석 당시 개체가 존재했던 영역을 지정하십시오.</strong>
+              <p>기린이 사라진 기록을 한 장씩 확인하고, 기억나는 위치를 터치하세요.</p>
+            </div>
+            <div className="empty-record-tabs" aria-label="비어 있는 기록 선택">
+              {chapterThreeRecords.map((record) => (
+                <button key={record.id} type="button" className={activeEmptyRecordId === record.id ? "is-active" : ""} onClick={() => setActiveEmptyRecordId(record.id)}>{record.name}</button>
+              ))}
+            </div>
+            {chapterThreeRecords.map((record) => {
+              const mask = emptyRecordMasks[record.id];
+              const isActive = activeEmptyRecordId === record.id;
+              const isHit = emptyRecordHits[record.id];
+              return (
+                <button
+                  key={record.id}
+                  type="button"
+                  className={`empty-record-card${isActive ? " is-active" : ""}${isHit ? " is-restored" : ""}${emptyRecordComplete ? " is-unstable" : ""}`}
+                  onPointerDown={(event) => handleEmptyRecordPoint(record.id, event)}
+                  hidden={!isActive}
+                >
+                  <span>{record.recordTitle}</span>
+                  <div className="empty-record-image" style={{ backgroundImage: `url(${record.photo})` }}>
+                    <i className="empty-loss-mask" style={{ left: `${mask.x}%`, top: `${mask.y}%`, width: `${mask.width}%`, height: `${mask.height}%` }} />
+                    <b className="empty-ghost-signal" style={{ left: `${mask.x}%`, top: `${mask.y}%`, width: `${mask.width}%`, height: `${mask.height}%` }} />
+                  </div>
+                  <strong>{isHit ? "개체 영역 재생성" : "개체 정보 손실"}</strong>
+                </button>
+              );
+            })}
+            <p className={`order-feedback${emptyRecordComplete ? " is-correct" : ""}`}>{emptyRecordFeedback}</p>
+          </div>
+
+          <div className={`conclusion witness-conclusion${emptyRecordComplete ? " is-open" : ""}`} aria-live="polite">
+            <span>{emptyRecordComplete ? "개체 안정성 경고" : "수동 복원 대기"}</span>
+            <strong>{emptyRecordComplete ? "복원된 개체 정보가 다시 감소하고 있습니다." : "세 기록에서 기린이 있던 위치를 지정해야 합니다."}</strong>
+            <p>{emptyRecordComplete ? emptyRecordResults.join(" ") : "운영본부는 일시적인 데이터 손상이나 저장 오류 가능성을 검토하고 있습니다."}</p>
           </div>
         </section>
       )}

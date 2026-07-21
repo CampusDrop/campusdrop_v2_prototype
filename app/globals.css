@@ -3531,3 +3531,146 @@ button:focus-visible {
   .restore-note-text { padding: 24px 18px; font-size: 16px; }
   .restore-note-text .english-line { font-size: 17px; }
 }
+
+
+/* Chapter 4: empty records */
+.empty-record-screen .mission-copy span {
+  color: rgba(31, 43, 41, 0.72);
+}
+
+.empty-status-panel,
+.empty-manual-panel {
+  margin-top: 16px;
+}
+
+.empty-record-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.empty-record-tabs button {
+  min-height: 42px;
+  border: 1px solid rgba(115, 242, 223, 0.18);
+  border-radius: 14px;
+  background: rgba(247, 241, 227, 0.08);
+  color: rgba(247, 241, 227, 0.72);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.empty-record-tabs button.is-active {
+  border-color: rgba(244, 196, 48, 0.52);
+  background: rgba(244, 196, 48, 0.14);
+  color: #fff4c7;
+}
+
+.empty-record-card {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  margin-top: 12px;
+  border: 1px solid rgba(115, 242, 223, 0.18);
+  border-radius: 20px;
+  background: rgba(247, 241, 227, 0.08);
+  padding: 10px;
+  color: #f7f1e3;
+  cursor: crosshair;
+  text-align: left;
+}
+
+.empty-record-card[hidden] {
+  display: none;
+}
+
+.empty-record-card > span {
+  color: #73f2df;
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.empty-record-card > strong {
+  color: rgba(247, 241, 227, 0.82);
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.empty-record-image {
+  position: relative;
+  overflow: hidden;
+  min-height: 430px;
+  border-radius: 16px;
+  background-position: center;
+  background-size: cover;
+  filter: saturate(0.92) contrast(1.02);
+}
+
+.empty-record-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent, rgba(2, 7, 8, 0.18));
+  pointer-events: none;
+}
+
+.empty-loss-mask,
+.empty-ghost-signal {
+  position: absolute;
+  border-radius: 48% 52% 50% 46%;
+  pointer-events: none;
+}
+
+.empty-loss-mask {
+  background:
+    radial-gradient(circle at 30% 24%, rgba(255, 252, 235, 0.72), transparent 36%),
+    repeating-linear-gradient(28deg, rgba(226, 200, 147, 0.96) 0 10px, rgba(179, 143, 86, 0.94) 10px 18px);
+  filter: blur(0.6px) saturate(0.72);
+  box-shadow: 0 0 0 999px rgba(247, 241, 227, 0.04), inset 0 0 30px rgba(40, 28, 14, 0.2);
+  opacity: 0;
+  animation: giraffe-loss 1700ms ease-out 420ms forwards;
+}
+
+.empty-ghost-signal {
+  border: 1px solid rgba(244, 196, 48, 0.72);
+  background: radial-gradient(circle, rgba(244, 196, 48, 0.16), rgba(115, 242, 223, 0.08), transparent 70%);
+  opacity: 0;
+  transform: scale(0.92);
+}
+
+.empty-record-card.is-restored .empty-loss-mask {
+  opacity: 0.28;
+}
+
+.empty-record-card.is-restored .empty-ghost-signal {
+  opacity: 0.72;
+  animation: empty-ghost-return 900ms ease-out both;
+}
+
+.empty-record-card.is-unstable .empty-ghost-signal {
+  animation: empty-ghost-return 900ms ease-out both, empty-instability 1700ms ease-in-out 900ms infinite;
+}
+
+@keyframes giraffe-loss {
+  0% { opacity: 0; transform: scale(0.86) rotate(-1deg); filter: blur(3px) saturate(0.3); }
+  55% { opacity: 0.94; transform: scale(1.04) rotate(1deg); }
+  100% { opacity: 0.98; transform: scale(1); filter: blur(0.6px) saturate(0.72); }
+}
+
+@keyframes empty-ghost-return {
+  0% { opacity: 0; transform: scale(0.72); box-shadow: 0 0 0 rgba(244, 196, 48, 0); }
+  60% { opacity: 0.92; transform: scale(1.08); box-shadow: 0 0 34px rgba(244, 196, 48, 0.28); }
+  100% { opacity: 0.72; transform: scale(1); }
+}
+
+@keyframes empty-instability {
+  0%, 100% { opacity: 0.54; filter: blur(0); }
+  45% { opacity: 0.25; filter: blur(2px); }
+  70% { opacity: 0.7; filter: blur(0.5px); }
+}
+
+@media (max-width: 390px) {
+  .empty-record-image { min-height: 360px; }
+  .empty-record-tabs { gap: 6px; }
+  .empty-record-tabs button { font-size: 11px; }
+}

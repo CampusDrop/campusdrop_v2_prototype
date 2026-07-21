@@ -281,6 +281,42 @@
           <span>분석 대기</span>
           <strong>정답 입력 전에는 3장을 완료할 수 없습니다.</strong>
           <p>CAMPUSDROP은 아직 기린의 발생 원리를 확정하지 않았습니다.</p>
+          <button class="primary-action" type="button" id="startChapterFour" hidden>4장 비어 있는 기록 확인</button>
+        </div>
+      </section>
+
+      <section class="screen empty-record-screen" data-screen="emptyRecord">
+        <div class="mission-copy">
+          <p>4장</p>
+          <h2>비어 있는 기록</h2>
+          <span>증거물 세 장을 다시 불러오는 동안, 개체로 분류된 영역에서만 정보 손실이 발생했습니다.</span>
+        </div>
+
+        <div class="order-quiz-panel empty-status-panel">
+          <div class="order-quiz-copy">
+            <span>CAMPUSDROP 증거물 상태 변화 감지</span>
+            <strong>현재 기록이 최초 확보본과 일치하지 않습니다.</strong>
+            <p>배경과 문자 정보에는 변화가 없습니다. 개체로 분류된 영역에서만 정보 손실이 확인됩니다. 원인은 확인되지 않았습니다.</p>
+          </div>
+          <div class="transmission-progress restore-progress" aria-label="자동 복원 진행률"><i id="emptyAutoProgressBar"></i><strong id="emptyAutoProgressText">0%</strong></div>
+          <p class="order-feedback" id="emptyAutoResult" hidden>[자동 복원 결과] 개체 영역의 원본 정보가 존재하지 않습니다. 자동 복원에 실패했습니다. 탐사원의 수동 확인이 필요합니다.</p>
+        </div>
+
+        <div class="order-quiz-panel empty-manual-panel">
+          <div class="order-quiz-copy">
+            <span>CAMPUSDROP 수동 복원 지시</span>
+            <strong>최초 분석 당시 개체가 존재했던 영역을 지정하십시오.</strong>
+            <p>기린이 사라진 기록을 한 장씩 확인하고, 기억나는 위치를 터치하세요.</p>
+          </div>
+          <div class="empty-record-tabs" id="emptyRecordTabs" aria-label="비어 있는 기록 선택"></div>
+          <div id="emptyRecordStage"></div>
+          <p class="order-feedback" id="emptyRecordFeedback">[증거물 상태 변화 감지] 현재 기록이 최초 확보본과 일치하지 않습니다. 배경과 문자 정보에는 변화가 없습니다.</p>
+        </div>
+
+        <div class="conclusion witness-conclusion" id="emptyRecordConclusion" aria-live="polite">
+          <span>수동 복원 대기</span>
+          <strong>세 기록에서 기린이 있던 위치를 지정해야 합니다.</strong>
+          <p>운영본부는 일시적인 데이터 손상이나 저장 오류 가능성을 검토하고 있습니다.</p>
         </div>
       </section>
     </main>
