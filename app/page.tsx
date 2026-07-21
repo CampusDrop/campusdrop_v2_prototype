@@ -64,43 +64,53 @@ const directionVectors: Record<DirectionKey, { x: number; y: number }> = {
 const witnesses = [
   {
     id: "A",
-    name: "목격자 A",
+    name: "기록 03",
+    recordTitle: "익명 게시판의 목격담",
     place: "잔디밭 남서쪽",
     location: { lat: 37.55009418972363, lng: 127.0736196575354 },
     photo: "/gfPhoto_03.png",
+    piece: "FE",
     correctDirection: "N" as DirectionKey,
   },
   {
     id: "B",
-    name: "목격자 B",
+    name: "기록 02",
+    recordTitle: "동아리 회지의 삽화",
     place: "북쪽 보행로",
     location: { lat: 37.55143211168644, lng: 127.07371716568217 },
     photo: "/gfPhoto_02.png",
+    piece: "AF",
     correctDirection: "SE" as DirectionKey,
   },
   {
     id: "C",
-    name: "목격자 C",
+    name: "기록 01",
+    recordTitle: "오래된 학생수첩의 낙서",
     place: "동쪽 진입로",
     location: { lat: 37.550652047104954, lng: 127.0748310833212 },
     photo: "/gfPhoto_01.png",
+    piece: "GIR",
     correctDirection: "NW" as DirectionKey,
   },
 ];
+const correctWitnessOrder = ["C", "B", "A"];
 const dropLinkBriefings = [
   "사용자 인증 완료. 임시 현장 조사원으로 등록합니다. 사건 번호 CD-SJ-01, 사건명 시계탑 대형 생물 목격 사건.",
   "세종대학교에는 오래된 소문이 하나 있습니다. 시계탑 꼭대기에는 기린이 산다. 본부는 목격 신고 7건을 근거로 현장 조사가 필요하다고 판단했습니다.",
 ];
 const clueTransmissionBriefings = [
-  "표본 A 수신 완료. 위치 기록과 촬영 시점이 현장 조사 로그에 정상 연결됐습니다.",
-  "노란색 섬유는 인공 재료가 아닙니다. 기존 동물 자료와 정확히 일치하지 않지만, 대형 초식동물의 체모 특성과 유사합니다.",
-  "분석 결과, 시계탑 주변 세 지점에서 비정상 에너지 반응이 강하게 감지됩니다. 해당 위치를 지도상에 표시했습니다.",
-  "각 목적지 반경 10m 안에 진입해 현장 자료 이미지를 확보하세요. 도착 전에는 자료 접근 권한이 열리지 않습니다.",
+  "증거물 전송이 완료되었습니다.",
+  "확보된 노란 털의 주인을 특정할 수 없습니다.",
+  "시계탑 주변에서 접수된 과거 기록을 조회합니다.",
+  "CAMPUSDROP 기록 저장소 분석 중...",
+  "서로 다른 시기에 작성된 관련 기록 세 건이 발견되었습니다.",
+  "일부 정보가 손상되어 기록의 정확한 순서를 확인할 수 없습니다.",
+  "에너지 반응이 강한 지점 3곳을 지도상에 표시했습니다. 각 목적지 반경 10m 안에 진입해 현장 자료 이미지를 확보하세요.",
 ];
 const witnessArrangeBriefings = [
-  "자료 이미지 3건이 모두 확보됐습니다. 각 기록은 서로 다른 시점과 위치에서 수집된 자료입니다.",
-  "세 자료 이미지를 오래된 순서대로 배열하십시오. 이미지 속에 남은 글자 조각이 하나의 단어를 구성합니다.",
-  "배열을 완료한 뒤 증거물이 나타내는 단어를 영문으로 제출하세요. 대소문자는 구분하지 않습니다.",
+  "자료 이미지 3건이 모두 확보됐습니다.",
+  "[CAMPUSDROP 기록 분석 지시] 획득한 세 건의 기록을 분석하십시오.",
+  "기록의 형태와 내용을 확인하고, 오래된 기록부터 순서대로 배치하십시오.",
 ];
 
 const posterCopy: Record<string, string> = {
@@ -157,8 +167,14 @@ export default function Home() {
   const [witnessStatus, setWitnessStatus] = useState("에너지 반응이 강한 지점 3곳을 방문해 자료 이미지를 확보하세요.");
   const [acquiredWitnessId, setAcquiredWitnessId] = useState<string | null>(null);
   const [arrangeBriefingQueued, setArrangeBriefingQueued] = useState(false);
-  const [witnessOrder, setWitnessOrder] = useState<string[]>(["A", "B", "C"]);
+  const [witnessOrder, setWitnessOrder] = useState<string[]>(["A", "C", "B"]);
+  const [selectedOrderCardId, setSelectedOrderCardId] = useState<string | null>(null);
+  const [witnessOrderSubmitted, setWitnessOrderSubmitted] = useState(false);
+  const [witnessOrderFeedback, setWitnessOrderFeedback] = useState("기록을 오래된 순서대로 배치한 뒤 분석을 요청하세요.");
   const [witnessAnswer, setWitnessAnswer] = useState("");
+  const [witnessAnswerFeedback, setWitnessAnswerFeedback] = useState("기록 배열이 확인되면 보고 입력창이 열립니다.");
+  const [witnessAnswerSubmitted, setWitnessAnswerSubmitted] = useState(false);
+  const [expandedWitnessId, setExpandedWitnessId] = useState<string | null>(null);
   const [draggedWitnessId, setDraggedWitnessId] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const cameraStreamRef = useRef<MediaStream | null>(null);
@@ -436,8 +452,17 @@ export default function Home() {
     acquireWitnessEvidence(activeWitnessId, { admin: true });
   }
 
+  function resetWitnessAnalysis() {
+    setWitnessOrderSubmitted(false);
+    setWitnessAnswerSubmitted(false);
+    setWitnessAnswer("");
+    setWitnessAnswerFeedback("기록 배열이 확인되면 보고 입력창이 열립니다.");
+    setWitnessOrderFeedback("기록을 오래된 순서대로 배치한 뒤 분석을 요청하세요.");
+  }
+
   function moveWitnessOrder(sourceId: string, targetId: string) {
-    if (sourceId === targetId) return;
+    if (sourceId === targetId || witnessOrderSubmitted) return;
+    resetWitnessAnalysis();
     setWitnessOrder((current) => {
       const next = current.filter((id) => id !== sourceId);
       const targetIndex = next.indexOf(targetId);
@@ -446,9 +471,60 @@ export default function Home() {
     });
   }
 
+  function swapWitnessOrder(sourceId: string, targetId: string) {
+    if (sourceId === targetId || witnessOrderSubmitted) return;
+    resetWitnessAnalysis();
+    setWitnessOrder((current) => {
+      const next = [...current];
+      const sourceIndex = next.indexOf(sourceId);
+      const targetIndex = next.indexOf(targetId);
+      if (sourceIndex < 0 || targetIndex < 0) return current;
+      [next[sourceIndex], next[targetIndex]] = [next[targetIndex], next[sourceIndex]];
+      return next;
+    });
+  }
+
+  function selectOrderCard(id: string) {
+    if (witnessOrderSubmitted) return;
+    if (!selectedOrderCardId) {
+      setSelectedOrderCardId(id);
+      setWitnessOrderFeedback("교환할 두 번째 기록 카드를 선택하세요.");
+      return;
+    }
+    swapWitnessOrder(selectedOrderCardId, id);
+    setSelectedOrderCardId(null);
+  }
+
+  function submitWitnessOrder() {
+    if (!allWitnessImagesAcquired) return;
+    if (witnessOrder.join("") !== correctWitnessOrder.join("")) {
+      setWitnessOrderFeedback("기록 사이의 시간적 연결을 확인할 수 없습니다. 증거물의 형태와 기록 방식을 다시 분석하십시오.");
+      return;
+    }
+    setWitnessOrderSubmitted(true);
+    setSelectedOrderCardId(null);
+    setWitnessOrderFeedback("기록의 시간적 배열이 확인되었습니다. 각 기록에 포함된 식별 문자를 연결하십시오.");
+    setWitnessAnswerFeedback("세 기록에 공통으로 등장하는 생물을 영문으로 보고하십시오.");
+  }
+
+  function submitWitnessAnswer() {
+    if (!witnessOrderSubmitted) return;
+    const normalized = witnessAnswer.trim().toUpperCase();
+    if (witnessAnswer.trim() === "기린") {
+      setWitnessAnswerFeedback("국제 생물 분류 기록을 위해 영문 명칭이 필요합니다.");
+      return;
+    }
+    if (normalized !== "GIRAFFE") {
+      setWitnessAnswerFeedback("보고된 명칭이 확보된 증거물과 일치하지 않습니다.");
+      return;
+    }
+    setWitnessAnswerSubmitted(true);
+    setWitnessAnswerFeedback("분석 결과가 등록되었습니다.");
+  }
+
   const allWitnessImagesAcquired = witnesses.every((witness) => visitedWitnesses[witness.id]);
-  const witnessOrderSolved = witnessOrder.join("") === "CBA";
-  const witnessSolved = witnessOrderSolved && witnessAnswer.trim().toUpperCase() === "GIRAFFE";
+  const witnessOrderSolved = witnessOrderSubmitted;
+  const witnessSolved = witnessAnswerSubmitted;
 
   function handleDropLink() {
     if (messageStep === "first") {
@@ -776,8 +852,8 @@ export default function Home() {
         <section className="screen witness-screen">
           <div className="mission-copy">
             <p>2장</p>
-            <h2>에너지 지점을 조사하라</h2>
-            <span>DROP LINK가 표시한 강한 에너지 반응 지점으로 이동해 자료 이미지를 확보하세요.</span>
+            <h2>여러 사람이 그린 하나의 기린</h2>
+            <span>DROP LINK가 표시한 강한 에너지 반응 지점으로 이동해 손상된 과거 기록을 확보하세요.</span>
           </div>
 
           <div className="campus-radar witness-radar">
@@ -809,16 +885,17 @@ export default function Home() {
                 <article key={witness.id} className={`witness-card${isActive ? " is-active" : ""}${isVisited ? " is-visited" : ""}`}>
                   <button type="button" className="witness-card-head" onClick={() => setActiveWitnessId(witness.id)}>
                     <span>{witness.name}</span>
-                    <strong>{witness.place}</strong>
+                    <strong>{isVisited ? witness.recordTitle : witness.place}</strong>
                     <em>{witnessDistances[witness.id] === null ? "거리 측정 전" : `${witnessDistances[witness.id]}m`}</em>
                   </button>
                   <div className={`witness-photo${isVisited ? " is-open" : " is-locked"}`}>
                     {isVisited ? (
-                      <div
+                      <button
+                        type="button"
                         className="witness-photo-image"
-                        role="img"
-                        aria-label={`${witness.name} 자료 이미지`}
+                        aria-label={`${witness.name} 자료 이미지 확대`}
                         style={{ backgroundImage: `url(${witness.photo})` }}
+                        onClick={() => setExpandedWitnessId(witness.id)}
                       />
                     ) : (
                       <span>도착 전 접근 잠김</span>
@@ -835,8 +912,8 @@ export default function Home() {
             <div className="order-quiz-panel">
               <div className="order-quiz-copy">
                 <span>CAMPUSDROP 분석 지시</span>
-                <strong>자료 이미지를 오래된 순서대로 배열하세요.</strong>
-                <p>카드를 드래그해 순서를 바꾼 뒤, 세 자료가 나타내는 영문 단어를 제출하세요.</p>
+                <strong>획득한 세 건의 기록을 분석하십시오.</strong>
+                <p>기록의 형태와 내용을 확인하고, 오래된 기록부터 순서대로 배치하십시오. 드래그하거나 카드 두 장을 차례로 눌러 위치를 교환할 수 있습니다.</p>
               </div>
               <div className="order-dropzone" aria-label="자료 이미지 순서 배열">
                 {witnessOrder.map((id, index) => {
@@ -844,9 +921,11 @@ export default function Home() {
                   return (
                     <article
                       key={id}
-                      className={`order-card${draggedWitnessId === id ? " is-dragging" : ""}`}
-                      draggable
+                      className={`order-card${draggedWitnessId === id ? " is-dragging" : ""}${selectedOrderCardId === id ? " is-selected" : ""}${witnessOrderSubmitted ? " is-locked" : ""}`}
+                      draggable={!witnessOrderSubmitted}
+                      onClick={() => selectOrderCard(id)}
                       onDragStart={(event) => {
+                        if (witnessOrderSubmitted) return;
                         setDraggedWitnessId(id);
                         event.dataTransfer.setData("text/plain", id);
                       }}
@@ -861,27 +940,63 @@ export default function Home() {
                       <span>{String(index + 1).padStart(2, "0")}</span>
                       <div style={{ backgroundImage: `url(${witness.photo})` }} role="img" aria-label={`${witness.name} 자료 이미지`} />
                       <strong>{witness.name}</strong>
+                      <small>{witness.recordTitle}</small>
+                      <button type="button" onClick={(event) => { event.stopPropagation(); setExpandedWitnessId(id); }}>확대</button>
                     </article>
                   );
                 })}
               </div>
-              <label className="word-submit">
-                <span>증거물이 나타내는 단어</span>
-                <input value={witnessAnswer} onChange={(event) => setWitnessAnswer(event.target.value)} placeholder="영문 정답 입력" aria-label="증거물이 나타내는 단어" />
-              </label>
-              <p className={`order-feedback${witnessSolved ? " is-correct" : ""}`}>
-                {!witnessAnswer ? "순서를 정한 뒤 단어를 제출하세요." : witnessSolved ? "GIRAFFE 확인. 세 자료는 같은 존재를 가리킵니다." : witnessOrderSolved ? "순서는 맞습니다. 글자 조각이 만드는 단어를 다시 확인하세요." : "자료의 시대 순서가 아직 맞지 않습니다."}
-              </p>
+              {witnessOrderSubmitted && (
+                <div className="letter-chain" aria-label="식별 문자 연결">
+                  {witnessOrder.map((id, index) => {
+                    const witness = witnesses.find((item) => item.id === id)!;
+                    return <span key={id}>{witness.piece}{index < witnessOrder.length - 1 ? <b>+</b> : null}</span>;
+                  })}
+                </div>
+              )}
+              <button className="primary-action" type="button" onClick={submitWitnessOrder} disabled={witnessOrderSubmitted}>분석 요청</button>
+              <p className={`order-feedback${witnessOrderSubmitted ? " is-correct" : ""}`}>{witnessOrderFeedback}</p>
+              {witnessOrderSubmitted && (
+                <div className="word-report-panel">
+                  <div className="order-quiz-copy">
+                    <span>CAMPUSDROP 분석 보고 요청</span>
+                    <strong>세 기록에 공통으로 등장하는 생물을 확인하십시오.</strong>
+                    <p>확인한 생물의 명칭을 영문으로 보고하십시오.</p>
+                  </div>
+                  <label className="word-submit">
+                    <span>생물 명칭 보고</span>
+                    <input value={witnessAnswer} onChange={(event) => setWitnessAnswer(event.target.value)} placeholder="영문 정답 입력" aria-label="생물 명칭 보고" />
+                  </label>
+                  <button className="primary-action" type="button" onClick={submitWitnessAnswer} disabled={witnessAnswerSubmitted}>보고 제출</button>
+                  <p className={`order-feedback${witnessAnswerSubmitted ? " is-correct" : ""}`}>{witnessAnswerFeedback}</p>
+                </div>
+              )}
             </div>
           )}
 
           <div className={`conclusion witness-conclusion${witnessSolved ? " is-open" : ""}`} aria-live="polite">
-            <span>{witnessSolved ? "분석 완료" : "운영본부 분석 대기"}</span>
-            <strong>{witnessSolved ? "증거물이 나타내는 단어는 GIRAFFE입니다." : allWitnessImagesAcquired ? "자료 이미지를 순서대로 배열하고 단어를 제출하세요." : "세 지점의 자료 이미지를 모두 확보하세요."}</strong>
-            <p>{witnessSolved ? "세 자료는 서로 다른 장소에서 얻은 이미지지만, 같은 존재를 가리키고 있습니다. 사건 분류를 ‘미확인 생명체 조사’로 전환합니다." : allWitnessImagesAcquired ? "자료 카드의 순서를 바꾸면 숨은 글자 조각이 하나의 단어로 연결됩니다." : "각 에너지 지점 반경 10m 안에 들어가야 자료 이미지가 열립니다."}</p>
+            <span>{witnessSolved ? "조사 결과 갱신" : "운영본부 분석 대기"}</span>
+            <strong>{witnessSolved ? "시계탑의 기린은 최근에 처음 나타난 존재가 아닐 가능성이 있습니다." : allWitnessImagesAcquired ? "자료 이미지를 오래된 순서대로 배열하세요." : "세 지점의 자료 이미지를 모두 확보하세요."}</strong>
+            <p>{witnessSolved ? "분석 결과가 등록되었습니다. 확인된 생물: GIRAFFE. 세 기록은 서로 다른 시기에 작성되었고, 작성자 사이의 직접적인 연관성은 확인되지 않습니다. 그러나 모든 기록에는 시계탑 상부에 나타난 긴 목의 기린이 묘사되어 있습니다." : allWitnessImagesAcquired ? "배열이 확인되기 전에는 생물명 보고 입력창이 열리지 않습니다." : "각 에너지 지점 반경 10m 안에 들어가야 자료 이미지가 열립니다."}</p>
           </div>
         </section>
       )}
+
+      {expandedWitnessId && (() => {
+        const witness = witnesses.find((item) => item.id === expandedWitnessId);
+        if (!witness) return null;
+        return (
+          <div className="witness-acquisition-modal evidence-preview-modal" role="dialog" aria-modal="true" aria-label="기록 이미지 확대">
+            <div className="witness-acquisition-card evidence-preview-card">
+              <span>{witness.name}</span>
+              <strong>{witness.recordTitle}</strong>
+              <div className="witness-acquisition-photo evidence-preview-photo" style={{ backgroundImage: `url(${witness.photo})` }} role="img" aria-label={`${witness.name} 확대 이미지`} />
+              <p>이미지 속 기록 방식과 식별 문자를 확인하세요.</p>
+              <button className="primary-action" type="button" onClick={() => setExpandedWitnessId(null)}>닫기</button>
+            </div>
+          </div>
+        );
+      })()}
 
       {acquiredWitnessId && (() => {
         const witness = witnesses.find((item) => item.id === acquiredWitnessId);
