@@ -245,6 +245,11 @@ function showScreen(name) {
     stopWitnessLocationUpdates();
   }
 
+  if (name === "witnessOrder") {
+    renderOrderQuiz();
+    updateWitnessConclusion();
+  }
+
   if (name === "imagination") {
     renderChapterThree();
   }
