@@ -504,6 +504,7 @@ function startEvidenceTransmission() {
       window.setTimeout(() => {
         evidenceSending = false;
         updateEvidenceTransmissionUi();
+        showScreen("witness");
         dropLinkMode = "clue";
         dropLinkLine = 0;
         document.querySelector("#dropLinkModal").hidden = false;
