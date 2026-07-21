@@ -224,9 +224,80 @@
           <span>운영본부 분석 대기</span>
           <strong>세 지점의 자료 이미지를 모두 확보하세요.</strong>
           <p>각 에너지 지점 반경 10m 안에 들어가야 자료 이미지가 열립니다.</p>
+          <button class="primary-action" type="button" id="startChapterThree" hidden>3장 기록 재분석 시작</button>
+        </div>
+      </section>
+
+      <section class="screen imagination-screen" data-screen="imagination">
+        <div class="mission-copy">
+          <p>3장</p>
+          <h2>나만의 상상</h2>
+          <span>2장에서 확보한 세 기록을 시간순으로 다시 비교합니다. CAMPUSDROP은 아직 차이를 특정하지 못했습니다.</span>
+        </div>
+
+        <div class="order-quiz-panel imagination-panel">
+          <div class="order-quiz-copy">
+            <span>CAMPUSDROP 증거 분석 지시</span>
+            <strong>획득한 세 건의 증거물을 시간순으로 비교하십시오.</strong>
+            <p>기록 속 개체의 외형에서 달라진 점이나 특별한 특징이 발견된다면, 해당 요소를 영문으로 보고하십시오.</p>
+          </div>
+          <div class="imagination-record-grid" id="chapterThreeRecords" aria-label="시간순 기록 비교"></div>
+          <label class="word-submit"><span>특징 보고</span><input id="starAnswer" placeholder="영문 정답 입력" aria-label="특징 보고"></label>
+          <button class="primary-action" type="button" id="submitStarAnswer">분석 보고 제출</button>
+          <p class="order-feedback" id="starFeedback">기록 속 개체의 외형에서 달라진 특징을 영문으로 보고하십시오.</p>
+        </div>
+
+        <div class="order-quiz-panel restore-panel" id="restorePanel" hidden>
+          <div class="order-quiz-copy">
+            <span>CAMPUSDROP 기록 복원</span>
+            <strong>증거물 01의 미복원 페이지를 복원하십시오.</strong>
+            <p>화면을 문질러 훼손된 표면을 제거하세요. 조작이 어려우면 대체 복원 버튼을 사용할 수 있습니다.</p>
+          </div>
+          <div class="restore-board" id="restoreBoard">
+            <div class="restore-page-image" role="img" aria-label="복원된 학생수첩 다음 장"></div>
+            <div class="restore-note-text" id="restoreNoteText" aria-hidden="true">
+              <p>공강이라 잔디밭에 누워서 탑을 보고 있었다.</p>
+              <p>저 위로 기린 한 마리가 빼꼼 올라오면 재밌겠다는 생각이 들었다.</p>
+              <p class="english-line">Everything you can <mark>imagine</mark> is real.</p>
+            </div>
+            <div class="restore-damage-layer" id="restoreDamageLayer" aria-hidden="true"></div>
+          </div>
+          <div class="transmission-progress restore-progress" aria-label="복원 진행률"><i id="restoreProgressBar"></i><strong id="restoreProgressText">0%</strong></div>
+          <button class="secondary-action" type="button" id="completeRestoreButton">대체 복원 버튼</button>
+        </div>
+
+        <div class="order-quiz-panel word-report-panel" id="imaginePanel" hidden>
+          <div class="order-quiz-copy">
+            <span>CAMPUSDROP 기록 복원 지시</span>
+            <strong>복원된 페이지에서 강조된 단어를 확인하십시오.</strong>
+            <p>해당 단어를 영문으로 입력하십시오.</p>
+          </div>
+          <label class="word-submit"><span>강조 단어 입력</span><input id="imagineAnswer" placeholder="영문 정답 입력" aria-label="강조 단어 입력"></label>
+          <button class="primary-action" type="button" id="submitImagineAnswer">복원 결과 제출</button>
+          <p class="order-feedback" id="imagineFeedback">복원된 페이지에서 강조된 단어를 확인하십시오.</p>
+        </div>
+
+        <div class="conclusion witness-conclusion" id="imaginationConclusion" aria-live="polite">
+          <span>분석 대기</span>
+          <strong>정답 입력 전에는 3장을 완료할 수 없습니다.</strong>
+          <p>CAMPUSDROP은 아직 기린의 발생 원리를 확정하지 않았습니다.</p>
         </div>
       </section>
     </main>
+
+    <div class="witness-acquisition-modal evidence-preview-modal" id="chapterThreePreviewModal" role="dialog" aria-modal="true" aria-label="3장 기록 이미지 확대" hidden>
+      <div class="witness-acquisition-card evidence-preview-card">
+        <span id="chapterThreePreviewTitle">기록</span>
+        <strong id="chapterThreePreviewSubtitle">자료 이미지</strong>
+        <div class="witness-acquisition-photo evidence-preview-photo" id="chapterThreePreviewPhoto" role="img" aria-label="기록 이미지"></div>
+        <div class="preview-nav">
+          <button type="button" id="chapterThreePrev">이전</button>
+          <button type="button" id="chapterThreeNext">다음</button>
+        </div>
+        <p id="chapterThreePreviewCopy">세 이미지를 직접 비교해 달라진 특징을 찾으세요.</p>
+        <button class="primary-action" type="button" id="closeChapterThreePreview">닫기</button>
+      </div>
+    </div>
 
     <div class="witness-acquisition-modal" id="witnessAcquisitionModal" role="dialog" aria-modal="true" aria-label="자료 이미지 획득" hidden>
       <div class="witness-acquisition-card">
