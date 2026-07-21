@@ -96,10 +96,8 @@
         <div class="campus-radar">
           <div class="real-map-shell" id="missionMap">
             <iframe class="real-map-frame" title="농동로 209 잔디밭 지도" src="https://www.openstreetmap.org/export/embed.html?bbox=127.07081801425053%2C37.54841617275794%2C127.07681801425053%2C37.552416172757944&layer=mapnik" loading="lazy"></iframe>
-            <div class="map-range-circle mission-fallback-overlay" style="left: 50%; top: 50%;" aria-hidden="true"></div>
-            <div class="map-investigation-marker mission-fallback-overlay" style="left: 50%; top: 50%;" aria-hidden="true"></div>
             <div class="map-target-panel"><span>조사 지점</span><strong>농동로 209 잔디밭</strong></div>
-            <p class="map-loading" id="mapLoading">Kakao 키 없이 실제 지도 미리보기 표시 중</p>
+            <p class="map-loading" id="mapLoading">Kakao 키가 없으면 좌표 고정 마커를 표시할 수 없습니다</p>
           </div>
           <div class="radar-data">
             <div><span>예상 거리</span><strong id="distanceText">위치 확인 필요</strong></div>
@@ -174,12 +172,7 @@
         <div class="campus-radar witness-radar">
           <div class="real-map-shell witness-map-shell" id="witnessMap">
             <iframe class="real-map-frame" title="기록 확보 지점 실제 지도" src="https://www.openstreetmap.org/export/embed.html?bbox=127.0731696575354%2C37.54974418972363%2C127.0752810833212%2C37.55178211168644&layer=mapnik&marker=37.55106257128708%2C127.07392616012359" loading="lazy"></iframe>
-            <svg class="witness-line-layer" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" id="witnessLines"></svg>
-            <button type="button" class="witness-map-marker is-active" data-witness-map="A" style="left: 21.31%; top: 80.35%;" aria-label="기록 03 확보 지점">A</button>
-            <button type="button" class="witness-map-marker" data-witness-map="B" style="left: 25.93%; top: 15.65%;" aria-label="기록 02 확보 지점">B</button>
-            <button type="button" class="witness-map-marker" data-witness-map="C" style="left: 78.69%; top: 53.37%;" aria-label="기록 01 확보 지점">C</button>
-            <div class="map-user-marker" id="witnessUserMarker" aria-hidden="true" hidden></div>
-            <p class="map-loading" id="witnessMapLoading">Kakao 키 없이 실제 지도 미리보기 표시 중</p>
+            <p class="map-loading" id="witnessMapLoading">Kakao 키가 없으면 좌표 고정 마커를 표시할 수 없습니다</p>
           </div>
           <div class="radar-data witness-data">
             <div><span>조사 범위</span><strong>10m</strong></div>
