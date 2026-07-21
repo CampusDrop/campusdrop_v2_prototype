@@ -512,10 +512,10 @@ function acquireWitnessEvidence(id, options = {}) {
   }
 
   visitedWitnesses[witness.id] = true;
+  if (witnesses.every((item) => visitedWitnesses[item.id])) arrangeBriefingQueued = true;
   triggerEvidenceVibration();
   document.querySelector("#witnessStatus").textContent = `${witness.name} 자료 이미지를 확보했습니다. 획득 자료를 확인하세요.`;
   openWitnessAcquisition(witness);
-  if (witnesses.every((item) => visitedWitnesses[item.id])) arrangeBriefingQueued = true;
   updateWitnessUi();
 }
 
