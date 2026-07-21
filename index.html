@@ -297,7 +297,7 @@
         <div class="mission-copy">
           <p>4장</p>
           <h2>비어 있는 기록</h2>
-          <span>증거물 세 장을 다시 불러오는 동안, 개체로 분류된 영역에서만 정보 손실이 발생했습니다.</span>
+          <span>원본 기록을 다시 불러오는 동안 개체로 분류된 영역에서만 정보 손실이 발생했습니다.</span>
         </div>
 
         <div class="order-quiz-panel empty-status-panel">
@@ -307,7 +307,7 @@
             <p>배경과 문자 정보에는 변화가 없습니다. 개체로 분류된 영역에서만 정보 손실이 확인됩니다. 원인은 확인되지 않았습니다.</p>
           </div>
           <div class="transmission-progress restore-progress" aria-label="자동 복원 진행률"><i id="emptyAutoProgressBar"></i><strong id="emptyAutoProgressText">0%</strong></div>
-          <p class="order-feedback" id="emptyAutoResult" hidden>[자동 복원 결과] 개체 영역의 원본 정보가 존재하지 않습니다. 자동 복원에 실패했습니다. 탐사원의 수동 확인이 필요합니다.</p>
+          <p class="order-feedback" id="emptyAutoResult" hidden>[DROPLINK] 배경 정보 복원 완료. 문자 정보 복원 완료. 개체 정보 복원 실패. 개체 영역의 원본 데이터를 확인할 수 없습니다.</p>
         </div>
 
         <div class="order-quiz-panel empty-manual-panel">
@@ -324,7 +324,7 @@
         <div class="conclusion witness-conclusion" id="emptyRecordConclusion" aria-live="polite">
           <span>수동 복원 대기</span>
           <strong>세 기록에서 기린이 있던 위치를 지정해야 합니다.</strong>
-          <p>운영본부는 일시적인 데이터 손상이나 저장 오류 가능성을 검토하고 있습니다.</p>
+          <p>[운영본부] 파일 저장 과정에서 발생한 오류일 가능성이 있습니다.</p>
           <button class="primary-action" type="button" id="startChapterFive" hidden>5장 잔류 신호 추적</button>
         </div>
       </section>
@@ -333,18 +333,18 @@
         <div class="mission-copy">
           <p>5장</p>
           <h2>최초의 대화</h2>
-          <span>기록에서 사라지던 개체 정보가 시계탑 인근의 등록되지 않은 이미지와 연결됩니다.</span>
+          <span>잔류 패턴이 시계탑 인근의 등록되지 않은 이미지와 연결됩니다.</span>
         </div>
 
         <div class="final-signal-panel">
           <div class="order-quiz-copy">
             <span>CAMPUSDROP 미확인 패턴 감지</span>
             <strong>등록되지 않은 이미지를 찾아 조사하십시오.</strong>
-            <p>[미확인 패턴 감지] 세 증거물에서 동일한 잔류 신호가 확인되었습니다.</p>
-            <p>신호의 출처는 시계탑 인근으로 추정됩니다. 등록되지 않은 이미지를 찾아 조사하십시오.</p>
-            <p>특별 이미지의 일부분을 확대했습니다. 현장에서 동일한 조각을 찾아 CAMPUSDROP 카메라 중앙에 맞추세요.</p>
+            <p>[DROPLINK] 세 증거물에서 동일한 잔류 패턴이 감지되었습니다.</p>
+            <p>잔류 패턴의 출처는 시계탑 인근으로 추정됩니다. 등록되지 않은 이미지를 찾아 조사하십시오.</p>
+            <p>특별 이미지의 일부분을 확대했습니다. 현장에서 동일한 조각을 찾아 DROPLINK 카메라 중앙에 맞추세요.</p>
           </div>
-          <div class="signal-fragment" aria-label="특별 이미지 조각"><i></i><span>잔류 신호 조각</span><strong>노란 곡선 / 검은 여백 / 별빛 잡음</strong></div>
+          <div class="signal-fragment" aria-label="특별 이미지 조각"><i></i><span>잔류 패턴 조각</span><strong>노란 곡선 / 검은 여백 / 별빛 잡음</strong></div>
           <div class="signal-route"><span>조사 구역</span><strong>시계탑 인근 숨겨진 포스터</strong><p>정확한 좌표보다 현장 관찰이 중요합니다. 조각과 같은 이미지를 찾으세요.</p></div>
         </div>
 
@@ -356,29 +356,29 @@
             <div class="giraffe-ar-stage" id="finalArStage" aria-label="3D 기린 등장 연출" hidden>
               <div class="summon-particles"></div>
               <div class="final-giraffe-model"><i class="giraffe-horn one"></i><i class="giraffe-horn two"></i><i class="giraffe-ear left"></i><i class="giraffe-ear right"></i><i class="giraffe-head"></i><i class="giraffe-neck"></i><i class="giraffe-star"></i><i class="giraffe-body"></i></div>
-              <div class="analysis-error">[분석 오류] 등록되지 않은 개체 정보가 카메라 화면에 표시되고 있습니다.</div>
+              <div class="analysis-error">[DROPLINK] 등록되지 않은 개체 정보가 카메라 화면에 표시되고 있습니다. 3D 데이터의 생성 경로를 확인할 수 없습니다.</div>
             </div>
           </div>
           <p class="order-feedback" id="finalScanStatus">잔류 신호와 일치하는 특별 이미지를 찾아 카메라 중앙에 맞추세요.</p>
-          <div class="final-scan-actions"><button class="primary-action" type="button" id="startFinalPosterScan">CAMPUSDROP 카메라로 조사</button><button class="secondary-action" type="button" id="adminMatchFinalPoster">관리자 권한으로 이미지 일치</button></div>
+          <div class="final-scan-actions"><button class="primary-action" type="button" id="startFinalPosterScan">DROPLINK 카메라로 조사</button><button class="secondary-action" type="button" id="adminMatchFinalPoster">관리자 권한으로 이미지 일치</button></div>
         </div>
 
         <div class="giraffe-dialogue-panel" id="finalDialoguePanel" hidden>
           <div class="private-channel">[미등록 통신 연결]</div>
-          <div class="giraffe-speech"><p id="giraffeSpeechText">이제야 나를 직접 보고 있네.</p></div>
+          <div class="giraffe-speech"><p id="giraffeSpeechText">[미등록 통신] 이제야 나를 직접 보고 있네.</p></div>
           <div class="giraffe-question-grid">
             <button type="button" data-giraffe-question="origin">너는 어디서 왔어?</button>
             <button type="button" data-giraffe-question="star">별 모양은 어떻게 생긴 거야?</button>
             <button type="button" data-giraffe-question="fade">왜 기록에서 사라졌어?</button>
           </div>
-          <div class="observation-record" id="observationRecord"><span>CAMPUSDROP 개인 관측 기록</span><strong>지금 보고 있는 기린을 한 문장으로 기록하십시오.</strong><textarea id="observationText" placeholder="예: 아무도 보지 않을 때 별을 빛내는 기린" rows="3"></textarea><button class="primary-action" type="button" id="submitObservationRecord">개인 기록 저장</button></div>
+          <div class="observation-record" id="observationRecord"><span>DROPLINK 개인 관측 기록</span><strong>지금 보고 있는 개체를 한 문장으로 기록하십시오.</strong><textarea id="observationText" placeholder="예: 아무도 보지 않을 때 별을 빛내는 기린" rows="3"></textarea><button class="primary-action" type="button" id="submitObservationRecord">신규 관측 기록 등록</button></div>
         </div>
 
         <div class="final-ending-panel" id="finalEndingPanel" hidden>
-          <div class="ending-report official"><span>운영본부 조사 결과</span><strong>미등록 이미지 포스터를 확보했습니다.</strong><p>추가 개체 정보는 확인되지 않았습니다. 현장 조사를 종료합니다.</p></div>
-          <div class="ending-report personal"><span>탐사원 개인 기록</span><strong>시계탑의 미확인 개체와 최초 통신에 성공했습니다.</strong><p id="finalObservationText"></p><em>비공개 연결이 형성되었습니다.</em></div>
-          <div class="last-choice"><p>다음에는 혼자가 아니라 다른 탐사원들과 와도 좋아.</p><button type="button" data-final-response="return">다시 찾아올게</button><button type="button" data-final-response="crew">다른 탐사원과 함께 올게</button></div>
-          <div class="app-transfer-panel" id="appTransferPanel" hidden><strong>다른 탐사원과 함께 이 연결을 이어가시겠습니까?</strong><p>CAMPUSDROP 앱에서는 공통 관심사를 가진 탐사원과 탐사대를 구성할 수 있습니다.</p><button class="primary-action" type="button">앱에서 탐사대 찾기</button><button class="secondary-action" type="button">웹 조사 기록 확인하기</button></div>
+          <div class="ending-report official"><span>운영본부 공식 기록</span><strong>사건 코드: CD-SJ-01</strong><p>시계탑 인근 미확인 기록 조사 완료. 기록 변화 원인 미확인. 현장 조사 종료.</p></div>
+          <div class="ending-report personal"><span>DROPLINK 개인 기록</span><strong>미등록 개체와 최초 통신에 성공했습니다.</strong><p id="finalObservationText"></p><em>탐사원이 작성한 신규 관측 기록이 저장되었습니다. 비공개 연결이 형성되었습니다.</em></div>
+          <div class="last-choice"><p>다음에도 나를 찾아줄래?</p><button type="button" data-final-response="return">다시 찾아올게.</button><button type="button" data-final-response="crew">계속 기억할게.</button></div>
+          <div class="app-transfer-panel" id="appTransferPanel" hidden><strong>이번 조사 기록을 이어가시겠습니까?</strong><p>CAMPUSDROP 앱에서는 공통 관심사를 가진 다른 탐사원과 탐사대를 구성하고 새로운 사건을 함께 조사할 수 있습니다.</p><button class="primary-action" type="button">앱에서 탐사대 찾기</button><button class="secondary-action" type="button">웹 조사 기록 확인하기</button></div>
         </div>
       </section>
     </main>

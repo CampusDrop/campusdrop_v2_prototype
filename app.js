@@ -50,47 +50,65 @@ const dropLinkBriefings = [
   "세종대학교에는 오래된 소문이 하나 있습니다. 시계탑 꼭대기에는 기린이 산다. 본부는 목격 신고 7건을 근거로 현장 조사가 필요하다고 판단했습니다.",
 ];
 const clueTransmissionBriefings = [
-  "증거물 전송이 완료되었습니다.",
-  "확보된 노란 털의 주인을 특정할 수 없습니다.",
-  "시계탑 주변에서 접수된 과거 기록을 조회합니다.",
-  "CAMPUSDROP 기록 저장소 분석 중...",
-  "서로 다른 시기에 작성된 관련 기록 세 건이 발견되었습니다.",
-  "일부 정보가 손상되어 기록의 정확한 순서를 확인할 수 없습니다.",
-  "에너지 반응이 강한 지점 3곳을 지도상에 표시했습니다. 각 목적지 반경 10m 안에 진입해 현장 자료 이미지를 확보하세요.",
+  "[DROPLINK] 증거물 전송이 완료되었습니다.",
+  "[DROPLINK] 확보된 노란 털의 생물학적 분류를 확인할 수 없습니다.",
+  "[DROPLINK] 시계탑 주변에서 접수된 과거 기록을 조회합니다.",
+  "[DROPLINK] 기록 저장소 분석 중...",
+  "[DROPLINK] 관련 가능성이 있는 기록 세 건을 확인했습니다.",
+  "[DROPLINK] 기록의 작성 시점 정보가 일부 손상되어 있습니다.",
+  "[운영본부] 세 기록의 형태와 내용을 비교해 시간적 순서를 복원하십시오.",
+  "[DROPLINK] 에너지 반응이 강한 지점 3곳을 지도상에 표시했습니다. 각 목적지 반경 10m 안에 진입해 현장 자료 이미지를 확보하세요.",
 ];
 const witnessArrangeBriefings = [
-  "자료 이미지 3건이 모두 확보됐습니다.",
-  "[CAMPUSDROP 기록 분석 지시] 획득한 세 건의 기록을 분석하십시오.",
-  "기록의 형태와 내용을 확인하고, 오래된 기록부터 순서대로 배치하십시오.",
+  "[DROPLINK] 자료 이미지 3건이 모두 확보되었습니다.",
+  "[DROPLINK] [기록 분석 지시]",
+  "[DROPLINK] 획득한 기록을 오래된 순서대로 배치하십시오.",
 ];
 const chapterThreeBriefings = [
-  "분석 결과가 등록되었습니다. 확인된 생물: GIRAFFE.",
-  "세 기록은 서로 다른 시기에 작성되었지만, 모두 같은 장소의 긴 목 개체를 묘사하고 있습니다.",
-  "[CAMPUSDROP 증거 분석 지시] 확보한 세 건의 증거물을 시간순으로 다시 비교하십시오.",
-  "기록 속 개체의 외형에서 달라진 점이나 특별한 특징이 발견된다면, 해당 요소를 영문으로 보고하십시오.",
+  "[DROPLINK] 분석 결과가 등록되었습니다.",
+  "[DROPLINK] 확인된 생물: GIRAFFE",
+  "[DROPLINK] 세 기록은 서로 다른 시기에 작성되었습니다.",
+  "[DROPLINK] 기록 작성자 사이의 직접적인 연관성은 확인되지 않습니다.",
+  "[운영본부] 모든 기록은 시계탑 상부에 나타난 긴 목의 기린을 묘사하고 있습니다.",
+  "[운영본부] 해당 개체가 최근에 처음 나타난 것은 아닐 가능성이 있습니다.",
+  "[운영본부] 기록 사이에 추가적인 차이가 있는지 계속 조사하십시오.",
+  "[DROPLINK] [증거물 추가 분석 지시]",
+  "[DROPLINK] 획득한 세 건의 증거물을 시간순으로 비교하십시오.",
+  "[DROPLINK] 개체의 외형에서 달라진 점이나 특별한 특징이 발견된다면 해당 요소를 영문으로 보고하십시오.",
 ];
 const chapterFourBriefings = [
-  "IMAGINE 보고가 접수되었습니다.",
-  "최초 학생수첩의 기록은 명확한 목격 보고가 아니라, 탑을 바라보며 떠올린 상상에 가깝습니다.",
-  "증거물 세 장을 다시 불러옵니다.",
-  "[증거물 상태 변화 감지] 현재 기록이 최초 확보본과 일치하지 않습니다. 개체로 분류된 영역에서만 정보 손실이 확인됩니다.",
-  "자동 복원을 시도한 뒤, 탐사원의 수동 확인 절차를 개방하겠습니다.",
+  "[DROPLINK] 강조 단어 확인: IMAGINE",
+  "[DROPLINK] 최초 학생수첩의 기록은 일반적인 목격 보고와 형식이 다릅니다.",
+  "[DROPLINK] 작성자는 탑을 바라보며 기린이 있는 모습을 떠올렸습니다.",
+  "[DROPLINK] 이후 기록에서는 유사한 개체가 반복해서 나타납니다.",
+  "[DROPLINK] 기록 사이의 관계는 확인되지 않았습니다.",
+  "[운영본부] 최초 기록의 내용이 다른 학생들에게 전달되었을 가능성이 있습니다.",
+  "[운영본부] 현재 자료만으로는 기록 사이의 관계를 확정할 수 없습니다.",
+  "[DROPLINK] 증거물 상태 변화가 감지되었습니다.",
+  "[DROPLINK] 현재 기록이 최초 확보본과 일치하지 않습니다.",
+  "[DROPLINK] 배경과 문자 정보에는 변화가 없습니다.",
+  "[DROPLINK] 개체로 분류된 영역에서만 정보 손실이 확인됩니다.",
+  "[DROPLINK] 원인은 확인되지 않았습니다.",
 ];
 const chapterFiveBriefings = [
-  "복원된 개체 정보가 다시 감소하고 있습니다.",
-  "현재 방식으로는 상태를 유지할 수 없습니다.",
-  "[미확인 패턴 감지] 세 증거물에서 동일한 잔류 신호가 확인되었습니다.",
-  "신호의 출처는 시계탑 인근으로 추정됩니다. 등록되지 않은 이미지를 찾아 CAMPUSDROP 카메라로 조사하십시오.",
+  "[DROPLINK] 개체 정보가 다시 감소하고 있습니다.",
+  "[DROPLINK] 현재 방식으로는 복원 상태를 유지할 수 없습니다.",
+  "[DROPLINK] 세 증거물에서 동일한 잔류 패턴이 감지되었습니다.",
+  "[DROPLINK] 잔류 패턴의 출처는 시계탑 인근으로 추정됩니다.",
+  "[DROPLINK] 현장 추가 조사가 필요합니다.",
+  "[DROPLINK] [현장 조사 지시]",
+  "[DROPLINK] 시계탑 인근에서 잔류 패턴과 일치하는 이미지를 찾으십시오.",
+  "[DROPLINK] 발견한 이미지를 DROPLINK 카메라로 조사하십시오.",
 ];
 const chapterThreeRecords = correctWitnessOrder.map((id) => witnesses.find((witness) => witness.id === id));
 const imaginationResults = [
-  "기록 복원이 완료되었습니다.",
-  "최초 학생수첩의 기록은 명확한 목격 보고가 아닙니다.",
-  "작성자는 탑을 바라보며 기린의 모습을 떠올렸습니다.",
-  "이후 기록에서는 유사한 기린의 모습이 반복해서 나타납니다.",
-  "기록 사이의 변화가 발생한 원인은 확인되지 않았습니다.",
-  "최초 기록의 내용이 이후 학생들에게 전해졌을 가능성이 있습니다.",
-  "그러나 현재 확보된 자료만으로 기록 사이의 관계를 확정할 수 없습니다.",
+  "[DROPLINK] 강조 단어 확인: IMAGINE",
+  "[DROPLINK] 최초 학생수첩의 기록은 일반적인 목격 보고와 형식이 다릅니다.",
+  "[DROPLINK] 작성자는 탑을 바라보며 기린이 있는 모습을 떠올렸습니다.",
+  "[DROPLINK] 이후 기록에서는 유사한 개체가 반복해서 나타납니다.",
+  "[DROPLINK] 기록 사이의 관계는 확인되지 않았습니다.",
+  "[운영본부] 최초 기록의 내용이 다른 학생들에게 전달되었을 가능성이 있습니다.",
+  "[운영본부] 현재 자료만으로는 기록 사이의 관계를 확정할 수 없습니다.",
 ];
 const emptyRecordMasks = {
   C: { x: 32, y: 18, width: 40, height: 54, radius: 28 },
@@ -103,11 +121,16 @@ const giraffeQuestions = [
   { key: "fade", label: "왜 기록에서 사라졌어?", answer: "사람들이 더 이상 나를 떠올리지 않으면 내 모습도 흐려져. 그림 속에서도, 여기에서도 조금씩 보이지 않게 돼." },
 ];
 const emptyRecordResults = [
-  "[수동 복원 완료] 삭제된 개체 정보가 다시 확인되었습니다.",
-  "탐사원이 입력한 정보는 위치 좌표뿐입니다. 해당 정보만으로 개체의 외형이 복원된 원인을 설명할 수 없습니다.",
-  "외부 데이터 사용 기록 없음. 원본 이미지 복구 기록 없음. 탐사원의 수동 지정 직후 개체 영역 재생성.",
-  "[개체 안정성 경고] 복원된 개체 정보가 다시 감소하고 있습니다. 현재 방식으로는 상태를 유지할 수 없습니다.",
-  "기린을 잠깐 되돌리는 것이 아니라, 사라지지 않도록 유지할 방법을 찾아야 합니다.",
+  "[DROPLINK] 수동 위치 지정이 완료되었습니다.",
+  "[DROPLINK] 삭제된 개체 정보가 다시 확인됩니다.",
+  "[DROPLINK] 탐사원이 입력한 정보는 위치 좌표뿐입니다.",
+  "[DROPLINK] 입력된 좌표만으로 개체의 외형이 복원된 원인을 설명할 수 없습니다.",
+  "[운영본부] 저장된 임시 데이터가 뒤늦게 복구되었을 가능성이 있습니다.",
+  "[운영본부] 복원된 증거물의 상태를 다시 확인하십시오.",
+  "[DROPLINK] 개체 정보가 다시 감소하고 있습니다.",
+  "[DROPLINK] 현재 방식으로는 복원 상태를 유지할 수 없습니다.",
+  "[DROPLINK] 세 증거물에서 동일한 잔류 패턴이 감지되었습니다.",
+  "[DROPLINK] 잔류 패턴의 출처는 시계탑 인근으로 추정됩니다.",
 ];
 const posterCopy = {
   student_hall: "학생회관 포스터를 통해 접속했습니다. 창문 뒤로 긴 그림자를 봤다는 제보가 남아 있습니다.",
@@ -160,7 +183,7 @@ let emptyRecordComplete = false;
 let finalScanStarted = false;
 let finalScanProgress = 0;
 let finalScanMatched = false;
-let finalScanStatus = "잔류 신호와 일치하는 특별 이미지를 찾아 카메라 중앙에 맞추세요.";
+let finalScanStatus = "잔류 패턴과 일치하는 특별 이미지를 찾아 카메라 중앙에 맞추세요.";
 let finalScanTimer = null;
 let answeredGiraffeQuestions = { origin: false, star: false, fade: false };
 let activeGiraffeQuestion = null;
@@ -677,7 +700,7 @@ function selectOrderCard(id) {
 function submitWitnessOrder() {
   if (!witnesses.every((witness) => visitedWitnesses[witness.id])) return;
   if (witnessOrder.join("") !== correctWitnessOrder.join("")) {
-    witnessOrderFeedback = "기록 사이의 시간적 연결을 확인할 수 없습니다. 증거물의 형태와 기록 방식을 다시 분석하십시오.";
+    witnessOrderFeedback = "기록 사이의 시간적 연결을 확인할 수 없습니다. 기록 매체와 작성 방식을 다시 분석하십시오.";
     updateWitnessUi();
     return;
   }
@@ -697,7 +720,7 @@ function submitWitnessAnswer() {
     return;
   }
   if (normalized !== "GIRAFFE") {
-    witnessAnswerFeedback = "보고된 명칭이 확보된 증거물과 일치하지 않습니다.";
+    witnessAnswerFeedback = "보고된 명칭이 증거물과 일치하지 않습니다.";
     updateWitnessUi();
     return;
   }
@@ -722,7 +745,7 @@ function updateWitnessConclusion() {
   const conclusion = document.querySelector("#witnessConclusion");
   conclusion.classList.toggle("is-open", witnessAnswerSubmitted);
   conclusion.querySelector("span").textContent = witnessAnswerSubmitted ? "조사 결과 갱신" : "운영본부 분석 대기";
-  conclusion.querySelector("strong").textContent = witnessAnswerSubmitted ? "시계탑의 기린은 최근에 처음 나타난 존재가 아닐 가능성이 있습니다." : allVisited ? "자료 이미지를 오래된 순서대로 배열하세요." : "세 지점의 자료 이미지를 모두 확보하세요.";
+  conclusion.querySelector("strong").textContent = witnessAnswerSubmitted ? "해당 개체가 최근에 처음 나타난 것은 아닐 가능성이 있습니다." : allVisited ? "자료 이미지를 오래된 순서대로 배열하세요." : "세 지점의 자료 이미지를 모두 확보하세요.";
   conclusion.querySelector("p").textContent = witnessAnswerSubmitted
     ? "분석 결과가 등록되었습니다. 확인된 생물: GIRAFFE. 세 기록은 서로 다른 시기에 작성되었고, 작성자 사이의 직접적인 연관성은 확인되지 않습니다. 그러나 모든 기록에는 시계탑 상부에 나타난 긴 목의 기린이 묘사되어 있습니다."
     : allVisited ? "배열이 확인되기 전에는 생물명 보고 입력창이 열리지 않습니다." : "각 에너지 지점 반경 10m 안에 들어가야 자료 이미지가 열립니다.";
@@ -766,7 +789,7 @@ function renderChapterThree() {
   const conclusion = document.querySelector("#imaginationConclusion");
   conclusion.classList.toggle("is-open", imagineSolved);
   conclusion.querySelector("span").textContent = imagineSolved ? "3장 조사 완료" : "분석 대기";
-  conclusion.querySelector("strong").textContent = imagineSolved ? "상상과 이후 기록 사이의 연결 가능성이 확인되었습니다." : "정답 입력 전에는 3장을 완료할 수 없습니다.";
+  conclusion.querySelector("strong").textContent = imagineSolved ? "상상과 이후 기록 사이의 관계는 확정되지 않았습니다." : "정답 입력 전에는 3장을 완료할 수 없습니다.";
   conclusion.querySelector("p").textContent = imagineSolved ? imaginationResults.join(" ") : "CAMPUSDROP은 아직 기린의 발생 원리를 확정하지 않았습니다.";
   const startChapterFour = document.querySelector("#startChapterFour");
   if (startChapterFour) startChapterFour.hidden = !imagineSolved;
@@ -780,7 +803,7 @@ function submitStarAnswer() {
     starFeedback = "보고된 특징을 증거물에서 확인할 수 없습니다.";
   } else {
     starSolved = true;
-    starFeedback = "[증거 분석 결과] STAR 확인. 해당 특징은 증거물 02와 03에서 발견됩니다. 증거물 01에서는 동일한 특징이 확인되지 않습니다. 증거물 01에 미복원 기록이 남아 있습니다. 누락된 내용을 복원하십시오.";
+    starFeedback = "[DROPLINK] STAR 확인. 해당 특징은 증거물 02와 03에서 발견됩니다. 증거물 01에서는 동일한 특징이 확인되지 않습니다. 증거물 01에서 미복원 기록이 발견되었습니다. 손상된 다음 페이지를 복원하십시오.";
   }
   renderChapterThree();
 }
@@ -813,7 +836,7 @@ function submitImagineAnswer() {
     imagineFeedback = "강조된 단어와 입력한 내용이 일치하지 않습니다.";
   } else {
     imagineSolved = true;
-    imagineFeedback = "기록 복원이 완료되었습니다.";
+    imagineFeedback = "[DROPLINK] 강조 단어 확인: IMAGINE";
   }
   renderChapterThree();
 }
@@ -833,7 +856,7 @@ function openChapterThreePreview(index) {
 
 function startEmptyRecordScene() {
   emptyAutoProgress = 0;
-  emptyRecordFeedback = "[증거물 상태 변화 감지] 현재 기록이 최초 확보본과 일치하지 않습니다. 배경과 문자 정보에는 변화가 없습니다. 개체로 분류된 영역에서만 정보 손실이 확인됩니다. 원인은 확인되지 않았습니다.";
+  emptyRecordFeedback = "[DROPLINK] 증거물 상태 변화가 감지되었습니다. 현재 기록이 최초 확보본과 일치하지 않습니다. 배경과 문자 정보에는 변화가 없습니다. 개체로 분류된 영역에서만 정보 손실이 확인됩니다. 원인은 확인되지 않았습니다.";
   renderEmptyRecordScene();
   if (emptyAutoTimer !== null) window.clearInterval(emptyAutoTimer);
   emptyAutoTimer = window.setInterval(() => {
@@ -869,8 +892,8 @@ function renderEmptyRecordScene() {
   const conclusion = document.querySelector("#emptyRecordConclusion");
   conclusion.classList.toggle("is-open", emptyRecordComplete);
   conclusion.querySelector("span").textContent = emptyRecordComplete ? "개체 안정성 경고" : "수동 복원 대기";
-  conclusion.querySelector("strong").textContent = emptyRecordComplete ? "복원된 개체 정보가 다시 감소하고 있습니다." : "세 기록에서 기린이 있던 위치를 지정해야 합니다.";
-  conclusion.querySelector("p").textContent = emptyRecordComplete ? emptyRecordResults.join(" ") : "운영본부는 일시적인 데이터 손상이나 저장 오류 가능성을 검토하고 있습니다.";
+  conclusion.querySelector("strong").textContent = emptyRecordComplete ? "개체 정보가 다시 감소하고 있습니다." : "세 기록에서 기린이 있던 위치를 지정해야 합니다.";
+  conclusion.querySelector("p").textContent = emptyRecordComplete ? emptyRecordResults.join(" ") : "[운영본부] 파일 저장 과정에서 발생한 오류일 가능성이 있습니다.";
   const startChapterFive = document.querySelector("#startChapterFive");
   if (startChapterFive) startChapterFive.hidden = !emptyRecordComplete;
 }
@@ -888,16 +911,16 @@ function handleEmptyRecordPoint(recordId, event) {
   const distance = Math.hypot(x - centerX, y - centerY);
   activeEmptyRecordId = recordId;
   if (distance > mask.radius) {
-    emptyRecordFeedback = "지정한 영역에서 개체의 기존 좌표가 확인되지 않습니다.";
+    emptyRecordFeedback = "지정한 영역이 기존 개체 좌표와 일치하지 않습니다.";
     renderEmptyRecordScene();
     return;
   }
   emptyRecordHits[recordId] = true;
   if (chapterThreeRecords.every((record) => emptyRecordHits[record.id])) {
     emptyRecordComplete = true;
-    emptyRecordFeedback = "[수동 복원 완료] 삭제된 개체 정보가 다시 확인되었습니다.";
+    emptyRecordFeedback = "[DROPLINK] 수동 위치 지정이 완료되었습니다. 삭제된 개체 정보가 다시 확인됩니다.";
   } else {
-    emptyRecordFeedback = "개체 영역 일부가 희미하게 재생성되었습니다. 남은 기록에서도 기존 위치를 지정하십시오.";
+    emptyRecordFeedback = "기존 개체 좌표를 확인했습니다. 남은 기록에서도 기존 위치를 지정하십시오.";
   }
   renderEmptyRecordScene();
 }
@@ -910,7 +933,7 @@ function completeFinalPosterScan() {
   }
   finalScanProgress = 100;
   finalScanMatched = true;
-  finalScanStatus = "[이미지 일치] 잔류 신호의 출처를 확인했습니다. 미등록 데이터가 복원되고 있습니다.";
+  finalScanStatus = "[DROPLINK] 이미지 일치율 100%. 잔류 패턴의 출처를 확인했습니다. 미등록 개체 정보가 복원되고 있습니다.";
   triggerEvidenceVibration();
   renderFirstContactScene();
 }
@@ -923,7 +946,7 @@ async function startFinalPosterScan(options = {}) {
   activeGiraffeQuestion = null;
   observationSubmitted = false;
   finalResponse = "";
-  finalScanStatus = options.adminOverride ? "관리자 권한으로 이미지 일치 안정화를 시작합니다." : "카메라 권한을 요청하는 중...";
+  finalScanStatus = options.adminOverride ? "[DROPLINK] 이미지 패턴 분석 중." : "카메라 권한을 요청하는 중...";
   renderFirstContactScene();
   const video = document.querySelector("#finalCameraFeed");
 
@@ -942,11 +965,12 @@ async function startFinalPosterScan(options = {}) {
     }
   }
 
-  finalScanStatus = "특별 이미지를 화면 중앙에 2~3초 동안 안정적으로 맞춰 주세요.";
+  finalScanStatus = "[DROPLINK] 이미지 패턴 분석 중. 일치율 42%. 카메라를 이미지 중앙에 유지하십시오.";
   renderFirstContactScene();
   if (finalScanTimer !== null) window.clearInterval(finalScanTimer);
   finalScanTimer = window.setInterval(() => {
     finalScanProgress = Math.min(100, finalScanProgress + 4);
+    if (finalScanProgress >= 78 && finalScanProgress < 100) finalScanStatus = "[DROPLINK] 일치율 78%. 이미지 이동을 감지했습니다. 위치를 유지하십시오.";
     renderFirstContactScene();
     if (finalScanProgress >= 100) completeFinalPosterScan();
   }, 110);
@@ -988,7 +1012,7 @@ function renderFirstContactScene() {
   const speech = document.querySelector("#giraffeSpeechText");
   if (speech) {
     const active = giraffeQuestions.find((question) => question.key === activeGiraffeQuestion);
-    speech.textContent = observationSubmitted ? "이제 네가 남긴 기록 속에도 내가 있네. 이 모습은 조금 더 오래 기억할 수 있을 것 같아." : active ? active.answer : "이제야 나를 직접 보고 있네.";
+    speech.textContent = observationSubmitted ? "[DROPLINK] 신규 관측 기록이 등록되었습니다. 개체 정보 안정화율: 100%. 신규 기록 등록 이후 정보 손실이 중단되었습니다. 두 현상의 상관관계는 확인되지 않았습니다. [미등록 통신] 이번 기록은 네가 남긴 거구나. 네가 떠올린 모습도 마음에 들어. 이제 네가 남긴 기록 속에도 내가 있을 수 있어." : active ? active.answer : "[미등록 통신] 이제야 나를 직접 보고 있네.";
   }
   document.querySelectorAll("[data-giraffe-question]").forEach((button) => button.classList.toggle("is-answered", answeredGiraffeQuestions[button.dataset.giraffeQuestion]));
   const allAnswered = giraffeQuestions.every((question) => answeredGiraffeQuestions[question.key]);
