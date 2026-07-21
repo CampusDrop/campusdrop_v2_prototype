@@ -261,6 +261,8 @@ export default function Home() {
   const [witnessAnswer, setWitnessAnswer] = useState("");
   const [witnessAnswerFeedback, setWitnessAnswerFeedback] = useState("기록 배열이 확인되면 보고 입력창이 열립니다.");
   const [witnessAnswerSubmitted, setWitnessAnswerSubmitted] = useState(false);
+  const [witnessReportSending, setWitnessReportSending] = useState(false);
+  const [witnessReportProgress, setWitnessReportProgress] = useState(0);
   const [expandedWitnessId, setExpandedWitnessId] = useState<string | null>(null);
   const [chapterThreePreviewIndex, setChapterThreePreviewIndex] = useState<number | null>(null);
   const [starAnswer, setStarAnswer] = useState("");
@@ -294,6 +296,7 @@ export default function Home() {
   const cameraWatchRef = useRef<number | null>(null);
   const cameraFoundTimerRef = useRef<number | null>(null);
   const finalScanTimerRef = useRef<number | null>(null);
+  const witnessReportTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (scene !== "incident") return;
@@ -320,6 +323,14 @@ export default function Home() {
 
     return () => window.clearInterval(typer);
   }, [caseModalOpen, dropLinkLine, dropLinkMode]);
+
+  useEffect(() => {
+    return () => {
+      if (witnessReportTimerRef.current !== null) {
+        window.clearInterval(witnessReportTimerRef.current);
+      }
+    };
+  }, []);
 
   const posterId = useMemo(() => {
     if (typeof window === "undefined") return "student_hall";
@@ -688,7 +699,7 @@ export default function Home() {
   }
 
   function submitWitnessAnswer() {
-    if (!witnessOrderSubmitted) return;
+    if (!witnessOrderSubmitted || witnessAnswerSubmitted || witnessReportSending) return;
     const normalized = witnessAnswer.trim().toUpperCase();
     if (witnessAnswer.trim() === "기린") {
       setWitnessAnswerFeedback("국제 생물 분류 기록을 위해 영문 명칭이 필요합니다.");
@@ -698,8 +709,33 @@ export default function Home() {
       setWitnessAnswerFeedback("보고된 명칭이 증거물과 일치하지 않습니다.");
       return;
     }
-    setWitnessAnswerSubmitted(true);
-    setWitnessAnswerFeedback("분석 결과가 등록되었습니다.");
+
+    triggerDropLinkVibration();
+    setWitnessReportSending(true);
+    setWitnessReportProgress(0);
+    setWitnessAnswerFeedback("보고서를 운영본부로 제출합니다.");
+    if (witnessReportTimerRef.current !== null) {
+      window.clearInterval(witnessReportTimerRef.current);
+    }
+    witnessReportTimerRef.current = window.setInterval(() => {
+      setWitnessReportProgress((current) => {
+        const next = Math.min(100, current + 1);
+        if (next >= 100 && witnessReportTimerRef.current !== null) {
+          window.clearInterval(witnessReportTimerRef.current);
+          witnessReportTimerRef.current = null;
+          window.setTimeout(() => {
+            setWitnessAnswerSubmitted(true);
+            setWitnessAnswerFeedback("분석 결과가 등록되었습니다.");
+            setDropLinkMode("chapter3");
+            setDropLinkLine(0);
+            setDropLinkText("");
+            setCaseModalOpen(true);
+            triggerDropLinkVibration();
+          }, 800);
+        }
+        return next;
+      });
+    }, 50);
   }
 
   function submitStarAnswer() {
@@ -838,7 +874,6 @@ export default function Home() {
   const allGiraffeQuestionsAnswered = giraffeQuestions.every((question) => answeredGiraffeQuestions[question.key]);
   const allWitnessImagesAcquired = witnesses.every((witness) => visitedWitnesses[witness.id]);
   const witnessOrderSolved = witnessOrderSubmitted;
-  const witnessSolved = witnessAnswerSubmitted;
 
   function openDropLinkNotice(mode: DropLinkMode) {
     setDropLinkMode(mode);
@@ -1256,9 +1291,8 @@ export default function Home() {
                   <span>생물 명칭 보고</span>
                   <input value={witnessAnswer} onChange={(event) => setWitnessAnswer(event.target.value)} placeholder="영문 정답 입력" aria-label="생물 명칭 보고" />
                 </label>
-                <button className="primary-action" type="button" onClick={submitWitnessAnswer} disabled={witnessAnswerSubmitted}>보고 제출</button>
+                <button className="primary-action" type="button" onClick={submitWitnessAnswer} disabled={witnessAnswerSubmitted || witnessReportSending}>{witnessReportSending && !witnessAnswerSubmitted ? "보고서 제출 중..." : "보고 제출"}</button>
                 <p className={`order-feedback${witnessAnswerSubmitted ? " is-correct" : ""}`}>{witnessAnswerFeedback}</p>
-                {witnessSolved && <button className="primary-action" type="button" onClick={() => openDropLinkBriefing("chapter3")}>3장 기록 재분석 시작</button>}
               </div>
             )}
           </div>
@@ -1591,6 +1625,25 @@ export default function Home() {
         );
       })()}
 
+
+      {scene === "witnessOrder" && witnessReportSending && (
+        <div className="transmission-modal report-transmission-modal" role="dialog" aria-modal="true" aria-label="보고서 제출 중">
+          <div className="transmission-card">
+            <span>DROPLINK REPORT</span>
+            <strong>{witnessReportProgress >= 100 ? "보고서 수신 완료" : "보고서를 운영본부에 제출 중"}</strong>
+            <p>{witnessReportProgress >= 100 ? "추가 분석 지시 채널을 연결합니다." : "식별 문자와 생물 명칭 보고를 묶어 보안 분석 서버로 전송합니다."}</p>
+            <div className="transmission-steps">
+              <div><span>01</span><strong>식별 문자 결합</strong><em>{witnessReportProgress >= 34 ? "완료" : "대기"}</em></div>
+              <div><span>02</span><strong>생물 명칭 검증</strong><em>{witnessReportProgress >= 68 ? "완료" : "대기"}</em></div>
+              <div><span>03</span><strong>추가 분석 채널 개방</strong><em>{witnessReportProgress >= 100 ? "수신 확인" : "전송 중"}</em></div>
+              <div className="transmission-progress" aria-label={`보고서 제출 진행률 ${witnessReportProgress}%`}>
+                <i style={{ width: `${witnessReportProgress}%` }} />
+                <strong>{witnessReportProgress}%</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {dropLinkNoticeOpen && (
         <button className="unknown-message is-visible drop-link-global-notice" type="button" onClick={openDropLinkModalFromNotice}>
