@@ -2,8 +2,55 @@ const app = document.querySelector("#app");
 const screens = [...document.querySelectorAll("[data-screen]")];
 const reachRadiusMeters = 20;
 const clueRevealRadiusMeters = 10;
+const witnessReachRadiusMeters = 10;
 const missionTarget = { lat: 37.55041617275794, lng: 127.07381801425053 };
 const investigationMarkerSrc = "./investigation-marker-v2.png";
+const directionOptions = [
+  { key: "N", label: "북쪽" },
+  { key: "NE", label: "북동쪽" },
+  { key: "E", label: "동쪽" },
+  { key: "SE", label: "남동쪽" },
+  { key: "S", label: "남쪽" },
+  { key: "SW", label: "남서쪽" },
+  { key: "W", label: "서쪽" },
+  { key: "NW", label: "북서쪽" },
+];
+const directionVectors = {
+  N: { x: 0, y: -1 },
+  NE: { x: 0.7, y: -0.7 },
+  E: { x: 1, y: 0 },
+  SE: { x: 0.7, y: 0.7 },
+  S: { x: 0, y: 1 },
+  SW: { x: -0.7, y: 0.7 },
+  W: { x: -1, y: 0 },
+  NW: { x: -0.7, y: -0.7 },
+};
+const witnesses = [
+  {
+    id: "A",
+    name: "목격자 A",
+    location: { lat: 37.55009418972363, lng: 127.0736196575354 },
+    statement: "분명히 위쪽이었습니다. 나무보다 훨씬 높은 곳에서 긴 그림자가 시계탑 쪽으로 움직였어요.",
+    correctDirection: "N",
+    point: { x: 21.31, y: 80.35 },
+  },
+  {
+    id: "B",
+    name: "목격자 B",
+    location: { lat: 37.55143211168644, lng: 127.07371716568217 },
+    statement: "대양타워 쪽을 내려다보는 것 같았어요. 창문 위로 노란 무늬가 잠깐 스쳤습니다.",
+    correctDirection: "SE",
+    point: { x: 25.93, y: 15.65 },
+  },
+  {
+    id: "C",
+    name: "목격자 C",
+    location: { lat: 37.550652047104954, lng: 127.0748310833212 },
+    statement: "처음엔 조형물인 줄 알았는데, 고개가 천천히 북서쪽으로 돌아갔습니다.",
+    correctDirection: "NW",
+    point: { x: 78.69, y: 53.37 },
+  },
+];
 const dropLinkBriefings = [
   "사용자 인증 완료. 임시 현장 조사원으로 등록합니다. 사건 번호 CD-SJ-01, 사건명 시계탑 대형 생물 목격 사건.",
   "세종대학교에는 오래된 소문이 하나 있습니다. 시계탑 꼭대기에는 기린이 산다. 본부는 목격 신고 7건을 근거로 현장 조사가 필요하다고 판단했습니다.",
@@ -21,6 +68,10 @@ let missionMapInstance = null;
 let userMarker = null;
 let locationRefreshTimer = null;
 let locationInReach = false;
+let witnessRefreshTimer = null;
+let activeWitnessId = "A";
+let visitedWitnesses = { A: false, B: false, C: false };
+let witnessDirections = { A: null, B: null, C: null };
 let cameraStream = null;
 let cameraWatch = null;
 let cameraFoundTimer = null;
@@ -73,6 +124,13 @@ function showScreen(name) {
     startMissionLocationUpdates();
   } else {
     stopMissionLocationUpdates();
+  }
+
+  if (name === "witness") {
+    initWitnessScene();
+    startWitnessLocationUpdates();
+  } else {
+    stopWitnessLocationUpdates();
   }
 }
 
@@ -226,6 +284,149 @@ function stopMissionLocationUpdates() {
   locationRefreshTimer = null;
 }
 
+function initWitnessScene() {
+  renderDirectionPickers();
+  updateWitnessUi();
+}
+
+function renderDirectionPickers() {
+  witnesses.forEach((witness) => {
+    const picker = document.querySelector(`[data-direction-picker="${witness.id}"]`);
+    if (!picker || picker.childElementCount) return;
+    picker.innerHTML = directionOptions
+      .map((direction) => `<button type="button" data-witness-direction="${witness.id}:${direction.key}" disabled>${direction.label}</button>`)
+      .join("");
+  });
+}
+
+function applyWitnessLocation(position, options = {}) {
+  const location = { lat: position.coords.latitude, lng: position.coords.longitude };
+  document.querySelector("#locationUpdatedText")?.replaceChildren(document.createTextNode(new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })));
+  const marker = document.querySelector("#witnessUserMarker");
+  if (marker) {
+    const bounds = { lngMin: 127.0731696575354, lngMax: 127.0752810833212, latMin: 37.54974418972363, latMax: 37.55178211168644 };
+    const x = Math.min(94, Math.max(6, ((location.lng - bounds.lngMin) / (bounds.lngMax - bounds.lngMin)) * 100));
+    const y = Math.min(94, Math.max(6, (1 - (location.lat - bounds.latMin) / (bounds.latMax - bounds.latMin)) * 100));
+    marker.style.left = `${x}%`;
+    marker.style.top = `${y}%`;
+    marker.hidden = false;
+  }
+
+  let arrived = null;
+  witnesses.forEach((witness) => {
+    const distance = getDistanceMeters(location, witness.location);
+    const distanceEl = document.querySelector(`[data-witness-distance="${witness.id}"]`);
+    if (distanceEl) distanceEl.textContent = `${distance}m`;
+    if (distance <= witnessReachRadiusMeters) arrived = witness;
+  });
+
+  if (arrived) {
+    activeWitnessId = arrived.id;
+    visitedWitnesses[arrived.id] = true;
+    if (!options.silent) document.querySelector("#witnessStatus").textContent = `${arrived.name} 위치에 도착했습니다. 진술을 확인하고 바라본 방향을 표시하세요.`;
+    updateWitnessUi();
+    return;
+  }
+
+  if (!options.silent) document.querySelector("#witnessStatus").textContent = "가장 가까운 목격 지점으로 이동하세요. 반경 10m 안에서 진술이 열립니다.";
+  updateWitnessUi();
+}
+
+function requestWitnessLocation(options = {}) {
+  if (!navigator.geolocation) {
+    if (!options.silent) document.querySelector("#witnessStatus").textContent = "이 브라우저에서는 위치 확인을 사용할 수 없습니다.";
+    return;
+  }
+  if (!options.silent) document.querySelector("#witnessStatus").textContent = "현재 위치 확인 중...";
+  navigator.geolocation.getCurrentPosition(
+    (position) => applyWitnessLocation(position, options),
+    () => {
+      if (!options.silent) document.querySelector("#witnessStatus").textContent = "위치 권한을 허용하면 목격 지점 도착 여부를 확인할 수 있습니다.";
+    },
+    { enableHighAccuracy: true, timeout: 10000 },
+  );
+}
+
+function startWitnessLocationUpdates() {
+  if (witnessRefreshTimer !== null) return;
+  requestWitnessLocation({ silent: true });
+  witnessRefreshTimer = window.setInterval(() => requestWitnessLocation({ silent: true }), 10000);
+}
+
+function stopWitnessLocationUpdates() {
+  if (witnessRefreshTimer === null) return;
+  window.clearInterval(witnessRefreshTimer);
+  witnessRefreshTimer = null;
+}
+
+function selectWitness(id) {
+  activeWitnessId = id;
+  updateWitnessUi();
+}
+
+function markActiveWitnessArrived() {
+  visitedWitnesses[activeWitnessId] = true;
+  const witness = witnesses.find((item) => item.id === activeWitnessId);
+  document.querySelector("#witnessStatus").textContent = `${witness?.name ?? "목격자"} 위치를 관리자 권한으로 도착 처리했습니다.`;
+  updateWitnessUi();
+}
+
+function chooseWitnessDirection(id, direction) {
+  if (!visitedWitnesses[id]) return;
+  witnessDirections[id] = direction;
+  updateWitnessUi();
+}
+
+function updateWitnessUi() {
+  witnesses.forEach((witness) => {
+    document.querySelector(`[data-witness-card="${witness.id}"]`)?.classList.toggle("is-active", activeWitnessId === witness.id);
+    document.querySelector(`[data-witness-card="${witness.id}"]`)?.classList.toggle("is-visited", visitedWitnesses[witness.id]);
+    document.querySelector(`[data-witness-map="${witness.id}"]`)?.classList.toggle("is-active", activeWitnessId === witness.id);
+    document.querySelector(`[data-witness-map="${witness.id}"]`)?.classList.toggle("is-visited", visitedWitnesses[witness.id]);
+    const statement = document.querySelector(`[data-witness-statement="${witness.id}"]`);
+    if (statement) statement.textContent = visitedWitnesses[witness.id] ? witness.statement : "현장 반경 10m 안에 들어가면 목격자의 진술을 확인할 수 있습니다.";
+    document.querySelectorAll(`[data-witness-direction^="${witness.id}:"]`).forEach((button) => {
+      const direction = button.dataset.witnessDirection.split(":")[1];
+      button.disabled = !visitedWitnesses[witness.id];
+      button.classList.toggle("is-selected", witnessDirections[witness.id] === direction);
+    });
+  });
+
+  document.querySelector("#visitedWitnessText").textContent = `${Object.values(visitedWitnesses).filter(Boolean).length}/3`;
+  document.querySelector("#directionWitnessText").textContent = `${Object.values(witnessDirections).filter(Boolean).length}/3`;
+  drawWitnessLines();
+  updateWitnessConclusion();
+}
+
+function drawWitnessLines() {
+  const layer = document.querySelector("#witnessLines");
+  if (!layer) return;
+  layer.innerHTML = "";
+  witnesses.forEach((witness) => {
+    const direction = witnessDirections[witness.id];
+    if (!direction) return;
+    const vector = directionVectors[direction];
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", witness.point.x);
+    line.setAttribute("y1", witness.point.y);
+    line.setAttribute("x2", witness.point.x + vector.x * 42);
+    line.setAttribute("y2", witness.point.y + vector.y * 42);
+    if (direction === witness.correctDirection) line.classList.add("is-correct");
+    layer.appendChild(line);
+  });
+}
+
+function updateWitnessConclusion() {
+  const solved = witnesses.every((witness) => witnessDirections[witness.id] === witness.correctDirection);
+  const conclusion = document.querySelector("#witnessConclusion");
+  conclusion.classList.toggle("is-open", solved);
+  conclusion.querySelector("span").textContent = solved ? "분석 완료" : "운영본부 분석 대기";
+  conclusion.querySelector("strong").textContent = solved ? "세 방향선이 대양타워 상부에서 교차합니다." : "세 목격자의 위치와 방향을 모두 표시하세요.";
+  conclusion.querySelector("p").textContent = solved
+    ? "세 목격자는 서로 다른 것을 본 게 아니었습니다. 모두 시계탑 상부에서 잔디밭을 내려다보던, 목이 긴 존재를 본 것입니다. 사건 분류를 ‘미확인 생명체 조사’로 전환합니다."
+    : "현장 관찰을 바탕으로 목격자가 바라본 방향을 선택하면 지도 위에 추정선이 표시됩니다.";
+}
+
 function checkLocation() {
   requestMissionLocation();
 }
@@ -351,6 +552,29 @@ document.addEventListener("click", (event) => {
 
   if (event.target.closest("#checkLocation")) {
     checkLocation();
+    return;
+  }
+
+  if (event.target.closest("#checkWitnessLocation")) {
+    requestWitnessLocation();
+    return;
+  }
+
+  if (event.target.closest("#adminArriveWitness")) {
+    markActiveWitnessArrived();
+    return;
+  }
+
+  const witnessSelect = event.target.closest("[data-select-witness], [data-witness-map]");
+  if (witnessSelect) {
+    selectWitness(witnessSelect.dataset.selectWitness || witnessSelect.dataset.witnessMap);
+    return;
+  }
+
+  const witnessDirection = event.target.closest("[data-witness-direction]");
+  if (witnessDirection) {
+    const [id, direction] = witnessDirection.dataset.witnessDirection.split(":");
+    chooseWitnessDirection(id, direction);
     return;
   }
 

@@ -150,8 +150,62 @@
         </div>
         <div class="conclusion is-open" id="conclusion" aria-live="polite">
           <span>조사 결론</span>
-          <strong>노란털 표본 확보. 첫 번째 현장 단서가 기록됐습니다.</strong>
-          <p>다음 파트: 추가 단서를 분석해 세린이와 첫 접촉하기</p>
+          <strong>노란털 표본 확보. 기존 동물 자료와 정확히 일치하지 않습니다.</strong>
+          <p>운영본부가 같은 구역에서 접수된 세 건의 목격 기록을 전달했습니다.</p>
+        </div>
+        <button class="primary-action chapter-next-action" type="button" data-go="witness">2장 — 목격 지점 연결하기</button>
+      </section>
+
+      <section class="screen witness-screen" data-screen="witness">
+        <div class="mission-copy">
+          <p>2장</p>
+          <h2>목격 지점을 연결하라</h2>
+          <span>세 목격자가 서 있던 위치와 진술을 확인하고, 각자가 바라본 방향을 지도에 표시하세요.</span>
+        </div>
+        <div class="campus-radar witness-radar">
+          <div class="real-map-shell witness-map-shell" id="witnessMap">
+            <iframe class="real-map-frame" title="목격 지점 실제 지도" src="https://www.openstreetmap.org/export/embed.html?bbox=127.0731696575354%2C37.54974418972363%2C127.0752810833212%2C37.55178211168644&layer=mapnik&marker=37.55106257128708%2C127.07392616012359" loading="lazy"></iframe>
+            <svg class="witness-line-layer" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" id="witnessLines"></svg>
+            <div class="tower-target-marker" style="left: 35.83%; top: 35.3%;" aria-hidden="true"><span></span></div>
+            <button type="button" class="witness-map-marker is-active" data-witness-map="A" style="left: 21.31%; top: 80.35%;" aria-label="목격자 A 위치">A</button>
+            <button type="button" class="witness-map-marker" data-witness-map="B" style="left: 25.93%; top: 15.65%;" aria-label="목격자 B 위치">B</button>
+            <button type="button" class="witness-map-marker" data-witness-map="C" style="left: 78.69%; top: 53.37%;" aria-label="목격자 C 위치">C</button>
+            <div class="map-user-marker" id="witnessUserMarker" aria-hidden="true" hidden></div>
+            <div class="map-target-panel witness-map-panel"><span>추정 교차 지점</span><strong>대양타워 상부</strong></div>
+            <p class="map-loading" id="witnessMapLoading">Kakao 키 없이 실제 지도 미리보기 표시 중</p>
+          </div>
+          <div class="radar-data witness-data">
+            <div><span>조사 범위</span><strong>10m</strong></div>
+            <div><span>확인한 지점</span><strong id="visitedWitnessText">0/3</strong></div>
+            <div><span>방향 표시</span><strong id="directionWitnessText">0/3</strong></div>
+          </div>
+        </div>
+        <p class="location-status" id="witnessStatus">목격 지점 3곳을 방문해 진술과 방향을 확인하세요.</p>
+        <div class="mission-actions witness-actions">
+          <button class="secondary-action" type="button" id="checkWitnessLocation">현재 위치 즉시 갱신</button>
+          <button class="text-scan-refresh" type="button" id="adminArriveWitness">관리자 권한으로 도착 완료</button>
+        </div>
+        <div class="witness-list" aria-label="목격자 진술 목록">
+          <article class="witness-card is-active" data-witness-card="A">
+            <button type="button" class="witness-card-head" data-select-witness="A"><span>목격자 A</span><strong>잔디밭 남서쪽</strong><em data-witness-distance="A">거리 측정 전</em></button>
+            <div class="witness-statement"><p data-witness-statement="A">현장 반경 10m 안에 들어가면 목격자의 진술을 확인할 수 있습니다.</p></div>
+            <div class="direction-picker" data-direction-picker="A"></div>
+          </article>
+          <article class="witness-card" data-witness-card="B">
+            <button type="button" class="witness-card-head" data-select-witness="B"><span>목격자 B</span><strong>북쪽 보행로</strong><em data-witness-distance="B">거리 측정 전</em></button>
+            <div class="witness-statement"><p data-witness-statement="B">현장 반경 10m 안에 들어가면 목격자의 진술을 확인할 수 있습니다.</p></div>
+            <div class="direction-picker" data-direction-picker="B"></div>
+          </article>
+          <article class="witness-card" data-witness-card="C">
+            <button type="button" class="witness-card-head" data-select-witness="C"><span>목격자 C</span><strong>동쪽 진입로</strong><em data-witness-distance="C">거리 측정 전</em></button>
+            <div class="witness-statement"><p data-witness-statement="C">현장 반경 10m 안에 들어가면 목격자의 진술을 확인할 수 있습니다.</p></div>
+            <div class="direction-picker" data-direction-picker="C"></div>
+          </article>
+        </div>
+        <div class="conclusion witness-conclusion" id="witnessConclusion" aria-live="polite">
+          <span>운영본부 분석 대기</span>
+          <strong>세 목격자의 위치와 방향을 모두 표시하세요.</strong>
+          <p>현장 관찰을 바탕으로 목격자가 바라본 방향을 선택하면 지도 위에 추정선이 표시됩니다.</p>
         </div>
       </section>
     </main>

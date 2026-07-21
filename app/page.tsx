@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-type Scene = "entry" | "incident" | "mission" | "camera" | "arrival";
+type Scene = "entry" | "incident" | "mission" | "camera" | "arrival" | "witness";
 type MessageStep = "hidden" | "first";
+type DirectionKey = "N" | "NE" | "E" | "SE" | "S" | "SW" | "W" | "NW";
 
 type KakaoLatLng = object;
 type KakaoMap = { panTo?: (position: KakaoLatLng) => void };
@@ -37,9 +38,57 @@ declare global {
 }
 
 const missionTarget = { lat: 37.55041617275794, lng: 127.07381801425053 };
+const towerTarget = { lat: 37.55106257128708, lng: 127.07392616012359 };
 const reachRadiusMeters = 20;
 const clueRevealRadiusMeters = 10;
+const witnessReachRadiusMeters = 10;
 const investigationMarkerSrc = "/investigation-marker-v2.png";
+const directionOptions: { key: DirectionKey; label: string }[] = [
+  { key: "N", label: "북쪽" },
+  { key: "NE", label: "북동쪽" },
+  { key: "E", label: "동쪽" },
+  { key: "SE", label: "남동쪽" },
+  { key: "S", label: "남쪽" },
+  { key: "SW", label: "남서쪽" },
+  { key: "W", label: "서쪽" },
+  { key: "NW", label: "북서쪽" },
+];
+const directionVectors: Record<DirectionKey, { x: number; y: number }> = {
+  N: { x: 0, y: -1 },
+  NE: { x: 0.7, y: -0.7 },
+  E: { x: 1, y: 0 },
+  SE: { x: 0.7, y: 0.7 },
+  S: { x: 0, y: 1 },
+  SW: { x: -0.7, y: 0.7 },
+  W: { x: -1, y: 0 },
+  NW: { x: -0.7, y: -0.7 },
+};
+const witnesses = [
+  {
+    id: "A",
+    name: "목격자 A",
+    place: "잔디밭 남서쪽",
+    location: { lat: 37.55009418972363, lng: 127.0736196575354 },
+    statement: "분명히 위쪽이었습니다. 나무보다 훨씬 높은 곳에서 긴 그림자가 시계탑 쪽으로 움직였어요.",
+    correctDirection: "N" as DirectionKey,
+  },
+  {
+    id: "B",
+    name: "목격자 B",
+    place: "북쪽 보행로",
+    location: { lat: 37.55143211168644, lng: 127.07371716568217 },
+    statement: "대양타워 쪽을 내려다보는 것 같았어요. 창문 위로 노란 무늬가 잠깐 스쳤습니다.",
+    correctDirection: "SE" as DirectionKey,
+  },
+  {
+    id: "C",
+    name: "목격자 C",
+    place: "동쪽 진입로",
+    location: { lat: 37.550652047104954, lng: 127.0748310833212 },
+    statement: "처음엔 조형물인 줄 알았는데, 고개가 천천히 북서쪽으로 돌아갔습니다.",
+    correctDirection: "NW" as DirectionKey,
+  },
+];
 const dropLinkBriefings = [
   "사용자 인증 완료. 임시 현장 조사원으로 등록합니다. 사건 번호 CD-SJ-01, 사건명 시계탑 대형 생물 목격 사건.",
   "세종대학교에는 오래된 소문이 하나 있습니다. 시계탑 꼭대기에는 기린이 산다. 본부는 목격 신고 7건을 근거로 현장 조사가 필요하다고 판단했습니다.",
@@ -88,6 +137,11 @@ export default function Home() {
   const [cameraStatus, setCameraStatus] = useState("카메라 권한을 요청하는 중...");
   const [scanDistance, setScanDistance] = useState<number | null>(null);
   const [scanFound, setScanFound] = useState(false);
+  const [activeWitnessId, setActiveWitnessId] = useState(witnesses[0].id);
+  const [witnessDistances, setWitnessDistances] = useState<Record<string, number | null>>(() => Object.fromEntries(witnesses.map((witness) => [witness.id, null])));
+  const [visitedWitnesses, setVisitedWitnesses] = useState<Record<string, boolean>>(() => Object.fromEntries(witnesses.map((witness) => [witness.id, false])));
+  const [witnessDirections, setWitnessDirections] = useState<Record<string, DirectionKey | null>>(() => Object.fromEntries(witnesses.map((witness) => [witness.id, null])));
+  const [witnessStatus, setWitnessStatus] = useState("목격 지점 3곳을 방문해 진술과 방향을 확인하세요.");
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const cameraStreamRef = useRef<MediaStream | null>(null);
   const cameraWatchRef = useRef<number | null>(null);
@@ -170,6 +224,42 @@ export default function Home() {
     );
   }
 
+  function applyWitnessLocation(position: GeolocationPosition, options: { silent?: boolean } = {}) {
+    const nextLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
+    setUserLocation(nextLocation);
+    setLastLocationUpdatedAt(new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
+    const nextDistances = Object.fromEntries(
+      witnesses.map((witness) => [witness.id, getDistanceMeters(nextLocation, witness.location)]),
+    ) as Record<string, number>;
+    setWitnessDistances(nextDistances);
+
+    const arrivedWitness = witnesses.find((witness) => nextDistances[witness.id] <= witnessReachRadiusMeters);
+    if (arrivedWitness) {
+      setActiveWitnessId(arrivedWitness.id);
+      setVisitedWitnesses((current) => ({ ...current, [arrivedWitness.id]: true }));
+      if (!options.silent) {
+        setWitnessStatus(`${arrivedWitness.name} 위치에 도착했습니다. 진술을 확인하고 바라본 방향을 표시하세요.`);
+      }
+      return;
+    }
+    if (!options.silent) setWitnessStatus("가장 가까운 목격 지점으로 이동하세요. 반경 10m 안에서 진술이 열립니다.");
+  }
+
+  function requestWitnessLocation(options: { silent?: boolean } = {}) {
+    if (!navigator.geolocation) {
+      if (!options.silent) setWitnessStatus("이 브라우저에서는 위치 확인을 사용할 수 없습니다.");
+      return;
+    }
+    if (!options.silent) setWitnessStatus("현재 위치 확인 중...");
+    navigator.geolocation.getCurrentPosition(
+      (position) => applyWitnessLocation(position, options),
+      () => {
+        if (!options.silent) setWitnessStatus("위치 권한을 허용하면 목격 지점 도착 여부를 확인할 수 있습니다.");
+      },
+      { enableHighAccuracy: true, timeout: 10000 },
+    );
+  }
+
   useEffect(() => {
     if (scene !== "mission") return;
     const initial = window.setTimeout(() => requestMissionLocation({ silent: true }), 0);
@@ -179,6 +269,18 @@ export default function Home() {
       window.clearInterval(interval);
     };
     // Location polling is intentionally tied to entering/leaving the mission scene.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scene]);
+
+  useEffect(() => {
+    if (scene !== "witness") return;
+    const initial = window.setTimeout(() => requestWitnessLocation({ silent: true }), 0);
+    const interval = window.setInterval(() => requestWitnessLocation({ silent: true }), 10000);
+    return () => {
+      window.clearTimeout(initial);
+      window.clearInterval(interval);
+    };
+    // Witness location polling is intentionally tied to entering/leaving chapter 2.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scene]);
 
@@ -273,6 +375,13 @@ export default function Home() {
   function checkLocation() {
     requestMissionLocation();
   }
+
+  function markActiveWitnessArrived() {
+    setVisitedWitnesses((current) => ({ ...current, [activeWitnessId]: true }));
+    setWitnessStatus(`${witnesses.find((witness) => witness.id === activeWitnessId)?.name ?? "목격자"} 위치를 관리자 권한으로 도착 처리했습니다.`);
+  }
+
+  const witnessSolved = witnesses.every((witness) => witnessDirections[witness.id] === witness.correctDirection);
 
   function handleDropLink() {
     if (messageStep === "first") {
@@ -529,13 +638,212 @@ export default function Home() {
 
           <div className="conclusion is-open" aria-live="polite">
             <span>조사 결론</span>
-            <strong>노란털 표본 확보. 첫 번째 현장 단서가 기록됐습니다.</strong>
-            <p>다음 파트: 추가 단서를 분석해 세린이와 첫 접촉하기</p>
+            <strong>노란털 표본 확보. 기존 동물 자료와 정확히 일치하지 않습니다.</strong>
+            <p>운영본부가 같은 구역에서 접수된 세 건의 목격 기록을 전달했습니다.</p>
+          </div>
+          <button className="primary-action chapter-next-action" type="button" onClick={() => moveToScene("witness")}>2장 — 목격 지점 연결하기</button>
+        </section>
+      )}
+
+      {scene === "witness" && (
+        <section className="screen witness-screen">
+          <div className="mission-copy">
+            <p>2장</p>
+            <h2>목격 지점을 연결하라</h2>
+            <span>세 목격자가 서 있던 위치와 진술을 확인하고, 각자가 바라본 방향을 지도에 표시하세요.</span>
+          </div>
+
+          <div className="campus-radar witness-radar">
+            <WitnessMap
+              userLocation={userLocation}
+              activeWitnessId={activeWitnessId}
+              visitedWitnesses={visitedWitnesses}
+              witnessDirections={witnessDirections}
+              onSelectWitness={setActiveWitnessId}
+            />
+            <div className="radar-data witness-data">
+              <div><span>조사 범위</span><strong>{witnessReachRadiusMeters}m</strong></div>
+              <div><span>확인한 지점</span><strong>{witnesses.filter((witness) => visitedWitnesses[witness.id]).length}/3</strong></div>
+              <div><span>방향 표시</span><strong>{witnesses.filter((witness) => witnessDirections[witness.id]).length}/3</strong></div>
+            </div>
+          </div>
+
+          <p className="location-status">{witnessStatus}</p>
+          <div className="mission-actions witness-actions">
+            <button className="secondary-action" type="button" onClick={() => requestWitnessLocation()}>현재 위치 즉시 갱신</button>
+            <button className="text-scan-refresh" type="button" onClick={markActiveWitnessArrived}>관리자 권한으로 도착 완료</button>
+          </div>
+
+          <div className="witness-list" aria-label="목격자 진술 목록">
+            {witnesses.map((witness) => {
+              const isActive = activeWitnessId === witness.id;
+              const isVisited = visitedWitnesses[witness.id];
+              const selectedDirection = witnessDirections[witness.id];
+              return (
+                <article key={witness.id} className={`witness-card${isActive ? " is-active" : ""}${isVisited ? " is-visited" : ""}`}>
+                  <button type="button" className="witness-card-head" onClick={() => setActiveWitnessId(witness.id)}>
+                    <span>{witness.name}</span>
+                    <strong>{witness.place}</strong>
+                    <em>{witnessDistances[witness.id] === null ? "거리 측정 전" : `${witnessDistances[witness.id]}m`}</em>
+                  </button>
+                  <div className="witness-statement">
+                    <p>{isVisited ? witness.statement : "현장 반경 10m 안에 들어가면 목격자의 진술을 확인할 수 있습니다."}</p>
+                  </div>
+                  <div className="direction-picker" aria-label={`${witness.name} 방향 선택`}>
+                    {directionOptions.map((direction) => (
+                      <button
+                        key={direction.key}
+                        type="button"
+                        className={selectedDirection === direction.key ? "is-selected" : ""}
+                        disabled={!isVisited}
+                        onClick={() => setWitnessDirections((current) => ({ ...current, [witness.id]: direction.key }))}
+                      >
+                        {direction.label}
+                      </button>
+                    ))}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+
+          <div className={`conclusion witness-conclusion${witnessSolved ? " is-open" : ""}`} aria-live="polite">
+            <span>{witnessSolved ? "분석 완료" : "운영본부 분석 대기"}</span>
+            <strong>{witnessSolved ? "세 방향선이 대양타워 상부에서 교차합니다." : "세 목격자의 위치와 방향을 모두 표시하세요."}</strong>
+            <p>{witnessSolved ? "세 목격자는 서로 다른 것을 본 게 아니었습니다. 모두 시계탑 상부에서 잔디밭을 내려다보던, 목이 긴 존재를 본 것입니다. 사건 분류를 ‘미확인 생명체 조사’로 전환합니다." : "현장 관찰을 바탕으로 목격자가 바라본 방향을 선택하면 지도 위에 추정선이 표시됩니다."}</p>
           </div>
         </section>
       )}
     </main>
   );
+}
+
+
+function WitnessMap({
+  userLocation,
+  activeWitnessId,
+  visitedWitnesses,
+  witnessDirections,
+  onSelectWitness,
+}: {
+  userLocation: { lat: number; lng: number } | null;
+  activeWitnessId: string;
+  visitedWitnesses: Record<string, boolean>;
+  witnessDirections: Record<string, DirectionKey | null>;
+  onSelectWitness: (id: string) => void;
+}) {
+  const mapRef = useRef<HTMLDivElement | null>(null);
+  const [mapState, setMapState] = useState<"loading" | "ready" | "fallback">("loading");
+
+  useEffect(() => {
+    const key = new URLSearchParams(window.location.search).get("kakaoKey");
+    if (!key || !mapRef.current) {
+      setMapState("fallback");
+      return;
+    }
+
+    let cancelled = false;
+    const renderMap = () => {
+      if (cancelled || !mapRef.current || !window.kakao?.maps) return;
+      const center = new window.kakao.maps.LatLng(towerTarget.lat, towerTarget.lng);
+      new window.kakao.maps.Map(mapRef.current, { center, level: 3 });
+      setMapState("ready");
+    };
+
+    if (window.kakao?.maps) {
+      window.kakao.maps.load(renderMap);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    const existingScript = document.querySelector<HTMLScriptElement>("#kakao-map-sdk");
+    if (existingScript) {
+      existingScript.addEventListener("load", () => window.kakao?.maps.load(renderMap), { once: true });
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    const script = document.createElement("script");
+    script.id = "kakao-map-sdk";
+    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${encodeURIComponent(key)}&autoload=false`;
+    script.async = true;
+    script.onload = () => window.kakao?.maps.load(renderMap);
+    script.onerror = () => setMapState("fallback");
+    document.head.appendChild(script);
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const points = [...witnesses.map((witness) => witness.location), towerTarget];
+  const lngValues = points.map((point) => point.lng);
+  const latValues = points.map((point) => point.lat);
+  const bounds = {
+    lngMin: Math.min(...lngValues) - 0.00045,
+    lngMax: Math.max(...lngValues) + 0.00045,
+    latMin: Math.min(...latValues) - 0.00035,
+    latMax: Math.max(...latValues) + 0.00035,
+  };
+  const fallbackSrc = `https://www.openstreetmap.org/export/embed.html?bbox=${bounds.lngMin}%2C${bounds.latMin}%2C${bounds.lngMax}%2C${bounds.latMax}&layer=mapnik&marker=${towerTarget.lat}%2C${towerTarget.lng}`;
+
+  return (
+    <div className="real-map-shell witness-map-shell">
+      {mapState === "fallback" ? (
+        <iframe className="real-map-frame" title="목격 지점 실제 지도" src={fallbackSrc} loading="lazy" />
+      ) : (
+        <div ref={mapRef} className="real-map-canvas" aria-label="목격 지점 실제 지도" />
+      )}
+      <svg className="witness-line-layer" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        {witnesses.map((witness) => {
+          const direction = witnessDirections[witness.id];
+          if (!direction) return null;
+          const start = getMapPoint(witness.location, bounds);
+          const vector = directionVectors[direction];
+          return (
+            <line
+              key={witness.id}
+              x1={start.x}
+              y1={start.y}
+              x2={start.x + vector.x * 42}
+              y2={start.y + vector.y * 42}
+              className={direction === witness.correctDirection ? "is-correct" : ""}
+            />
+          );
+        })}
+      </svg>
+      <div className="tower-target-marker" style={getMapPointStyle(towerTarget, bounds)} aria-hidden="true"><span /></div>
+      {witnesses.map((witness) => (
+        <button
+          key={witness.id}
+          type="button"
+          className={`witness-map-marker${activeWitnessId === witness.id ? " is-active" : ""}${visitedWitnesses[witness.id] ? " is-visited" : ""}`}
+          style={getMapPointStyle(witness.location, bounds)}
+          aria-label={`${witness.name} 위치`}
+          onClick={() => onSelectWitness(witness.id)}
+        >
+          {witness.id}
+        </button>
+      ))}
+      {userLocation && <div className="map-user-marker" aria-hidden="true" style={getMapPointStyle(userLocation, bounds)} />}
+      <div className="map-target-panel witness-map-panel"><span>추정 교차 지점</span><strong>대양타워 상부</strong></div>
+      {mapState === "loading" && <p className="map-loading">지도 불러오는 중...</p>}
+      {mapState === "fallback" && <p className="map-loading">Kakao 키 없이 실제 지도 미리보기 표시 중</p>}
+    </div>
+  );
+}
+
+function getMapPoint(location: { lat: number; lng: number }, bounds: { lngMin: number; lngMax: number; latMin: number; latMax: number }) {
+  const x = Math.min(94, Math.max(6, ((location.lng - bounds.lngMin) / (bounds.lngMax - bounds.lngMin)) * 100));
+  const y = Math.min(94, Math.max(6, (1 - (location.lat - bounds.latMin) / (bounds.latMax - bounds.latMin)) * 100));
+  return { x, y };
+}
+
+function getMapPointStyle(location: { lat: number; lng: number }, bounds: { lngMin: number; lngMax: number; latMin: number; latMax: number }) {
+  const point = getMapPoint(location, bounds);
+  return { left: `${point.x}%`, top: `${point.y}%` };
 }
 
 function MissionMap({ userLocation }: { userLocation: { lat: number; lng: number } | null }) {
