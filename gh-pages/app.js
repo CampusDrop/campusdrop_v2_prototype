@@ -20,6 +20,11 @@ let cameraStream = null;
 let cameraWatch = null;
 let cameraFoundTimer = null;
 
+function triggerDropLinkVibration() {
+  if (typeof navigator.vibrate !== "function") return;
+  navigator.vibrate([70, 45, 110]);
+}
+
 function stopCameraScan() {
   cameraStream?.getTracks().forEach((track) => track.stop());
   cameraStream = null;
@@ -47,7 +52,10 @@ function showScreen(name) {
     const message = document.querySelector("#unknownMessage");
     messageStep = 0;
     message.classList.remove("is-visible");
-    window.setTimeout(() => message.classList.add("is-visible"), 5200);
+    window.setTimeout(() => {
+      message.classList.add("is-visible");
+      triggerDropLinkVibration();
+    }, 5200);
   }
 
   if (name === "mission") {

@@ -49,6 +49,11 @@ const posterCopy: Record<string, string> = {
   gate: "정문 포스터를 통해 접속했습니다. 최근 30일 동안 같은 소문과 관련된 신고가 7건 접수됐습니다.",
 };
 
+function triggerDropLinkVibration() {
+  if (typeof navigator === "undefined" || typeof navigator.vibrate !== "function") return;
+  navigator.vibrate([70, 45, 110]);
+}
+
 function getDistanceMeters(from: { lat: number; lng: number }, to: { lat: number; lng: number }) {
   const radius = 6371000;
   const lat1 = (from.lat * Math.PI) / 180;
@@ -80,7 +85,10 @@ export default function Home() {
 
   useEffect(() => {
     if (scene !== "incident") return;
-    const first = window.setTimeout(() => setMessageStep("first"), 5200);
+    const first = window.setTimeout(() => {
+      setMessageStep("first");
+      triggerDropLinkVibration();
+    }, 5200);
     return () => window.clearTimeout(first);
   }, [scene]);
 
