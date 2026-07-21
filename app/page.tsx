@@ -1178,7 +1178,7 @@ export default function Home() {
                       draggable={!witnessOrderSubmitted}
                       onPointerDown={(event) => { orderPointerRef.current = { id, x: event.clientX, y: event.clientY }; }}
                       onPointerUp={(event) => handleOrderPointerUp(id, event)}
-                      onClick={() => selectOrderCard(id)}
+                      onClick={() => setExpandedWitnessId(id)}
                       onDragStart={(event) => {
                         if (witnessOrderSubmitted) return;
                         setDraggedWitnessId(id);
@@ -1196,7 +1196,7 @@ export default function Home() {
                       <div style={{ backgroundImage: `url(${witness.photo})` }} role="img" aria-label={`${witness.name} 자료 이미지`} />
                       <strong>{witness.name}</strong>
                       <small>{witness.recordTitle}</small>
-                      <button type="button" onClick={(event) => { event.stopPropagation(); setExpandedWitnessId(id); }}>확대</button>
+                      <button type="button" data-order-select="true" onPointerDown={(event) => event.stopPropagation()} onPointerUp={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); selectOrderCard(id); }}>순서 선택</button>
                     </article>
                   );
                 })}

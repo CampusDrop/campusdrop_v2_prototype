@@ -556,7 +556,7 @@ function renderOrderQuiz() {
   if (!allVisited) return;
   zone.innerHTML = witnessOrder.map((id, index) => {
     const witness = witnesses.find((item) => item.id === id);
-    return `<article class="order-card${selectedOrderCardId === id ? " is-selected" : ""}${witnessOrderSubmitted ? " is-locked" : ""}" draggable="${witnessOrderSubmitted ? "false" : "true"}" data-order-card="${id}"><span>${String(index + 1).padStart(2, "0")}</span><div style="background-image:url(${witness.photo})" role="img" aria-label="${witness.name} 자료 이미지"></div><strong>${witness.name}</strong><small>${witness.recordTitle}</small><button type="button" data-preview-witness="${id}">확대</button></article>`;
+    return `<article class="order-card${selectedOrderCardId === id ? " is-selected" : ""}${witnessOrderSubmitted ? " is-locked" : ""}" draggable="${witnessOrderSubmitted ? "false" : "true"}" data-order-card="${id}"><span>${String(index + 1).padStart(2, "0")}</span><div style="background-image:url(${witness.photo})" role="img" aria-label="${witness.name} 자료 이미지"></div><strong>${witness.name}</strong><small>${witness.recordTitle}</small><button type="button" data-order-select="${id}">순서 선택</button></article>`;
   }).join("");
   document.querySelector("#letterChain").hidden = !witnessOrderSubmitted;
   document.querySelector("#letterChain").innerHTML = witnessOrder.map((id, index) => {
@@ -1174,7 +1174,7 @@ document.addEventListener("input", (event) => {
 
 document.addEventListener("pointerdown", (event) => {
   const orderCard = event.target.closest("[data-order-card]");
-  if (orderCard && !event.target.closest("[data-preview-witness]") && !witnessOrderSubmitted) {
+  if (orderCard && !event.target.closest("[data-preview-witness]") && !event.target.closest("[data-order-select]") && !witnessOrderSubmitted) {
     orderPointerStart = { id: orderCard.dataset.orderCard, x: event.clientX, y: event.clientY };
   }
   if (event.target.closest("#restoreBoard")) markRestorePoint(event.clientX, event.clientY);
@@ -1182,7 +1182,7 @@ document.addEventListener("pointerdown", (event) => {
 
 document.addEventListener("pointerup", (event) => {
   const orderCard = event.target.closest("[data-order-card]");
-  if (orderCard) handleOrderPointerUp(orderCard.dataset.orderCard, event);
+  if (orderCard && !event.target.closest("[data-order-select]")) handleOrderPointerUp(orderCard.dataset.orderCard, event);
 });
 
 document.addEventListener("pointermove", (event) => {
@@ -1287,9 +1287,15 @@ document.addEventListener("click", (event) => {
     return;
   }
 
+  const orderSelectButton = event.target.closest("[data-order-select]");
+  if (orderSelectButton) {
+    selectOrderCard(orderSelectButton.dataset.orderSelect);
+    return;
+  }
+
   const orderCard = event.target.closest("[data-order-card]");
   if (orderCard && !event.target.closest("[data-preview-witness]")) {
-    selectOrderCard(orderCard.dataset.orderCard);
+    openEvidencePreview(orderCard.dataset.orderCard);
     return;
   }
 
