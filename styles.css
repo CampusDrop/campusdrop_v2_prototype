@@ -169,6 +169,36 @@ button:focus-visible {
   text-transform: none;
 }
 
+.entry-guide {
+  display: grid;
+  gap: 10px;
+  margin: 14px 0 18px;
+}
+
+.entry-guide article {
+  border: 1px solid rgba(4, 116, 109, 0.14);
+  border-radius: 16px;
+  background: rgba(247, 241, 227, 0.72);
+  padding: 13px 14px;
+  box-shadow: 0 14px 30px rgba(8, 16, 17, 0.08);
+}
+
+.entry-guide span {
+  display: block;
+  color: #04746d;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+}
+
+.entry-guide p {
+  margin: 6px 0 0;
+  color: rgba(8, 16, 17, 0.72);
+  font-size: 14px;
+  font-weight: 760;
+  line-height: 1.55;
+}
+
 .primary-action,
 .secondary-action {
   width: 100%;
@@ -1584,12 +1614,14 @@ button:focus-visible {
 }
 
 .case-entry .case-title p,
-.case-entry .case-status span {
+.case-entry .case-status span,
+.entry-guide span {
   color: var(--readable-teal);
 }
 
 .case-entry .case-status p,
-.case-entry .warning-copy {
+.case-entry .warning-copy,
+.entry-guide p {
   color: var(--readable-muted-dark);
 }
 
