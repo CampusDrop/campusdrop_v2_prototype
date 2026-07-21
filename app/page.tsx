@@ -43,6 +43,12 @@ const reachRadiusMeters = 20;
 const clueRevealRadiusMeters = 10;
 const witnessReachRadiusMeters = 10;
 const investigationMarkerSrc = "/investigation-marker-v2.png";
+const missionMapBounds = {
+  lngMin: missionTarget.lng - 0.003,
+  lngMax: missionTarget.lng + 0.003,
+  latMin: missionTarget.lat - 0.002,
+  latMax: missionTarget.lat + 0.002,
+};
 const directionOptions: { key: DirectionKey; label: string }[] = [
   { key: "N", label: "북쪽" },
   { key: "NE", label: "북동쪽" },
@@ -922,7 +928,7 @@ function MissionMap() {
   }, []);
 
 
-  const fallbackSrc = `https://www.openstreetmap.org/export/embed.html?bbox=${missionTarget.lng - 0.003}%2C${missionTarget.lat - 0.002}%2C${missionTarget.lng + 0.003}%2C${missionTarget.lat + 0.002}&layer=mapnik`;
+  const fallbackSrc = `https://www.openstreetmap.org/export/embed.html?bbox=${missionMapBounds.lngMin}%2C${missionMapBounds.latMin}%2C${missionMapBounds.lngMax}%2C${missionMapBounds.latMax}&layer=mapnik`;
 
   return (
     <div className="real-map-shell">
@@ -930,6 +936,12 @@ function MissionMap() {
         <iframe className="real-map-frame" title="농동로 209 잔디밭 지도" src={fallbackSrc} loading="lazy" />
       ) : (
         <div ref={mapRef} className="real-map-canvas" aria-label="농동로 209 잔디밭 실제 지도" />
+      )}
+      {mapState === "fallback" && (
+        <>
+          <div className="map-range-circle" style={getMapPointStyle(missionTarget, missionMapBounds)} aria-hidden="true" />
+          <div className="map-investigation-marker" style={getMapPointStyle(missionTarget, missionMapBounds)} aria-hidden="true" />
+        </>
       )}
       <div className="map-target-panel">
         <span>조사 지점</span>
