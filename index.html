@@ -118,12 +118,15 @@
       <section class="screen camera-screen" data-screen="camera">
         <video class="camera-feed" id="cameraFeed" playsinline muted></video>
         <div class="camera-vignette" aria-hidden="true"></div>
+        <div class="camera-discovery-flash" aria-hidden="true"></div>
         <div class="camera-hud">
           <p>AR 현장 조사</p>
           <h2>잔디밭을 천천히 훑어보세요</h2>
           <span id="cameraStatus">카메라 권한을 요청하는 중...</span>
         </div>
         <div class="camera-scan-line" aria-hidden="true"></div>
+        <div class="camera-evidence-lock" aria-hidden="true"><i></i><i></i><b></b></div>
+        <div class="camera-evidence-stamp" aria-hidden="true">EVIDENCE FOUND</div>
         <div class="camera-bottom-signal" aria-hidden="true"><i></i><i></i><i></i></div>
         <div class="camera-readout"><span>조사 반경</span><strong id="scanDistanceText">측정 중</strong></div>
         <div class="camera-control-stack">
@@ -131,6 +134,7 @@
           <button class="camera-admin-found" type="button" id="adminFindClue">관리자 권한으로 단서 발견</button>
         </div>
         <div class="camera-fur-glimpse" aria-hidden="true"></div>
+        <div class="camera-spark-field" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
       </section>
 
       <section class="screen arrival-screen" data-screen="arrival">

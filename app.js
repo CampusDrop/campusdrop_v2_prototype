@@ -30,6 +30,11 @@ function triggerDropLinkVibration() {
   navigator.vibrate([70, 45, 110]);
 }
 
+function triggerEvidenceVibration() {
+  if (typeof navigator.vibrate !== "function") return;
+  navigator.vibrate([45, 35, 70, 45, 130]);
+}
+
 function stopCameraScan() {
   cameraStream?.getTracks().forEach((track) => track.stop());
   cameraStream = null;
@@ -230,11 +235,12 @@ function completeCameraScan() {
   const cameraScreen = document.querySelector('[data-screen="camera"]');
   const status = document.querySelector("#cameraStatus");
   cameraScreen?.classList.add("is-found");
-  if (status) status.textContent = "잔디밭 아래쪽에서 노란 신호가 감지됐습니다.";
+  triggerEvidenceVibration();
+  if (status) status.textContent = "신호 고정 완료. 노란털 표본을 증거로 확보합니다.";
   cameraFoundTimer = window.setTimeout(() => {
     stopCameraScan();
     showScreen("arrival");
-  }, 1500);
+  }, 2600);
 }
 
 function updateCameraDistance(position) {
