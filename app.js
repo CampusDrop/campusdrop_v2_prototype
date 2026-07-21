@@ -1,7 +1,7 @@
 const app = document.querySelector("#app");
 const screens = [...document.querySelectorAll("[data-screen]")];
-const reachRadiusMeters = 90;
-const clockTower = { lat: 37.550944, lng: 127.073765 };
+const reachRadiusMeters = 20;
+const missionTarget = { lat: 37.55041617275794, lng: 127.07381801425053 };
 const dropLinkBriefings = [
   "사용자 인증 완료. 임시 현장 조사원으로 등록합니다. 사건 번호 CD-SJ-01, 사건명 시계탑 대형 생물 목격 사건.",
   "세종대학교에는 오래된 소문이 하나 있습니다. 시계탑 꼭대기에는 기린이 산다. 본부는 목격 신고 7건을 근거로 현장 조사가 필요하다고 판단했습니다.",
@@ -12,9 +12,7 @@ const posterCopy = {
   gate: "정문 포스터를 통해 접속했습니다. 최근 30일 동안 같은 소문과 관련된 신고가 7건 접수됐습니다.",
 };
 const clueDetails = {
-  "털": "표본을 확인했습니다. 인공 섬유가 아닙니다. 기린과 동물의 체모와 유사하지만 단독 증거로는 확정할 수 없습니다.",
-  "나뭇잎": "사람의 손이 닿지 않는 높이에서만 나뭇잎이 사라져 있습니다. 대형 초식동물의 섭식 흔적과 유사합니다.",
-  "충격음": "단단한 바닥을 밟는 발굽 소리로 분류됐습니다. 발굽이 바닥에 닿는 간격이 대형 개체 보행 패턴과 일치합니다.",
+  "노란털": "잔디밭 가장자리에서 노란 털 표본을 확보했습니다. 인공 섬유가 아니며 기린과 동물의 체모와 유사합니다.",
 };
 
 let messageStep = 0;
@@ -53,16 +51,16 @@ function initMissionMap() {
   shell.querySelector("iframe")?.remove();
   const canvas = document.createElement("div");
   canvas.className = "real-map-canvas";
-  canvas.setAttribute("aria-label", "세종대학교 시계탑 실제 지도");
+  canvas.setAttribute("aria-label", "농동로 209 잔디밭 실제 지도");
   shell.prepend(canvas);
   if (loading) loading.textContent = "지도 불러오는 중...";
 
   const renderMap = () => {
     if (!window.kakao?.maps) return;
     window.kakao.maps.load(() => {
-      const center = new window.kakao.maps.LatLng(clockTower.lat, clockTower.lng);
+      const center = new window.kakao.maps.LatLng(missionTarget.lat, missionTarget.lng);
       const map = new window.kakao.maps.Map(canvas, { center, level: 3 });
-      new window.kakao.maps.Marker({ position: center, title: "세종대학교 시계탑" }).setMap(map);
+      new window.kakao.maps.Marker({ position: center, title: "농동로 209 잔디밭" }).setMap(map);
       new window.kakao.maps.Circle({
         center,
         radius: reachRadiusMeters,
@@ -124,18 +122,18 @@ function checkLocation() {
     (position) => {
       const distance = getDistanceMeters(
         { lat: position.coords.latitude, lng: position.coords.longitude },
-        clockTower,
+        missionTarget,
       );
       distanceText.textContent = `${distance}m`;
       if (distance <= reachRadiusMeters) {
-        status.textContent = "시계탑 조사 범위에 진입했습니다.";
+        status.textContent = "잔디밭 조사 범위에 진입했습니다.";
         showScreen("arrival");
         return;
       }
-      status.textContent = "아직 신호 범위 밖입니다. 시계탑 쪽으로 이동하세요.";
+      status.textContent = "아직 조사 범위 밖입니다. 지정된 잔디밭 쪽으로 이동하세요.";
     },
     () => {
-      status.textContent = "위치 권한을 허용하면 시계탑 도착 여부를 확인할 수 있습니다.";
+      status.textContent = "위치 권한을 허용하면 잔디밭 도착 여부를 확인할 수 있습니다.";
     },
     { enableHighAccuracy: true, timeout: 10000 },
   );
@@ -169,17 +167,17 @@ function startDropLinkTyping() {
 function updateConclusion() {
   const conclusion = document.querySelector("#conclusion");
   const strong = conclusion.querySelector("strong");
-  if (foundClues.size === 3) {
+  if (foundClues.size === 1) {
     conclusion.classList.add("is-open");
-    strong.textContent = "분석 완료. 추정 개체 높이 4.5m 이상, 추정 분류 기린과, 실제 개체 존재 가능성 93.7%.";
+    strong.textContent = "노란털 표본 확보. 인공 섬유가 아니며 기린과 동물의 체모와 유사합니다.";
     if (!conclusion.querySelector("p")) {
       const next = document.createElement("p");
-      next.textContent = "기존 기록과 일치하는 개체가 확인됐습니다. 다음 파트: 지정 이미지를 스캔해 세린이와 첫 접촉하기";
+      next.textContent = "첫 번째 현장 표본이 확보됐습니다. 다음 파트: 추가 단서를 분석해 세린이와 첫 접촉하기";
       conclusion.appendChild(next);
     }
     return;
   }
-  strong.textContent = `${foundClues.size} / 3 흔적 확인`;
+  strong.textContent = `${foundClues.size} / 1 흔적 확인`;
 }
 
 document.addEventListener("click", (event) => {
