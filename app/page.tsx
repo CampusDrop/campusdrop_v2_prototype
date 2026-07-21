@@ -70,6 +70,7 @@ const witnesses = [
     place: "잔디밭 남서쪽",
     location: { lat: 37.55009418972363, lng: 127.0736196575354 },
     photo: "/gfPhoto_03.png",
+    emptyPhoto: "/gfPhoto_03-no-giraffe.png",
     piece: "FE",
     correctDirection: "N" as DirectionKey,
   },
@@ -80,6 +81,7 @@ const witnesses = [
     place: "북쪽 보행로",
     location: { lat: 37.55143211168644, lng: 127.07371716568217 },
     photo: "/gfPhoto_02.png",
+    emptyPhoto: "/gfPhoto_02-no-giraffe.png",
     piece: "AF",
     correctDirection: "SE" as DirectionKey,
   },
@@ -90,6 +92,7 @@ const witnesses = [
     place: "동쪽 진입로",
     location: { lat: 37.550652047104954, lng: 127.0748310833212 },
     photo: "/gfPhoto_01.png",
+    emptyPhoto: "/gfPhoto_01-no-giraffe.png",
     piece: "GIR",
     correctDirection: "NW" as DirectionKey,
   },
@@ -1245,7 +1248,8 @@ export default function Home() {
                   hidden={!isActive}
                 >
                   <span>{record.recordTitle}</span>
-                  <div className="empty-record-image" style={{ backgroundImage: `url(${record.photo})` }}>
+                  <div className="empty-record-image" style={{ backgroundImage: `url(${record.emptyPhoto})` }}>
+                    <span className="empty-original-layer" style={{ backgroundImage: `url(${record.photo})` }} />
                     <i className="empty-loss-mask" style={{ left: `${mask.x}%`, top: `${mask.y}%`, width: `${mask.width}%`, height: `${mask.height}%` }} />
                     <b className="empty-ghost-signal" style={{ left: `${mask.x}%`, top: `${mask.y}%`, width: `${mask.width}%`, height: `${mask.height}%` }} />
                   </div>

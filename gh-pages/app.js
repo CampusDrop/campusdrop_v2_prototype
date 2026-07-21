@@ -13,6 +13,7 @@ const witnesses = [
     place: "잔디밭 남서쪽",
     location: { lat: 37.55009418972363, lng: 127.0736196575354 },
     photo: "./gfPhoto_03.png",
+    emptyPhoto: "./gfPhoto_03-no-giraffe.png",
     piece: "FE",
     correctDirection: "N",
     point: { x: 21.31, y: 80.35 },
@@ -24,6 +25,7 @@ const witnesses = [
     place: "북쪽 보행로",
     location: { lat: 37.55143211168644, lng: 127.07371716568217 },
     photo: "./gfPhoto_02.png",
+    emptyPhoto: "./gfPhoto_02-no-giraffe.png",
     piece: "AF",
     correctDirection: "SE",
     point: { x: 25.93, y: 15.65 },
@@ -35,6 +37,7 @@ const witnesses = [
     place: "동쪽 진입로",
     location: { lat: 37.550652047104954, lng: 127.0748310833212 },
     photo: "./gfPhoto_01.png",
+    emptyPhoto: "./gfPhoto_01-no-giraffe.png",
     piece: "GIR",
     correctDirection: "NW",
     point: { x: 78.69, y: 53.37 },
@@ -777,7 +780,7 @@ function renderEmptyRecordScene() {
       const mask = emptyRecordMasks[record.id];
       const isActive = activeEmptyRecordId === record.id;
       const isHit = emptyRecordHits[record.id];
-      return `<button type="button" class="empty-record-card${isActive ? " is-active" : ""}${isHit ? " is-restored" : ""}${emptyRecordComplete ? " is-unstable" : ""}" data-empty-record="${record.id}" ${isActive ? "" : "hidden"}><span>${record.recordTitle}</span><div class="empty-record-image" style="background-image:url(${record.photo})"><i class="empty-loss-mask" style="left:${mask.x}%;top:${mask.y}%;width:${mask.width}%;height:${mask.height}%"></i><b class="empty-ghost-signal" style="left:${mask.x}%;top:${mask.y}%;width:${mask.width}%;height:${mask.height}%"></b></div><strong>${isHit ? "개체 영역 재생성" : "개체 정보 손실"}</strong></button>`;
+      return `<button type="button" class="empty-record-card${isActive ? " is-active" : ""}${isHit ? " is-restored" : ""}${emptyRecordComplete ? " is-unstable" : ""}" data-empty-record="${record.id}" ${isActive ? "" : "hidden"}><span>${record.recordTitle}</span><div class="empty-record-image" style="background-image:url(${record.emptyPhoto})"><span class="empty-original-layer" style="background-image:url(${record.photo})"></span><i class="empty-loss-mask" style="left:${mask.x}%;top:${mask.y}%;width:${mask.width}%;height:${mask.height}%"></i><b class="empty-ghost-signal" style="left:${mask.x}%;top:${mask.y}%;width:${mask.width}%;height:${mask.height}%"></b></div><strong>${isHit ? "개체 영역 재생성" : "개체 정보 손실"}</strong></button>`;
     }).join("");
   }
   document.querySelector("#emptyAutoProgressBar").style.width = `${emptyAutoProgress}%`;

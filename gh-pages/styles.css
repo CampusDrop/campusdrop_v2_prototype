@@ -3257,6 +3257,42 @@ button:focus-visible {
   filter: saturate(0.92) contrast(1.02);
 }
 
+
+.empty-original-layer {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: cover;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 480ms ease;
+  filter: saturate(0.96) contrast(1.02);
+}
+
+.empty-record-card.is-restored .empty-original-layer {
+  opacity: 0.5;
+  animation: empty-original-return 900ms ease-out both;
+}
+
+.empty-record-card.is-unstable .empty-original-layer {
+  animation: empty-original-return 900ms ease-out both, empty-instability 1.7s ease-in-out 900ms infinite;
+}
+
+@keyframes empty-original-return {
+  0% {
+    opacity: 0;
+    filter: blur(8px) saturate(0.5) brightness(1.35);
+  }
+  45% {
+    opacity: 0.72;
+    filter: blur(1px) saturate(1.08) brightness(1.15);
+  }
+  100% {
+    opacity: 0.5;
+    filter: blur(0) saturate(0.96) brightness(1);
+  }
+}
+
 .empty-record-image::after {
   content: "";
   position: absolute;
@@ -3290,7 +3326,7 @@ button:focus-visible {
 }
 
 .empty-record-card.is-restored .empty-loss-mask {
-  opacity: 0.28;
+  opacity: 0.08;
 }
 
 .empty-record-card.is-restored .empty-ghost-signal {
