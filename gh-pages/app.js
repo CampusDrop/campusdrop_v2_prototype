@@ -159,6 +159,8 @@ let visitedWitnesses = { A: false, B: false, C: false };
 let witnessOrder = ["A", "C", "B"];
 let selectedOrderCardId = null;
 let witnessOrderSubmitted = false;
+let witnessOrderAnalyzing = false;
+let witnessOrderFailed = false;
 let witnessOrderFeedback = "기록을 오래된 순서대로 배치한 뒤 분석을 요청하세요.";
 let witnessWordAnswer = "";
 let witnessAnswerFeedback = "기록 배열이 확인되면 보고 입력창이 열립니다.";
@@ -698,20 +700,24 @@ function renderOrderQuiz() {
   if (!allVisited) return;
   zone.innerHTML = witnessOrder.map((id, index) => {
     const witness = witnesses.find((item) => item.id === id);
-    return `<article class="order-card${selectedOrderCardId === id ? " is-selected" : ""}${witnessOrderSubmitted ? " is-locked" : ""}" draggable="${witnessOrderSubmitted ? "false" : "true"}" data-order-card="${id}"><span>${String(index + 1).padStart(2, "0")}</span><div style="background-image:url(${witness.photo})" role="img" aria-label="${witness.name} 자료 이미지"></div><strong>${witness.name}</strong><small>${witness.recordTitle}</small><button type="button" data-order-select="${id}">순서 선택</button></article>`;
+    return `<article class="order-card${selectedOrderCardId === id ? " is-selected" : ""}${witnessOrderSubmitted ? " is-locked" : ""}${witnessOrderFailed ? " is-analysis-error" : ""}" draggable="${witnessOrderSubmitted || witnessOrderAnalyzing ? "false" : "true"}" data-order-card="${id}"><span>${String(index + 1).padStart(2, "0")}</span><div style="background-image:url(${witness.photo})" role="img" aria-label="${witness.name} 자료 이미지"></div><strong>${witness.name}</strong><small>${witness.recordTitle}</small><button type="button" data-order-select="${id}">순서 선택</button></article>`;
   }).join("");
   document.querySelector("#letterChain").hidden = !witnessOrderSubmitted;
   document.querySelector("#letterChain").innerHTML = witnessOrder.map((id, index) => {
     const witness = witnesses.find((item) => item.id === id);
     return `<span>${witness.piece}${index < witnessOrder.length - 1 ? "<b>+</b>" : ""}</span>`;
   }).join("");
-  document.querySelector("#submitOrderButton").disabled = witnessOrderSubmitted;
+  document.querySelector("#orderQuizPanel")?.classList.toggle("is-analysis-success", witnessOrderSubmitted);
+  document.querySelector("#orderAnalysisModal")?.toggleAttribute("hidden", !witnessOrderAnalyzing);
+  document.querySelector("#submitOrderButton").disabled = witnessOrderSubmitted || witnessOrderAnalyzing;
+  document.querySelector("#submitOrderButton").textContent = witnessOrderAnalyzing ? "분석 중..." : "분석 요청";
   const wordPanel = document.querySelector("#wordReportPanel");
   wordPanel.hidden = !witnessOrderSubmitted;
   const input = document.querySelector("#witnessWordAnswer");
   if (input && input.value !== witnessWordAnswer) input.value = witnessWordAnswer;
   document.querySelector("#orderFeedback").textContent = witnessOrderFeedback;
   document.querySelector("#orderFeedback").classList.toggle("is-correct", witnessOrderSubmitted);
+  document.querySelector("#orderFeedback").classList.toggle("is-error", witnessOrderFailed);
   document.querySelector("#answerFeedback").textContent = witnessAnswerFeedback;
   document.querySelector("#answerFeedback").classList.toggle("is-correct", witnessAnswerSubmitted);
   document.querySelector("#submitAnswerButton").disabled = witnessAnswerSubmitted;
@@ -721,6 +727,8 @@ function resetWitnessAnalysis() {
   witnessOrderSubmitted = false;
   witnessAnswerSubmitted = false;
   witnessWordAnswer = "";
+  witnessOrderAnalyzing = false;
+  witnessOrderFailed = false;
   witnessAnswerFeedback = "기록 배열이 확인되면 보고 입력창이 열립니다.";
   witnessOrderFeedback = "기록을 오래된 순서대로 배치한 뒤 분석을 요청하세요.";
 }
@@ -774,17 +782,28 @@ function selectOrderCard(id) {
 }
 
 function submitWitnessOrder() {
-  if (!witnesses.every((witness) => visitedWitnesses[witness.id])) return;
-  if (witnessOrder.join("") !== correctWitnessOrder.join("")) {
-    witnessOrderFeedback = "기록 사이의 시간적 연결을 확인할 수 없습니다. 기록 매체와 작성 방식을 다시 분석하십시오.";
-    updateWitnessUi();
-    return;
-  }
-  witnessOrderSubmitted = true;
-  selectedOrderCardId = null;
-  witnessOrderFeedback = "기록의 시간적 배열이 확인되었습니다. 각 기록에 포함된 식별 문자를 연결하십시오.";
-  witnessAnswerFeedback = "세 기록에 공통으로 등장하는 생물을 영문으로 보고하십시오.";
+  if (!witnesses.every((witness) => visitedWitnesses[witness.id]) || witnessOrderSubmitted || witnessOrderAnalyzing) return;
+  witnessOrderAnalyzing = true;
+  witnessOrderFailed = false;
+  witnessOrderFeedback = "CAMPUSDROP이 기록의 시간적 연결을 분석 중입니다...";
   updateWitnessUi();
+  window.setTimeout(() => {
+    witnessOrderAnalyzing = false;
+    if (witnessOrder.join("") !== correctWitnessOrder.join("")) {
+      witnessOrderFailed = true;
+      witnessOrderFeedback = "분석 실패. 기록 사이의 시간적 연결을 확인할 수 없습니다. 기록 매체와 작성 방식을 다시 분석하십시오.";
+      triggerEvidenceVibration();
+      updateWitnessUi();
+      return;
+    }
+    witnessOrderSubmitted = true;
+    witnessOrderFailed = false;
+    selectedOrderCardId = null;
+    witnessOrderFeedback = "분석 성공. 기록의 시간적 배열이 확인되었습니다. 각 기록에 포함된 식별 문자를 연결하십시오.";
+    witnessAnswerFeedback = "세 기록에 공통으로 등장하는 생물을 영문으로 보고하십시오.";
+    triggerDropLinkVibration();
+    updateWitnessUi();
+  }, 2000);
 }
 
 function submitWitnessAnswer() {
@@ -1267,7 +1286,7 @@ function startDropLinkTyping() {
 
 document.addEventListener("dragstart", (event) => {
   const card = event.target.closest("[data-order-card]");
-  if (!card || witnessOrderSubmitted) return;
+  if (!card || witnessOrderSubmitted || witnessOrderAnalyzing) return;
   draggedWitnessId = card.dataset.orderCard;
   card.classList.add("is-dragging");
 });
@@ -1313,7 +1332,7 @@ document.addEventListener("input", (event) => {
 
 document.addEventListener("pointerdown", (event) => {
   const orderCard = event.target.closest("[data-order-card]");
-  if (orderCard && !event.target.closest("[data-preview-witness]") && !event.target.closest("[data-order-select]") && !witnessOrderSubmitted) {
+  if (orderCard && !event.target.closest("[data-preview-witness]") && !event.target.closest("[data-order-select]") && !witnessOrderSubmitted && !witnessOrderAnalyzing) {
     orderPointerStart = { id: orderCard.dataset.orderCard, x: event.clientX, y: event.clientY };
   }
   if (event.target.closest("#restoreBoard")) markRestorePoint(event.clientX, event.clientY);

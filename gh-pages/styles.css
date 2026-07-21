@@ -3053,6 +3053,162 @@ button:focus-visible {
   background-repeat: no-repeat;
   background-color: rgba(2, 7, 8, 0.58);
 }
+.order-quiz-panel.is-analysis-success {
+  border-color: rgba(143, 245, 199, 0.52);
+  box-shadow: inset 0 0 0 1px rgba(143, 245, 199, 0.12), 0 0 36px rgba(115, 242, 223, 0.16), 0 18px 42px rgba(0, 0, 0, 0.18);
+  animation: order-success-glow 900ms ease both;
+}
+
+.order-card.is-analysis-error {
+  border-color: rgba(255, 88, 88, 0.5);
+  animation: order-card-error 520ms ease both;
+}
+
+.order-feedback.is-error {
+  border: 1px solid rgba(255, 88, 88, 0.34);
+  border-radius: 14px;
+  background: rgba(132, 24, 24, 0.2);
+  color: #ff9a9a;
+  padding: 10px 12px;
+  box-shadow: 0 0 26px rgba(255, 88, 88, 0.1);
+  animation: order-error-pop 260ms ease both;
+}
+
+.order-analysis-modal[hidden] {
+  display: none;
+}
+
+.order-analysis-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 92;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  background: radial-gradient(circle at 50% 42%, rgba(115, 242, 223, 0.14), transparent 34%), rgba(2, 8, 9, 0.72);
+  backdrop-filter: blur(12px);
+  animation: analysis-modal-in 180ms ease both;
+}
+
+.order-analysis-card {
+  position: relative;
+  width: min(100%, 370px);
+  overflow: hidden;
+  border: 1px solid rgba(115, 242, 223, 0.32);
+  border-radius: 24px;
+  background: linear-gradient(155deg, rgba(9, 31, 28, 0.96), rgba(5, 11, 13, 0.95));
+  padding: 22px;
+  color: #f7f1e3;
+  text-align: center;
+  box-shadow: 0 26px 76px rgba(0, 0, 0, 0.46), 0 0 32px rgba(115, 242, 223, 0.12);
+  animation: analysis-card-in 300ms cubic-bezier(.16, .98, .18, 1) both;
+}
+
+.order-analysis-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent, rgba(115, 242, 223, 0.12), transparent);
+  transform: translateX(-120%);
+  animation: analysis-scan-sweep 1.15s ease-in-out infinite;
+}
+
+.order-analysis-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.order-analysis-card span {
+  color: #73f2df;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.1em;
+}
+
+.order-analysis-card strong {
+  display: block;
+  margin-top: 10px;
+  color: #f7f1e3;
+  font-size: 23px;
+  font-weight: 950;
+}
+
+.order-analysis-card p {
+  margin: 8px 0 18px;
+  color: rgba(247, 241, 227, 0.72);
+  font-size: 13px;
+  font-weight: 780;
+  line-height: 1.5;
+}
+
+.analysis-loader {
+  display: flex;
+  justify-content: center;
+  gap: 9px;
+}
+
+.analysis-loader i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #73f2df;
+  box-shadow: 0 0 18px rgba(115, 242, 223, 0.66);
+  animation: analysis-dot 760ms ease-in-out infinite;
+}
+
+.analysis-loader i:nth-child(2) { animation-delay: 130ms; }
+.analysis-loader i:nth-child(3) { animation-delay: 260ms; }
+
+.letter-chain span {
+  animation: letter-chain-reveal 520ms cubic-bezier(.16, .98, .18, 1) both;
+}
+
+.letter-chain span:nth-child(2) { animation-delay: 120ms; }
+.letter-chain span:nth-child(3) { animation-delay: 240ms; }
+
+@keyframes analysis-modal-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes analysis-card-in {
+  from { opacity: 0; transform: translateY(18px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes analysis-scan-sweep {
+  to { transform: translateX(120%); }
+}
+
+@keyframes analysis-dot {
+  0%, 100% { opacity: 0.35; transform: translateY(0) scale(0.82); }
+  50% { opacity: 1; transform: translateY(-5px) scale(1.08); }
+}
+
+@keyframes order-error-pop {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes order-card-error {
+  0%, 100% { transform: translateX(0); }
+  22% { transform: translateX(-4px); }
+  44% { transform: translateX(4px); }
+  66% { transform: translateX(-2px); }
+}
+
+@keyframes order-success-glow {
+  0% { filter: brightness(1); }
+  45% { filter: brightness(1.16); }
+  100% { filter: brightness(1); }
+}
+
+@keyframes letter-chain-reveal {
+  from { opacity: 0; transform: translateY(10px) scale(0.92); filter: blur(4px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+
 
 @media (max-width: 390px) {
   .evidence-preview-photo { min-height: 48vh; }

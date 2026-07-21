@@ -255,6 +255,8 @@ export default function Home() {
   const [witnessOrder, setWitnessOrder] = useState<string[]>(["A", "C", "B"]);
   const [selectedOrderCardId, setSelectedOrderCardId] = useState<string | null>(null);
   const [witnessOrderSubmitted, setWitnessOrderSubmitted] = useState(false);
+  const [witnessOrderAnalyzing, setWitnessOrderAnalyzing] = useState(false);
+  const [witnessOrderFailed, setWitnessOrderFailed] = useState(false);
   const [witnessOrderFeedback, setWitnessOrderFeedback] = useState("기록을 오래된 순서대로 배치한 뒤 분석을 요청하세요.");
   const [witnessAnswer, setWitnessAnswer] = useState("");
   const [witnessAnswerFeedback, setWitnessAnswerFeedback] = useState("기록 배열이 확인되면 보고 입력창이 열립니다.");
@@ -598,6 +600,8 @@ export default function Home() {
     setWitnessAnswerSubmitted(false);
     setWitnessAnswer("");
     setWitnessAnswerFeedback("기록 배열이 확인되면 보고 입력창이 열립니다.");
+    setWitnessOrderAnalyzing(false);
+    setWitnessOrderFailed(false);
     setWitnessOrderFeedback("기록을 오래된 순서대로 배치한 뒤 분석을 요청하세요.");
   }
 
@@ -662,15 +666,25 @@ export default function Home() {
   }
 
   function submitWitnessOrder() {
-    if (!allWitnessImagesAcquired) return;
-    if (witnessOrder.join("") !== correctWitnessOrder.join("")) {
-      setWitnessOrderFeedback("기록 사이의 시간적 연결을 확인할 수 없습니다. 기록 매체와 작성 방식을 다시 분석하십시오.");
-      return;
-    }
-    setWitnessOrderSubmitted(true);
-    setSelectedOrderCardId(null);
-    setWitnessOrderFeedback("기록의 시간적 배열이 확인되었습니다. 각 기록에 포함된 식별 문자를 연결하십시오.");
-    setWitnessAnswerFeedback("세 기록에 공통으로 등장하는 생물을 영문으로 보고하십시오.");
+    if (!allWitnessImagesAcquired || witnessOrderSubmitted || witnessOrderAnalyzing) return;
+    setWitnessOrderAnalyzing(true);
+    setWitnessOrderFailed(false);
+    setWitnessOrderFeedback("CAMPUSDROP이 기록의 시간적 연결을 분석 중입니다...");
+    window.setTimeout(() => {
+      setWitnessOrderAnalyzing(false);
+      if (witnessOrder.join("") !== correctWitnessOrder.join("")) {
+        setWitnessOrderFailed(true);
+        setWitnessOrderFeedback("분석 실패. 기록 사이의 시간적 연결을 확인할 수 없습니다. 기록 매체와 작성 방식을 다시 분석하십시오.");
+        triggerEvidenceVibration();
+        return;
+      }
+      setWitnessOrderSubmitted(true);
+      setWitnessOrderFailed(false);
+      setSelectedOrderCardId(null);
+      setWitnessOrderFeedback("분석 성공. 기록의 시간적 배열이 확인되었습니다. 각 기록에 포함된 식별 문자를 연결하십시오.");
+      setWitnessAnswerFeedback("세 기록에 공통으로 등장하는 생물을 영문으로 보고하십시오.");
+      triggerDropLinkVibration();
+    }, 2000);
   }
 
   function submitWitnessAnswer() {
@@ -1182,7 +1196,7 @@ export default function Home() {
             <span>획득한 세 건의 기록을 오래된 순서대로 정렬하고, 연결된 식별 문자를 분석하세요.</span>
           </div>
 
-          <div className="order-quiz-panel">
+          <div className={`order-quiz-panel${witnessOrderSubmitted ? " is-analysis-success" : ""}`}>
             <div className="order-quiz-copy">
               <span>CAMPUSDROP 분석 지시</span>
               <strong>획득한 세 건의 기록을 분석하십시오.</strong>
@@ -1194,13 +1208,13 @@ export default function Home() {
                 return (
                   <article
                     key={id}
-                    className={`order-card${draggedWitnessId === id ? " is-dragging" : ""}${selectedOrderCardId === id ? " is-selected" : ""}${witnessOrderSubmitted ? " is-locked" : ""}`}
-                    draggable={!witnessOrderSubmitted}
+                    className={`order-card${draggedWitnessId === id ? " is-dragging" : ""}${selectedOrderCardId === id ? " is-selected" : ""}${witnessOrderSubmitted ? " is-locked" : ""}${witnessOrderFailed ? " is-analysis-error" : ""}`}
+                    draggable={!witnessOrderSubmitted && !witnessOrderAnalyzing}
                     onPointerDown={(event) => { orderPointerRef.current = { id, x: event.clientX, y: event.clientY }; }}
                     onPointerUp={(event) => handleOrderPointerUp(id, event)}
                     onClick={() => setExpandedWitnessId(id)}
                     onDragStart={(event) => {
-                      if (witnessOrderSubmitted) return;
+                      if (witnessOrderSubmitted || witnessOrderAnalyzing) return;
                       setDraggedWitnessId(id);
                       event.dataTransfer.setData("text/plain", id);
                     }}
@@ -1229,8 +1243,8 @@ export default function Home() {
                 })}
               </div>
             )}
-            <button className="primary-action" type="button" onClick={submitWitnessOrder} disabled={witnessOrderSubmitted}>분석 요청</button>
-            <p className={`order-feedback${witnessOrderSubmitted ? " is-correct" : ""}`}>{witnessOrderFeedback}</p>
+            <button className="primary-action" type="button" onClick={submitWitnessOrder} disabled={witnessOrderSubmitted || witnessOrderAnalyzing}>{witnessOrderAnalyzing ? "분석 중..." : "분석 요청"}</button>
+            <p className={`order-feedback${witnessOrderSubmitted ? " is-correct" : ""}${witnessOrderFailed ? " is-error" : ""}`}>{witnessOrderFeedback}</p>
             {witnessOrderSubmitted && (
               <div className="word-report-panel">
                 <div className="order-quiz-copy">
@@ -1255,6 +1269,17 @@ export default function Home() {
             {witnessSolved && <button className="primary-action" type="button" onClick={() => openDropLinkBriefing("chapter3")}>3장 기록 재분석 시작</button>}
           </div>
         </section>
+      )}
+
+      {scene === "witnessOrder" && witnessOrderAnalyzing && (
+        <div className="order-analysis-modal" role="dialog" aria-modal="true" aria-label="기록 배열 분석 중">
+          <div className="order-analysis-card">
+            <span>CAMPUSDROP ANALYSIS</span>
+            <strong>기록 배열을 분석 중입니다</strong>
+            <p>매체 손상도, 작성 방식, 식별 문자 위치를 대조하고 있습니다.</p>
+            <div className="analysis-loader" aria-hidden="true"><i></i><i></i><i></i></div>
+          </div>
+        </div>
       )}
 
       {scene === "imagination" && (
