@@ -62,6 +62,25 @@ const witnessArrangeBriefings = [
   "[CAMPUSDROP 기록 분석 지시] 획득한 세 건의 기록을 분석하십시오.",
   "기록의 형태와 내용을 확인하고, 오래된 기록부터 순서대로 배치하십시오.",
 ];
+const chapterThreeBriefings = [
+  "분석 결과가 등록되었습니다. 확인된 생물: GIRAFFE.",
+  "세 기록은 서로 다른 시기에 작성되었지만, 모두 같은 장소의 긴 목 개체를 묘사하고 있습니다.",
+  "[CAMPUSDROP 증거 분석 지시] 확보한 세 건의 증거물을 시간순으로 다시 비교하십시오.",
+  "기록 속 개체의 외형에서 달라진 점이나 특별한 특징이 발견된다면, 해당 요소를 영문으로 보고하십시오.",
+];
+const chapterFourBriefings = [
+  "IMAGINE 보고가 접수되었습니다.",
+  "최초 학생수첩의 기록은 명확한 목격 보고가 아니라, 탑을 바라보며 떠올린 상상에 가깝습니다.",
+  "증거물 세 장을 다시 불러옵니다.",
+  "[증거물 상태 변화 감지] 현재 기록이 최초 확보본과 일치하지 않습니다. 개체로 분류된 영역에서만 정보 손실이 확인됩니다.",
+  "자동 복원을 시도한 뒤, 탐사원의 수동 확인 절차를 개방하겠습니다.",
+];
+const chapterFiveBriefings = [
+  "복원된 개체 정보가 다시 감소하고 있습니다.",
+  "현재 방식으로는 상태를 유지할 수 없습니다.",
+  "[미확인 패턴 감지] 세 증거물에서 동일한 잔류 신호가 확인되었습니다.",
+  "신호의 출처는 시계탑 인근으로 추정됩니다. 등록되지 않은 이미지를 찾아 CAMPUSDROP 카메라로 조사하십시오.",
+];
 const chapterThreeRecords = correctWitnessOrder.map((id) => witnesses.find((witness) => witness.id === id));
 const imaginationResults = [
   "기록 복원이 완료되었습니다.",
@@ -161,7 +180,10 @@ function triggerEvidenceVibration() {
 function getActiveDropLinkBriefings() {
   if (dropLinkMode === "case") return dropLinkBriefings;
   if (dropLinkMode === "clue") return clueTransmissionBriefings;
-  return witnessArrangeBriefings;
+  if (dropLinkMode === "arrange") return witnessArrangeBriefings;
+  if (dropLinkMode === "chapter3") return chapterThreeBriefings;
+  if (dropLinkMode === "chapter4") return chapterFourBriefings;
+  return chapterFiveBriefings;
 }
 
 function stopCameraScan() {
@@ -179,6 +201,14 @@ function stopCameraScan() {
     window.clearInterval(finalScanTimer);
     finalScanTimer = null;
   }
+}
+
+function openDropLinkBriefing(mode) {
+  dropLinkMode = mode;
+  dropLinkLine = 0;
+  document.querySelector("#dropLinkModal").hidden = false;
+  startDropLinkTyping();
+  triggerDropLinkVibration();
 }
 
 function showScreen(name) {
@@ -1112,7 +1142,7 @@ function startDropLinkTyping() {
 
   const activeBriefings = getActiveDropLinkBriefings();
   const currentBriefing = activeBriefings[dropLinkLine];
-  nextButton.textContent = dropLinkLine < activeBriefings.length - 1 ? "다음" : dropLinkMode === "case" ? "사건 개요 수신" : dropLinkMode === "arrange" ? "배열 미션 시작" : "2장으로 이동";
+  nextButton.textContent = dropLinkLine < activeBriefings.length - 1 ? "다음" : dropLinkMode === "case" ? "사건 개요 수신" : dropLinkMode === "clue" ? "2장으로 이동" : dropLinkMode === "arrange" ? "배열 미션 시작" : dropLinkMode === "chapter3" ? "3장 시작" : dropLinkMode === "chapter4" ? "4장 시작" : "5장 시작";
 
   let index = 0;
   dropLinkTyper = window.setInterval(() => {
@@ -1198,17 +1228,17 @@ document.addEventListener("click", (event) => {
   }
 
   if (event.target.closest("#startChapterThree")) {
-    showScreen("imagination");
+    openDropLinkBriefing("chapter3");
     return;
   }
 
   if (event.target.closest("#startChapterFour")) {
-    showScreen("emptyRecord");
+    openDropLinkBriefing("chapter4");
     return;
   }
 
   if (event.target.closest("#startChapterFive")) {
-    showScreen("firstContact");
+    openDropLinkBriefing("chapter5");
     return;
   }
 
@@ -1387,6 +1417,14 @@ document.addEventListener("click", (event) => {
     const modal = document.querySelector("#dropLinkModal");
     window.clearInterval(dropLinkTyper);
     closeDropLinkModal.disabled = true;
+    const nextSceneByDropLinkMode = {
+      case: "mission",
+      clue: "witness",
+      arrange: "witness",
+      chapter3: "imagination",
+      chapter4: "emptyRecord",
+      chapter5: "firstContact",
+    };
     if (dropLinkMode === "clue") {
       modal.hidden = true;
       messageStep = 0;
@@ -1402,7 +1440,7 @@ document.addEventListener("click", (event) => {
       modal.classList.remove("is-transfer");
       messageStep = 0;
       dropLinkLine = 0;
-      showScreen(dropLinkMode === "case" ? "mission" : "witness");
+      showScreen(nextSceneByDropLinkMode[dropLinkMode] || "mission");
       dropLinkMode = "case";
       closeDropLinkModal.disabled = false;
     }, 1500);

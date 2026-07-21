@@ -5,7 +5,7 @@ import type { PointerEvent } from "react";
 
 type Scene = "entry" | "incident" | "mission" | "camera" | "arrival" | "witness" | "imagination" | "emptyRecord" | "firstContact";
 type MessageStep = "hidden" | "first";
-type DropLinkMode = "case" | "clue" | "arrange";
+type DropLinkMode = "case" | "clue" | "arrange" | "chapter3" | "chapter4" | "chapter5";
 type GiraffeQuestionKey = "origin" | "star" | "fade";
 type DirectionKey = "N" | "NE" | "E" | "SE" | "S" | "SW" | "W" | "NW";
 
@@ -106,6 +106,25 @@ const witnessArrangeBriefings = [
   "자료 이미지 3건이 모두 확보됐습니다.",
   "[CAMPUSDROP 기록 분석 지시] 획득한 세 건의 기록을 분석하십시오.",
   "기록의 형태와 내용을 확인하고, 오래된 기록부터 순서대로 배치하십시오.",
+];
+const chapterThreeBriefings = [
+  "분석 결과가 등록되었습니다. 확인된 생물: GIRAFFE.",
+  "세 기록은 서로 다른 시기에 작성되었지만, 모두 같은 장소의 긴 목 개체를 묘사하고 있습니다.",
+  "[CAMPUSDROP 증거 분석 지시] 확보한 세 건의 증거물을 시간순으로 다시 비교하십시오.",
+  "기록 속 개체의 외형에서 달라진 점이나 특별한 특징이 발견된다면, 해당 요소를 영문으로 보고하십시오.",
+];
+const chapterFourBriefings = [
+  "IMAGINE 보고가 접수되었습니다.",
+  "최초 학생수첩의 기록은 명확한 목격 보고가 아니라, 탑을 바라보며 떠올린 상상에 가깝습니다.",
+  "증거물 세 장을 다시 불러옵니다.",
+  "[증거물 상태 변화 감지] 현재 기록이 최초 확보본과 일치하지 않습니다. 개체로 분류된 영역에서만 정보 손실이 확인됩니다.",
+  "자동 복원을 시도한 뒤, 탐사원의 수동 확인 절차를 개방하겠습니다.",
+];
+const chapterFiveBriefings = [
+  "복원된 개체 정보가 다시 감소하고 있습니다.",
+  "현재 방식으로는 상태를 유지할 수 없습니다.",
+  "[미확인 패턴 감지] 세 증거물에서 동일한 잔류 신호가 확인되었습니다.",
+  "신호의 출처는 시계탑 인근으로 추정됩니다. 등록되지 않은 이미지를 찾아 CAMPUSDROP 카메라로 조사하십시오.",
 ];
 const chapterThreeRecords = correctWitnessOrder.map((id) => witnesses.find((witness) => witness.id === id)!);
 const imaginationResults = [
@@ -283,7 +302,10 @@ export default function Home() {
   function getActiveDropLinkBriefings(mode: DropLinkMode) {
     if (mode === "case") return dropLinkBriefings;
     if (mode === "clue") return clueTransmissionBriefings;
-    return witnessArrangeBriefings;
+    if (mode === "arrange") return witnessArrangeBriefings;
+    if (mode === "chapter3") return chapterThreeBriefings;
+    if (mode === "chapter4") return chapterFourBriefings;
+    return chapterFiveBriefings;
   }
 
   function stopCameraScan() {
@@ -791,7 +813,15 @@ export default function Home() {
       return;
     }
 
-    const nextScene = dropLinkMode === "case" ? "mission" : "witness";
+    const nextSceneByMode: Record<DropLinkMode, Scene> = {
+      case: "mission",
+      clue: "witness",
+      arrange: "witness",
+      chapter3: "imagination",
+      chapter4: "emptyRecord",
+      chapter5: "firstContact",
+    };
+    const nextScene = nextSceneByMode[dropLinkMode];
     if (dropLinkMode === "clue") {
       setCaseModalOpen(false);
       setCaseTransferActive(false);
@@ -813,6 +843,14 @@ export default function Home() {
       setDropLinkText("");
       moveToScene(nextScene);
     }, 1500);
+  }
+
+  function openDropLinkBriefing(mode: DropLinkMode) {
+    setDropLinkMode(mode);
+    setDropLinkLine(0);
+    setDropLinkText("");
+    setCaseModalOpen(true);
+    triggerDropLinkVibration();
   }
 
   function startEvidenceTransmission() {
@@ -949,7 +987,7 @@ export default function Home() {
                     onClick={advanceDropLinkDialogue}
                     disabled={dropLinkText.length < getActiveDropLinkBriefings(dropLinkMode)[dropLinkLine].length || caseTransferActive}
                   >
-                    {dropLinkLine < getActiveDropLinkBriefings(dropLinkMode).length - 1 ? "다음" : dropLinkMode === "case" ? "사건 개요 수신" : dropLinkMode === "arrange" ? "배열 미션 시작" : "2장으로 이동"}
+                    {dropLinkLine < getActiveDropLinkBriefings(dropLinkMode).length - 1 ? "다음" : dropLinkMode === "case" ? "사건 개요 수신" : dropLinkMode === "clue" ? "2장으로 이동" : dropLinkMode === "arrange" ? "배열 미션 시작" : dropLinkMode === "chapter3" ? "3장 시작" : dropLinkMode === "chapter4" ? "4장 시작" : "5장 시작"}
                   </button>
                 </div>
               </div>
@@ -1233,7 +1271,7 @@ export default function Home() {
             <span>{witnessSolved ? "조사 결과 갱신" : "운영본부 분석 대기"}</span>
             <strong>{witnessSolved ? "시계탑의 기린은 최근에 처음 나타난 존재가 아닐 가능성이 있습니다." : allWitnessImagesAcquired ? "자료 이미지를 오래된 순서대로 배열하세요." : "세 지점의 자료 이미지를 모두 확보하세요."}</strong>
             <p>{witnessSolved ? "분석 결과가 등록되었습니다. 확인된 생물: GIRAFFE. 세 기록은 서로 다른 시기에 작성되었고, 작성자 사이의 직접적인 연관성은 확인되지 않습니다. 그러나 모든 기록에는 시계탑 상부에 나타난 긴 목의 기린이 묘사되어 있습니다." : allWitnessImagesAcquired ? "배열이 확인되기 전에는 생물명 보고 입력창이 열리지 않습니다." : "각 에너지 지점 반경 10m 안에 들어가야 자료 이미지가 열립니다."}</p>
-            {witnessSolved && <button className="primary-action" type="button" onClick={() => moveToScene("imagination")}>3장 기록 재분석 시작</button>}
+            {witnessSolved && <button className="primary-action" type="button" onClick={() => openDropLinkBriefing("chapter3")}>3장 기록 재분석 시작</button>}
           </div>
         </section>
       )}
@@ -1318,7 +1356,7 @@ export default function Home() {
             <span>{imagineSolved ? "3장 조사 완료" : "분석 대기"}</span>
             <strong>{imagineSolved ? "상상과 이후 기록 사이의 연결 가능성이 확인되었습니다." : "정답 입력 전에는 3장을 완료할 수 없습니다."}</strong>
             <p>{imagineSolved ? imaginationResults.join(" ") : "CAMPUSDROP은 아직 기린의 발생 원리를 확정하지 않았습니다."}</p>
-            {imagineSolved && <button className="primary-action" type="button" onClick={() => moveToScene("emptyRecord")}>4장 비어 있는 기록 확인</button>}
+            {imagineSolved && <button className="primary-action" type="button" onClick={() => openDropLinkBriefing("chapter4")}>4장 비어 있는 기록 확인</button>}
           </div>
         </section>
       )}
@@ -1384,7 +1422,7 @@ export default function Home() {
             <span>{emptyRecordComplete ? "개체 안정성 경고" : "수동 복원 대기"}</span>
             <strong>{emptyRecordComplete ? "복원된 개체 정보가 다시 감소하고 있습니다." : "세 기록에서 기린이 있던 위치를 지정해야 합니다."}</strong>
             <p>{emptyRecordComplete ? emptyRecordResults.join(" ") : "운영본부는 일시적인 데이터 손상이나 저장 오류 가능성을 검토하고 있습니다."}</p>
-            {emptyRecordComplete && <button className="primary-action" type="button" onClick={() => moveToScene("firstContact")}>5장 잔류 신호 추적</button>}
+            {emptyRecordComplete && <button className="primary-action" type="button" onClick={() => openDropLinkBriefing("chapter5")}>5장 잔류 신호 추적</button>}
           </div>
         </section>
       )}
