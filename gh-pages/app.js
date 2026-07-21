@@ -146,6 +146,11 @@ let evidenceProgress = 0;
 let evidenceTimer = null;
 let missionMapReady = false;
 let witnessMapReady = false;
+let missionKakaoMap = null;
+let witnessKakaoMap = null;
+let missionUserLocationOverlay = null;
+let witnessUserLocationOverlay = null;
+let currentUserLocation = null;
 let locationRefreshTimer = null;
 let locationInReach = false;
 let witnessRefreshTimer = null;
@@ -320,6 +325,39 @@ function showScreen(name) {
   }
 }
 
+function createUserLocationMarker() {
+  const marker = document.createElement("div");
+  marker.className = "user-location-marker";
+  marker.innerHTML = "<i></i><b></b>";
+  marker.setAttribute("aria-label", "내 현재 위치");
+  return marker;
+}
+
+function updateUserLocationOverlay(map, overlayRefName) {
+  if (!map || !currentUserLocation || !window.kakao?.maps) return null;
+  const position = new window.kakao.maps.LatLng(currentUserLocation.lat, currentUserLocation.lng);
+  let overlay = overlayRefName === "mission" ? missionUserLocationOverlay : witnessUserLocationOverlay;
+  if (!overlay) {
+    overlay = new window.kakao.maps.CustomOverlay({
+      position,
+      content: createUserLocationMarker(),
+      xAnchor: 0.5,
+      yAnchor: 0.5,
+    });
+    overlay.setMap(map);
+    if (overlayRefName === "mission") missionUserLocationOverlay = overlay;
+    else witnessUserLocationOverlay = overlay;
+    return overlay;
+  }
+  overlay.setPosition?.(position);
+  return overlay;
+}
+
+function updateAllUserLocationOverlays() {
+  updateUserLocationOverlay(missionKakaoMap, "mission");
+  updateUserLocationOverlay(witnessKakaoMap, "witness");
+}
+
 function initMissionMap() {
   if (missionMapReady) return;
   const shell = document.querySelector("#missionMap");
@@ -340,6 +378,8 @@ function initMissionMap() {
     window.kakao.maps.load(() => {
       const center = new window.kakao.maps.LatLng(missionTarget.lat, missionTarget.lng);
       const map = new window.kakao.maps.Map(canvas, { center, level: 3 });
+      missionKakaoMap = map;
+      updateUserLocationOverlay(missionKakaoMap, "mission");
       const markerSize = new window.kakao.maps.Size(48, 60);
       const markerOffset = new window.kakao.maps.Point(24, 60);
       const markerImage = new window.kakao.maps.MarkerImage(investigationMarkerSrc, markerSize, { offset: markerOffset });
@@ -404,6 +444,8 @@ function updateScanStartButton() {
 
 function applyMissionLocation(position, options = {}) {
   const location = { lat: position.coords.latitude, lng: position.coords.longitude };
+  currentUserLocation = location;
+  updateAllUserLocationOverlays();
   const distance = getDistanceMeters(location, missionTarget);
   document.querySelector("#distanceText").textContent = `${distance}m`;
   document.querySelector("#locationUpdatedText").textContent = new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
@@ -470,6 +512,8 @@ function initWitnessMap() {
     window.kakao.maps.load(() => {
       const center = new window.kakao.maps.LatLng(37.55106257128708, 127.07392616012359);
       const map = new window.kakao.maps.Map(canvas, { center, level: 3 });
+      witnessKakaoMap = map;
+      updateUserLocationOverlay(witnessKakaoMap, "witness");
       witnesses.forEach((witness) => {
         const marker = document.createElement("button");
         marker.type = "button";
@@ -510,6 +554,8 @@ function initWitnessMap() {
 
 function applyWitnessLocation(position, options = {}) {
   const location = { lat: position.coords.latitude, lng: position.coords.longitude };
+  currentUserLocation = location;
+  updateAllUserLocationOverlays();
   document.querySelector("#locationUpdatedText")?.replaceChildren(document.createTextNode(new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })));
   let arrived = null;
   witnesses.forEach((witness) => {

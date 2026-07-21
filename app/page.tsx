@@ -9,6 +9,7 @@ type DropLinkMode = "case" | "clue" | "arrange" | "chapter3" | "chapter4" | "cha
 type GiraffeQuestionKey = "origin" | "star" | "fade";
 type DirectionKey = "N" | "NE" | "E" | "SE" | "S" | "SW" | "W" | "NW";
 
+type Coordinate = { lat: number; lng: number };
 type KakaoLatLng = object;
 type KakaoMap = { panTo?: (position: KakaoLatLng) => void };
 type KakaoMarker = { setMap: (map: KakaoMap) => void; setPosition?: (position: KakaoLatLng) => void };
@@ -23,7 +24,7 @@ type KakaoMapsApi = {
   Point: new (x: number, y: number) => object;
   MarkerImage: new (src: string, size: object, options?: { offset?: object }) => KakaoMarkerImage;
   Marker: new (options: { position: KakaoLatLng; title?: string; image?: KakaoMarkerImage }) => KakaoMarker;
-  CustomOverlay: new (options: { position: KakaoLatLng; content: HTMLElement; xAnchor?: number; yAnchor?: number }) => { setMap: (map: KakaoMap) => void };
+  CustomOverlay: new (options: { position: KakaoLatLng; content: HTMLElement; xAnchor?: number; yAnchor?: number }) => { setMap: (map: KakaoMap) => void; setPosition?: (position: KakaoLatLng) => void };
   Circle: new (options: {
     center: KakaoLatLng;
     radius: number;
@@ -232,6 +233,7 @@ export default function Home() {
   const [locationStatus, setLocationStatus] = useState("위치 확인 전");
   const [locationInReach, setLocationInReach] = useState(false);
   const [lastLocationUpdatedAt, setLastLocationUpdatedAt] = useState<string | null>(null);
+  const [userLocation, setUserLocation] = useState<Coordinate | null>(null);
   const [caseModalOpen, setCaseModalOpen] = useState(false);
   const [dropLinkNoticeOpen, setDropLinkNoticeOpen] = useState(false);
   const [dropLinkMode, setDropLinkMode] = useState<DropLinkMode>("case");
@@ -353,6 +355,7 @@ export default function Home() {
 
   function applyMissionLocation(position: GeolocationPosition, options: { silent?: boolean } = {}) {
     const nextLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
+    setUserLocation(nextLocation);
     const nextDistance = getDistanceMeters(nextLocation, missionTarget);
     setDistance(nextDistance);
     setLocationInReach(nextDistance <= reachRadiusMeters);
@@ -420,6 +423,7 @@ export default function Home() {
 
   function applyWitnessLocation(position: GeolocationPosition, options: { silent?: boolean } = {}) {
     const nextLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
+    setUserLocation(nextLocation);
     setLastLocationUpdatedAt(new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
     const nextDistances = Object.fromEntries(
       witnesses.map((witness) => [witness.id, getDistanceMeters(nextLocation, witness.location)]),
@@ -1014,7 +1018,7 @@ export default function Home() {
           </div>
 
           <div className="campus-radar">
-            <MissionMap />
+            <MissionMap userLocation={userLocation} />
             <div className="radar-data">
               <div>
                 <span>예상 거리</span>
@@ -1151,6 +1155,7 @@ export default function Home() {
 
           <div className="campus-radar witness-radar">
             <WitnessMap
+              userLocation={userLocation}
               activeWitnessId={activeWitnessId}
               visitedWitnesses={visitedWitnesses}
               onSelectWitness={setActiveWitnessId}
@@ -1657,16 +1662,26 @@ export default function Home() {
 
 
 function WitnessMap({
+  userLocation,
   activeWitnessId,
   visitedWitnesses,
   onSelectWitness,
 }: {
+  userLocation: Coordinate | null;
   activeWitnessId: string;
   visitedWitnesses: Record<string, boolean>;
   onSelectWitness: (id: string) => void;
 }) {
   const mapRef = useRef<HTMLDivElement | null>(null);
+  const kakaoMapRef = useRef<KakaoMap | null>(null);
+  const userOverlayRef = useRef<{ setMap: (map: KakaoMap) => void; setPosition?: (position: KakaoLatLng) => void } | null>(null);
+  const witnessMarkerRefs = useRef<Record<string, HTMLElement>>({});
+  const onSelectWitnessRef = useRef(onSelectWitness);
   const [mapState, setMapState] = useState<"loading" | "ready" | "fallback">("loading");
+
+  useEffect(() => {
+    onSelectWitnessRef.current = onSelectWitness;
+  }, [onSelectWitness]);
 
   useEffect(() => {
     const key = new URLSearchParams(window.location.search).get("kakaoKey") || DEFAULT_KAKAO_JAVASCRIPT_KEY;
@@ -1680,14 +1695,17 @@ function WitnessMap({
       if (cancelled || !mapRef.current || !window.kakao?.maps) return;
       const center = new window.kakao.maps.LatLng(towerTarget.lat, towerTarget.lng);
       const map = new window.kakao.maps.Map(mapRef.current, { center, level: 3 });
+      kakaoMapRef.current = map;
+      witnessMarkerRefs.current = {};
       witnesses.forEach((witness) => {
         const position = new window.kakao.maps.LatLng(witness.location.lat, witness.location.lng);
         const marker = document.createElement("button");
         marker.type = "button";
-        marker.className = `witness-map-marker${activeWitnessId === witness.id ? " is-active" : ""}${visitedWitnesses[witness.id] ? " is-visited" : ""}`;
+        marker.className = "witness-map-marker";
         marker.textContent = witness.id;
         marker.setAttribute("aria-label", `${witness.name} 위치`);
-        marker.addEventListener("click", () => onSelectWitness(witness.id));
+        marker.addEventListener("click", () => onSelectWitnessRef.current(witness.id));
+        witnessMarkerRefs.current[witness.id] = marker;
         new window.kakao.maps.CustomOverlay({ position, content: marker, xAnchor: 0.5, yAnchor: 0.5 }).setMap(map);
       });
       setMapState("ready");
@@ -1719,7 +1737,29 @@ function WitnessMap({
     return () => {
       cancelled = true;
     };
-  }, [activeWitnessId, onSelectWitness, visitedWitnesses]);
+  }, []);
+
+  useEffect(() => {
+    witnesses.forEach((witness) => {
+      const marker = witnessMarkerRefs.current[witness.id];
+      if (!marker) return;
+      marker.className = `witness-map-marker${activeWitnessId === witness.id ? " is-active" : ""}${visitedWitnesses[witness.id] ? " is-visited" : ""}`;
+    });
+  }, [activeWitnessId, visitedWitnesses]);
+
+  useEffect(() => {
+    if (!userLocation || !kakaoMapRef.current || !window.kakao?.maps) return;
+    const position = new window.kakao.maps.LatLng(userLocation.lat, userLocation.lng);
+    if (!userOverlayRef.current) {
+      const marker = document.createElement("div");
+      marker.className = "user-location-marker";
+      marker.innerHTML = "<i></i><b></b>";
+      userOverlayRef.current = new window.kakao.maps.CustomOverlay({ position, content: marker, xAnchor: 0.5, yAnchor: 0.5 });
+      userOverlayRef.current.setMap(kakaoMapRef.current);
+      return;
+    }
+    userOverlayRef.current.setPosition?.(position);
+  }, [userLocation, mapState]);
 
   const points = [...witnesses.map((witness) => witness.location), towerTarget];
   const lngValues = points.map((point) => point.lng);
@@ -1745,8 +1785,10 @@ function WitnessMap({
   );
 }
 
-function MissionMap() {
+function MissionMap({ userLocation }: { userLocation: Coordinate | null }) {
   const mapRef = useRef<HTMLDivElement | null>(null);
+  const kakaoMapRef = useRef<KakaoMap | null>(null);
+  const userOverlayRef = useRef<{ setMap: (map: KakaoMap) => void; setPosition?: (position: KakaoLatLng) => void } | null>(null);
   const [mapState, setMapState] = useState<"loading" | "ready" | "fallback">("loading");
 
   useEffect(() => {
@@ -1761,6 +1803,7 @@ function MissionMap() {
       if (cancelled || !mapRef.current || !window.kakao?.maps) return;
       const center = new window.kakao.maps.LatLng(missionTarget.lat, missionTarget.lng);
       const map = new window.kakao.maps.Map(mapRef.current, { center, level: 3 });
+      kakaoMapRef.current = map;
       const markerSize = new window.kakao.maps.Size(48, 60);
       const markerOffset = new window.kakao.maps.Point(24, 60);
       const markerImage = new window.kakao.maps.MarkerImage(investigationMarkerSrc, markerSize, { offset: markerOffset });
@@ -1804,6 +1847,20 @@ function MissionMap() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (!userLocation || !kakaoMapRef.current || !window.kakao?.maps) return;
+    const position = new window.kakao.maps.LatLng(userLocation.lat, userLocation.lng);
+    if (!userOverlayRef.current) {
+      const marker = document.createElement("div");
+      marker.className = "user-location-marker";
+      marker.innerHTML = "<i></i><b></b>";
+      userOverlayRef.current = new window.kakao.maps.CustomOverlay({ position, content: marker, xAnchor: 0.5, yAnchor: 0.5 });
+      userOverlayRef.current.setMap(kakaoMapRef.current);
+      return;
+    }
+    userOverlayRef.current.setPosition?.(position);
+  }, [userLocation, mapState]);
 
 
   const fallbackSrc = `https://www.openstreetmap.org/export/embed.html?bbox=${missionMapBounds.lngMin}%2C${missionMapBounds.latMin}%2C${missionMapBounds.lngMax}%2C${missionMapBounds.latMax}&layer=mapnik`;
