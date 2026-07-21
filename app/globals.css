@@ -4021,3 +4021,27 @@ button:focus-visible {
 .order-card.is-locked::after {
   content: "순서 고정";
 }
+
+
+.witness-admin-arrive {
+  width: calc(100% - 30px);
+  margin: 0 15px 15px;
+  min-height: 42px;
+  border: 1px solid rgba(244, 196, 48, 0.36);
+  border-radius: 14px;
+  background: rgba(244, 196, 48, 0.12);
+  color: #ffe9a0;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.witness-admin-arrive:hover {
+  border-color: rgba(244, 196, 48, 0.68);
+  background: rgba(244, 196, 48, 0.2);
+}
+
+.witness-admin-arrive[hidden] {
+  display: none !important;
+}

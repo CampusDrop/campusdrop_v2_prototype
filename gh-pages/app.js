@@ -537,6 +537,8 @@ function updateWitnessUi() {
     if (title) title.textContent = visitedWitnesses[witness.id] ? witness.recordTitle : witness.place;
     const name = document.querySelector(`[data-witness-name="${witness.id}"]`);
     if (name) name.textContent = witness.name;
+    const adminButton = document.querySelector(`[data-admin-arrive-witness="${witness.id}"]`);
+    if (adminButton) adminButton.hidden = visitedWitnesses[witness.id];
   });
 
   document.querySelector("#visitedWitnessText").textContent = `${Object.values(visitedWitnesses).filter(Boolean).length}/3`;
@@ -1293,6 +1295,12 @@ document.addEventListener("click", (event) => {
 
   if (event.target.closest("#checkWitnessLocation")) {
     requestWitnessLocation();
+    return;
+  }
+
+  const adminArriveItem = event.target.closest("[data-admin-arrive-witness]");
+  if (adminArriveItem) {
+    acquireWitnessEvidence(adminArriveItem.dataset.adminArriveWitness, { admin: true });
     return;
   }
 

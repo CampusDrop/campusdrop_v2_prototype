@@ -1145,6 +1145,15 @@ export default function Home() {
                       <span>도착 전 접근 잠김</span>
                     )}
                   </div>
+                  {!isVisited && (
+                    <button
+                      type="button"
+                      className="witness-admin-arrive"
+                      onClick={() => acquireWitnessEvidence(witness.id, { admin: true })}
+                    >
+                      관리자 권한으로 이 지점 도착 처리
+                    </button>
+                  )}
                 </article>
               );
             })}
