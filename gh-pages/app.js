@@ -1420,7 +1420,7 @@ document.addEventListener("click", (event) => {
     const nextSceneByDropLinkMode = {
       case: "mission",
       clue: "witness",
-      arrange: "witness",
+      arrange: "witnessOrder",
       chapter3: "imagination",
       chapter4: "emptyRecord",
       chapter5: "firstContact",

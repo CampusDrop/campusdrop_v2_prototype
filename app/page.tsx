@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { PointerEvent } from "react";
 
-type Scene = "entry" | "incident" | "mission" | "camera" | "arrival" | "witness" | "imagination" | "emptyRecord" | "firstContact";
+type Scene = "entry" | "incident" | "mission" | "camera" | "arrival" | "witness" | "witnessOrder" | "imagination" | "emptyRecord" | "firstContact";
 type MessageStep = "hidden" | "first";
 type DropLinkMode = "case" | "clue" | "arrange" | "chapter3" | "chapter4" | "chapter5";
 type GiraffeQuestionKey = "origin" | "star" | "fade";
@@ -816,7 +816,7 @@ export default function Home() {
     const nextSceneByMode: Record<DropLinkMode, Scene> = {
       case: "mission",
       clue: "witness",
-      arrange: "witness",
+      arrange: "witnessOrder",
       chapter3: "imagination",
       chapter4: "emptyRecord",
       chapter5: "firstContact",
@@ -1197,80 +1197,87 @@ export default function Home() {
             })}
           </div>
 
+        </section>
+      )}
 
+      {scene === "witnessOrder" && (
+        <section className="screen witness-order-screen">
+          <div className="mission-copy">
+            <p>2장</p>
+            <h2>기록 배열</h2>
+            <span>획득한 세 건의 기록을 오래된 순서대로 정렬하고, 연결된 식별 문자를 분석하세요.</span>
+          </div>
 
-          {allWitnessImagesAcquired && (
-            <div className="order-quiz-panel">
-              <div className="order-quiz-copy">
-                <span>CAMPUSDROP 분석 지시</span>
-                <strong>획득한 세 건의 기록을 분석하십시오.</strong>
-                <p>기록의 형태와 내용을 확인하고, 오래된 기록부터 순서대로 배치하십시오. 카드를 좌우로 드래그하거나 두 장을 차례로 눌러 위치를 교환할 수 있습니다.</p>
-              </div>
-              <div className="order-dropzone" aria-label="자료 이미지 순서 배열">
+          <div className="order-quiz-panel">
+            <div className="order-quiz-copy">
+              <span>CAMPUSDROP 분석 지시</span>
+              <strong>획득한 세 건의 기록을 분석하십시오.</strong>
+              <p>기록의 형태와 내용을 확인하고, 오래된 기록부터 순서대로 배치하십시오. 카드를 좌우로 드래그하거나 순서 선택 버튼으로 위치를 교환할 수 있습니다. 카드를 누르면 전체 사진을 확인할 수 있습니다.</p>
+            </div>
+            <div className="order-dropzone" aria-label="자료 이미지 순서 배열">
+              {witnessOrder.map((id, index) => {
+                const witness = witnesses.find((item) => item.id === id)!;
+                return (
+                  <article
+                    key={id}
+                    className={`order-card${draggedWitnessId === id ? " is-dragging" : ""}${selectedOrderCardId === id ? " is-selected" : ""}${witnessOrderSubmitted ? " is-locked" : ""}`}
+                    draggable={!witnessOrderSubmitted}
+                    onPointerDown={(event) => { orderPointerRef.current = { id, x: event.clientX, y: event.clientY }; }}
+                    onPointerUp={(event) => handleOrderPointerUp(id, event)}
+                    onClick={() => setExpandedWitnessId(id)}
+                    onDragStart={(event) => {
+                      if (witnessOrderSubmitted) return;
+                      setDraggedWitnessId(id);
+                      event.dataTransfer.setData("text/plain", id);
+                    }}
+                    onDragOver={(event) => event.preventDefault()}
+                    onDrop={(event) => {
+                      event.preventDefault();
+                      const sourceId = draggedWitnessId || event.dataTransfer.getData("text/plain");
+                      if (sourceId) moveWitnessOrder(sourceId, id);
+                    }}
+                    onDragEnd={() => setDraggedWitnessId(null)}
+                  >
+                    <span>{String(index + 1).padStart(2, "0")}</span>
+                    <div style={{ backgroundImage: `url(${witness.photo})` }} role="img" aria-label={`${witness.name} 자료 이미지`} />
+                    <strong>{witness.name}</strong>
+                    <small>{witness.recordTitle}</small>
+                    <button type="button" data-order-select="true" onPointerDown={(event) => event.stopPropagation()} onPointerUp={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); selectOrderCard(id); }}>순서 선택</button>
+                  </article>
+                );
+              })}
+            </div>
+            {witnessOrderSubmitted && (
+              <div className="letter-chain" aria-label="식별 문자 연결">
                 {witnessOrder.map((id, index) => {
                   const witness = witnesses.find((item) => item.id === id)!;
-                  return (
-                    <article
-                      key={id}
-                      className={`order-card${draggedWitnessId === id ? " is-dragging" : ""}${selectedOrderCardId === id ? " is-selected" : ""}${witnessOrderSubmitted ? " is-locked" : ""}`}
-                      draggable={!witnessOrderSubmitted}
-                      onPointerDown={(event) => { orderPointerRef.current = { id, x: event.clientX, y: event.clientY }; }}
-                      onPointerUp={(event) => handleOrderPointerUp(id, event)}
-                      onClick={() => setExpandedWitnessId(id)}
-                      onDragStart={(event) => {
-                        if (witnessOrderSubmitted) return;
-                        setDraggedWitnessId(id);
-                        event.dataTransfer.setData("text/plain", id);
-                      }}
-                      onDragOver={(event) => event.preventDefault()}
-                      onDrop={(event) => {
-                        event.preventDefault();
-                        const sourceId = draggedWitnessId || event.dataTransfer.getData("text/plain");
-                        if (sourceId) moveWitnessOrder(sourceId, id);
-                      }}
-                      onDragEnd={() => setDraggedWitnessId(null)}
-                    >
-                      <span>{String(index + 1).padStart(2, "0")}</span>
-                      <div style={{ backgroundImage: `url(${witness.photo})` }} role="img" aria-label={`${witness.name} 자료 이미지`} />
-                      <strong>{witness.name}</strong>
-                      <small>{witness.recordTitle}</small>
-                      <button type="button" data-order-select="true" onPointerDown={(event) => event.stopPropagation()} onPointerUp={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); selectOrderCard(id); }}>순서 선택</button>
-                    </article>
-                  );
+                  return <span key={id}>{witness.piece}{index < witnessOrder.length - 1 ? <b>+</b> : null}</span>;
                 })}
               </div>
-              {witnessOrderSubmitted && (
-                <div className="letter-chain" aria-label="식별 문자 연결">
-                  {witnessOrder.map((id, index) => {
-                    const witness = witnesses.find((item) => item.id === id)!;
-                    return <span key={id}>{witness.piece}{index < witnessOrder.length - 1 ? <b>+</b> : null}</span>;
-                  })}
+            )}
+            <button className="primary-action" type="button" onClick={submitWitnessOrder} disabled={witnessOrderSubmitted}>분석 요청</button>
+            <p className={`order-feedback${witnessOrderSubmitted ? " is-correct" : ""}`}>{witnessOrderFeedback}</p>
+            {witnessOrderSubmitted && (
+              <div className="word-report-panel">
+                <div className="order-quiz-copy">
+                  <span>CAMPUSDROP 분석 보고 요청</span>
+                  <strong>세 기록에 공통으로 등장하는 생물을 확인하십시오.</strong>
+                  <p>확인한 생물의 명칭을 영문으로 보고하십시오.</p>
                 </div>
-              )}
-              <button className="primary-action" type="button" onClick={submitWitnessOrder} disabled={witnessOrderSubmitted}>분석 요청</button>
-              <p className={`order-feedback${witnessOrderSubmitted ? " is-correct" : ""}`}>{witnessOrderFeedback}</p>
-              {witnessOrderSubmitted && (
-                <div className="word-report-panel">
-                  <div className="order-quiz-copy">
-                    <span>CAMPUSDROP 분석 보고 요청</span>
-                    <strong>세 기록에 공통으로 등장하는 생물을 확인하십시오.</strong>
-                    <p>확인한 생물의 명칭을 영문으로 보고하십시오.</p>
-                  </div>
-                  <label className="word-submit">
-                    <span>생물 명칭 보고</span>
-                    <input value={witnessAnswer} onChange={(event) => setWitnessAnswer(event.target.value)} placeholder="영문 정답 입력" aria-label="생물 명칭 보고" />
-                  </label>
-                  <button className="primary-action" type="button" onClick={submitWitnessAnswer} disabled={witnessAnswerSubmitted}>보고 제출</button>
-                  <p className={`order-feedback${witnessAnswerSubmitted ? " is-correct" : ""}`}>{witnessAnswerFeedback}</p>
-                </div>
-              )}
-            </div>
-          )}
+                <label className="word-submit">
+                  <span>생물 명칭 보고</span>
+                  <input value={witnessAnswer} onChange={(event) => setWitnessAnswer(event.target.value)} placeholder="영문 정답 입력" aria-label="생물 명칭 보고" />
+                </label>
+                <button className="primary-action" type="button" onClick={submitWitnessAnswer} disabled={witnessAnswerSubmitted}>보고 제출</button>
+                <p className={`order-feedback${witnessAnswerSubmitted ? " is-correct" : ""}`}>{witnessAnswerFeedback}</p>
+              </div>
+            )}
+          </div>
 
           <div className={`conclusion witness-conclusion${witnessSolved ? " is-open" : ""}`} aria-live="polite">
             <span>{witnessSolved ? "조사 결과 갱신" : "운영본부 분석 대기"}</span>
-            <strong>{witnessSolved ? "시계탑의 기린은 최근에 처음 나타난 존재가 아닐 가능성이 있습니다." : allWitnessImagesAcquired ? "자료 이미지를 오래된 순서대로 배열하세요." : "세 지점의 자료 이미지를 모두 확보하세요."}</strong>
-            <p>{witnessSolved ? "분석 결과가 등록되었습니다. 확인된 생물: GIRAFFE. 세 기록은 서로 다른 시기에 작성되었고, 작성자 사이의 직접적인 연관성은 확인되지 않습니다. 그러나 모든 기록에는 시계탑 상부에 나타난 긴 목의 기린이 묘사되어 있습니다." : allWitnessImagesAcquired ? "배열이 확인되기 전에는 생물명 보고 입력창이 열리지 않습니다." : "각 에너지 지점 반경 10m 안에 들어가야 자료 이미지가 열립니다."}</p>
+            <strong>{witnessSolved ? "시계탑의 기린은 최근에 처음 나타난 존재가 아닐 가능성이 있습니다." : "자료 이미지를 오래된 순서대로 배열하세요."}</strong>
+            <p>{witnessSolved ? "분석 결과가 등록되었습니다. 확인된 생물: GIRAFFE. 세 기록은 서로 다른 시기에 작성되었고, 작성자 사이의 직접적인 연관성은 확인되지 않습니다. 그러나 모든 기록에는 시계탑 상부에 나타난 긴 목의 기린이 묘사되어 있습니다." : "배열이 확인되기 전에는 생물명 보고 입력창이 열리지 않습니다."}</p>
             {witnessSolved && <button className="primary-action" type="button" onClick={() => openDropLinkBriefing("chapter3")}>3장 기록 재분석 시작</button>}
           </div>
         </section>

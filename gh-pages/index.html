@@ -202,9 +202,16 @@
             <button type="button" class="witness-admin-arrive" data-admin-arrive-witness="C">관리자 권한으로 이 지점 도착 처리</button>
           </article>
         </div>
+      </section>
 
-        <div class="order-quiz-panel" id="orderQuizPanel" hidden>
-          <div class="order-quiz-copy"><span>CAMPUSDROP 기록 분석 지시</span><strong>획득한 세 건의 기록을 분석하십시오.</strong><p>기록의 형태와 내용을 확인하고, 오래된 기록부터 순서대로 배치하십시오. 카드를 좌우로 드래그하거나 두 장을 차례로 눌러 위치를 교환할 수 있습니다.</p></div>
+      <section class="screen witness-order-screen" data-screen="witnessOrder">
+        <div class="mission-copy">
+          <p>2장</p>
+          <h2>기록 배열</h2>
+          <span>획득한 세 건의 기록을 오래된 순서대로 정렬하고, 연결된 식별 문자를 분석하세요.</span>
+        </div>
+        <div class="order-quiz-panel" id="orderQuizPanel">
+          <div class="order-quiz-copy"><span>CAMPUSDROP 기록 분석 지시</span><strong>획득한 세 건의 기록을 분석하십시오.</strong><p>기록의 형태와 내용을 확인하고, 오래된 기록부터 순서대로 배치하십시오. 카드를 좌우로 드래그하거나 순서 선택 버튼으로 위치를 교환할 수 있습니다. 카드를 누르면 전체 사진을 확인할 수 있습니다.</p></div>
           <div class="order-dropzone" id="orderDropzone" aria-label="자료 이미지 순서 배열"></div>
           <div class="letter-chain" id="letterChain" aria-label="식별 문자 연결" hidden></div>
           <button class="primary-action" type="button" id="submitOrderButton">분석 요청</button>
@@ -218,8 +225,8 @@
         </div>
         <div class="conclusion witness-conclusion" id="witnessConclusion" aria-live="polite">
           <span>운영본부 분석 대기</span>
-          <strong>세 지점의 자료 이미지를 모두 확보하세요.</strong>
-          <p>각 에너지 지점 반경 10m 안에 들어가야 자료 이미지가 열립니다.</p>
+          <strong>자료 이미지를 오래된 순서대로 배열하세요.</strong>
+          <p>배열이 확인되기 전에는 생물명 보고 입력창이 열리지 않습니다.</p>
           <button class="primary-action" type="button" id="startChapterThree" hidden>3장 기록 재분석 시작</button>
         </div>
       </section>
