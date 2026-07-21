@@ -2595,6 +2595,79 @@ button:focus-visible {
   line-height: 1.58;
 }
 
+
+
+.witness-photo {
+  position: relative;
+  margin: 0 15px 14px;
+  overflow: hidden;
+  border: 1px solid rgba(115, 242, 223, 0.16);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(5, 13, 13, 0.78), rgba(19, 31, 29, 0.82));
+  min-height: 92px;
+  display: grid;
+  place-items: center;
+  box-shadow: inset 0 0 0 1px rgba(247, 241, 227, 0.04);
+}
+
+.witness-photo::before {
+  content: "증거 사진";
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  z-index: 2;
+  border: 1px solid rgba(115, 242, 223, 0.22);
+  border-radius: 999px;
+  background: rgba(3, 9, 9, 0.68);
+  color: #73f2df;
+  padding: 5px 8px;
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+}
+
+.witness-photo img,
+.witness-photo-image {
+  width: 100%;
+  min-height: 260px;
+  display: block;
+  background-position: center;
+  background-size: cover;
+  filter: saturate(0.92) contrast(1.04);
+  animation: witness-photo-reveal 520ms cubic-bezier(.16, .98, .18, 1) both;
+}
+
+.witness-photo span {
+  color: rgba(247, 241, 227, 0.58);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.witness-photo.is-locked {
+  min-height: 84px;
+  border-style: dashed;
+}
+
+.witness-photo.is-locked::after {
+  content: "반경 10m 진입 필요";
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  color: rgba(247, 241, 227, 0.42);
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.witness-photo.is-open {
+  border-color: rgba(244, 196, 48, 0.38);
+  background: rgba(5, 13, 13, 0.9);
+}
+
+@keyframes witness-photo-reveal {
+  0% { opacity: 0; transform: scale(1.04); filter: blur(8px) saturate(0.6); }
+  100% { opacity: 1; transform: scale(1); filter: blur(0) saturate(0.92) contrast(1.04); }
+}
+
 .direction-picker {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

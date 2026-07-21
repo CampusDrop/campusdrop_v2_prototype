@@ -69,6 +69,7 @@ const witnesses = [
     name: "목격자 A",
     place: "잔디밭 남서쪽",
     location: { lat: 37.55009418972363, lng: 127.0736196575354 },
+    photo: "/gfPhoto_03.png",
     statement: "분명히 위쪽이었습니다. 나무보다 훨씬 높은 곳에서 긴 그림자가 시계탑 쪽으로 움직였어요.",
     correctDirection: "N" as DirectionKey,
   },
@@ -77,6 +78,7 @@ const witnesses = [
     name: "목격자 B",
     place: "북쪽 보행로",
     location: { lat: 37.55143211168644, lng: 127.07371716568217 },
+    photo: "/gfPhoto_02.png",
     statement: "대양타워 쪽을 내려다보는 것 같았어요. 창문 위로 노란 무늬가 잠깐 스쳤습니다.",
     correctDirection: "SE" as DirectionKey,
   },
@@ -85,6 +87,7 @@ const witnesses = [
     name: "목격자 C",
     place: "동쪽 진입로",
     location: { lat: 37.550652047104954, lng: 127.0748310833212 },
+    photo: "/gfPhoto_01.png",
     statement: "처음엔 조형물인 줄 알았는데, 고개가 천천히 북서쪽으로 돌아갔습니다.",
     correctDirection: "NW" as DirectionKey,
   },
@@ -687,7 +690,19 @@ export default function Home() {
                     <em>{witnessDistances[witness.id] === null ? "거리 측정 전" : `${witnessDistances[witness.id]}m`}</em>
                   </button>
                   <div className="witness-statement">
-                    <p>{isVisited ? witness.statement : "현장 반경 10m 안에 들어가면 목격자의 진술을 확인할 수 있습니다."}</p>
+                    <p>{isVisited ? witness.statement : "현장 반경 10m 안에 들어가면 목격자의 진술과 사진 자료를 확인할 수 있습니다."}</p>
+                  </div>
+                  <div className={`witness-photo${isVisited ? " is-open" : " is-locked"}`}>
+                    {isVisited ? (
+                      <div
+                        className="witness-photo-image"
+                        role="img"
+                        aria-label={`${witness.name} 목격 기록 사진`}
+                        style={{ backgroundImage: `url(${witness.photo})` }}
+                      />
+                    ) : (
+                      <span>현장 사진 잠김</span>
+                    )}
                   </div>
                   <div className="direction-picker" aria-label={`${witness.name} 방향 선택`}>
                     {directionOptions.map((direction) => (
