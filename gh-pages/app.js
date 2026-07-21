@@ -240,7 +240,6 @@ function initMissionMap() {
 
   missionMapReady = true;
   shell.querySelector("iframe")?.remove();
-  shell.querySelectorAll(".mission-fallback-overlay").forEach((item) => item.remove());
   const canvas = document.createElement("div");
   canvas.className = "real-map-canvas";
   canvas.setAttribute("aria-label", "농동로 209 잔디밭 실제 지도");
@@ -371,11 +370,6 @@ function initWitnessMap() {
 
   witnessMapReady = true;
   shell.querySelector("iframe")?.remove();
-  shell.querySelector("#witnessLines")?.remove();
-  shell.querySelector(".tower-target-marker")?.remove();
-  shell.querySelectorAll("[data-witness-map]").forEach((item) => item.remove());
-  shell.querySelector("#witnessUserMarker")?.remove();
-  shell.querySelector(".witness-map-panel")?.remove();
   const canvas = document.createElement("div");
   canvas.className = "real-map-canvas";
   canvas.setAttribute("aria-label", "에너지 지점 실제 지도");
@@ -428,16 +422,6 @@ function initWitnessMap() {
 function applyWitnessLocation(position, options = {}) {
   const location = { lat: position.coords.latitude, lng: position.coords.longitude };
   document.querySelector("#locationUpdatedText")?.replaceChildren(document.createTextNode(new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })));
-  const marker = document.querySelector("#witnessUserMarker");
-  if (marker) {
-    const bounds = { lngMin: 127.0731696575354, lngMax: 127.0752810833212, latMin: 37.54974418972363, latMax: 37.55178211168644 };
-    const x = Math.min(94, Math.max(6, ((location.lng - bounds.lngMin) / (bounds.lngMax - bounds.lngMin)) * 100));
-    const y = Math.min(94, Math.max(6, (1 - (location.lat - bounds.latMin) / (bounds.latMax - bounds.latMin)) * 100));
-    marker.style.left = `${x}%`;
-    marker.style.top = `${y}%`;
-    marker.hidden = false;
-  }
-
   let arrived = null;
   witnesses.forEach((witness) => {
     const distance = getDistanceMeters(location, witness.location);

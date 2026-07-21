@@ -53,16 +53,6 @@ const missionMapBounds = {
   latMin: missionTarget.lat - 0.002,
   latMax: missionTarget.lat + 0.002,
 };
-const directionVectors: Record<DirectionKey, { x: number; y: number }> = {
-  N: { x: 0, y: -1 },
-  NE: { x: 0.7, y: -0.7 },
-  E: { x: 1, y: 0 },
-  SE: { x: 0.7, y: 0.7 },
-  S: { x: 0, y: 1 },
-  SW: { x: -0.7, y: 0.7 },
-  W: { x: -1, y: 0 },
-  NW: { x: -0.7, y: -0.7 },
-};
 const witnesses = [
   {
     id: "A",
@@ -196,7 +186,6 @@ export default function Home() {
   const [scene, setScene] = useState<Scene>("entry");
   const [messageStep, setMessageStep] = useState<MessageStep>("hidden");
   const [distance, setDistance] = useState<number | null>(null);
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationStatus, setLocationStatus] = useState("위치 확인 전");
   const [locationInReach, setLocationInReach] = useState(false);
   const [lastLocationUpdatedAt, setLastLocationUpdatedAt] = useState<string | null>(null);
@@ -214,7 +203,6 @@ export default function Home() {
   const [activeWitnessId, setActiveWitnessId] = useState(witnesses[0].id);
   const [witnessDistances, setWitnessDistances] = useState<Record<string, number | null>>(() => Object.fromEntries(witnesses.map((witness) => [witness.id, null])));
   const [visitedWitnesses, setVisitedWitnesses] = useState<Record<string, boolean>>(() => Object.fromEntries(witnesses.map((witness) => [witness.id, false])));
-  const [witnessDirections] = useState<Record<string, DirectionKey | null>>(() => Object.fromEntries(witnesses.map((witness) => [witness.id, null])));
   const [witnessStatus, setWitnessStatus] = useState("에너지 반응이 강한 지점 3곳을 방문해 자료 이미지를 확보하세요.");
   const [acquiredWitnessId, setAcquiredWitnessId] = useState<string | null>(null);
   const [arrangeBriefingQueued, setArrangeBriefingQueued] = useState(false);
@@ -318,7 +306,6 @@ export default function Home() {
   function applyMissionLocation(position: GeolocationPosition, options: { silent?: boolean } = {}) {
     const nextLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
     const nextDistance = getDistanceMeters(nextLocation, missionTarget);
-    setUserLocation(nextLocation);
     setDistance(nextDistance);
     setLocationInReach(nextDistance <= reachRadiusMeters);
     setLastLocationUpdatedAt(new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
@@ -381,7 +368,6 @@ export default function Home() {
 
   function applyWitnessLocation(position: GeolocationPosition, options: { silent?: boolean } = {}) {
     const nextLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
-    setUserLocation(nextLocation);
     setLastLocationUpdatedAt(new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
     const nextDistances = Object.fromEntries(
       witnesses.map((witness) => [witness.id, getDistanceMeters(nextLocation, witness.location)]),
@@ -1118,10 +1104,8 @@ export default function Home() {
 
           <div className="campus-radar witness-radar">
             <WitnessMap
-              userLocation={userLocation}
               activeWitnessId={activeWitnessId}
               visitedWitnesses={visitedWitnesses}
-              witnessDirections={witnessDirections}
               onSelectWitness={setActiveWitnessId}
             />
             <div className="radar-data witness-data">
@@ -1565,16 +1549,12 @@ export default function Home() {
 
 
 function WitnessMap({
-  userLocation,
   activeWitnessId,
   visitedWitnesses,
-  witnessDirections,
   onSelectWitness,
 }: {
-  userLocation: { lat: number; lng: number } | null;
   activeWitnessId: string;
   visitedWitnesses: Record<string, boolean>;
-  witnessDirections: Record<string, DirectionKey | null>;
   onSelectWitness: (id: string) => void;
 }) {
   const mapRef = useRef<HTMLDivElement | null>(null);
@@ -1651,53 +1631,10 @@ function WitnessMap({
       ) : (
         <div ref={mapRef} className="real-map-canvas" aria-label="목격 지점 실제 지도" />
       )}
-      {mapState === "fallback" && <svg className="witness-line-layer" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-        {witnesses.map((witness) => {
-          const direction = witnessDirections[witness.id];
-          if (!direction) return null;
-          const start = getMapPoint(witness.location, bounds);
-          const vector = directionVectors[direction];
-          return (
-            <line
-              key={witness.id}
-              x1={start.x}
-              y1={start.y}
-              x2={start.x + vector.x * 42}
-              y2={start.y + vector.y * 42}
-              className={direction === witness.correctDirection ? "is-correct" : ""}
-            />
-          );
-        })}
-      </svg>}
-      {mapState === "fallback" && witnesses.map((witness) => (
-        <button
-          key={witness.id}
-          type="button"
-          className={`witness-map-marker${activeWitnessId === witness.id ? " is-active" : ""}${visitedWitnesses[witness.id] ? " is-visited" : ""}`}
-          style={getMapPointStyle(witness.location, bounds)}
-          aria-label={`${witness.name} 위치`}
-          onClick={() => onSelectWitness(witness.id)}
-        >
-          {witness.id}
-        </button>
-      ))}
-      {mapState === "fallback" && userLocation && <div className="map-user-marker" aria-hidden="true" style={getMapPointStyle(userLocation, bounds)} />}
-      
       {mapState === "loading" && <p className="map-loading">지도 불러오는 중...</p>}
-      {mapState === "fallback" && <p className="map-loading">Kakao 키 없이 실제 지도 미리보기 표시 중</p>}
+      {mapState === "fallback" && <p className="map-loading">Kakao 키가 없으면 좌표 고정 마커를 표시할 수 없습니다</p>}
     </div>
   );
-}
-
-function getMapPoint(location: { lat: number; lng: number }, bounds: { lngMin: number; lngMax: number; latMin: number; latMax: number }) {
-  const x = Math.min(94, Math.max(6, ((location.lng - bounds.lngMin) / (bounds.lngMax - bounds.lngMin)) * 100));
-  const y = Math.min(94, Math.max(6, (1 - (location.lat - bounds.latMin) / (bounds.latMax - bounds.latMin)) * 100));
-  return { x, y };
-}
-
-function getMapPointStyle(location: { lat: number; lng: number }, bounds: { lngMin: number; lngMax: number; latMin: number; latMax: number }) {
-  const point = getMapPoint(location, bounds);
-  return { left: `${point.x}%`, top: `${point.y}%` };
 }
 
 function MissionMap() {
@@ -1770,18 +1707,12 @@ function MissionMap() {
       ) : (
         <div ref={mapRef} className="real-map-canvas" aria-label="농동로 209 잔디밭 실제 지도" />
       )}
-      {mapState === "fallback" && (
-        <>
-          <div className="map-range-circle" style={getMapPointStyle(missionTarget, missionMapBounds)} aria-hidden="true" />
-          <div className="map-investigation-marker" style={getMapPointStyle(missionTarget, missionMapBounds)} aria-hidden="true" />
-        </>
-      )}
       <div className="map-target-panel">
         <span>조사 지점</span>
         <strong>농동로 209 잔디밭</strong>
       </div>
       {mapState === "loading" && <p className="map-loading">지도 불러오는 중...</p>}
-      {mapState === "fallback" && <p className="map-loading">Kakao 키 없이 실제 지도 미리보기 표시 중</p>}
+      {mapState === "fallback" && <p className="map-loading">Kakao 키가 없으면 좌표 고정 마커를 표시할 수 없습니다</p>}
     </div>
   );
 }
