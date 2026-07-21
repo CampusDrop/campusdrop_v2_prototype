@@ -8,7 +8,7 @@
       name="description"
       content="QR 포스터에서 시작되는 Campus Drop 시계탑 목격 신고 조사 웹 데모"
     />
-    <link rel="stylesheet" href="./styles.css?v=chapter3-lab" />
+    <link rel="stylesheet" href="./styles.css?v=dedupe-modal-copy-2" />
   </head>
   <body>
     <main class="case-app scene-entry" id="app">
@@ -55,7 +55,7 @@
         <div class="time-report">
           <span>CAMPUS DROP 운영본부</span>
           <strong>시계탑 대형 생물 목격 사건</strong>
-          <p>세종대학교에는 오래된 소문이 하나 있습니다. “시계탑 꼭대기에는 기린이 산다.” 본부는 최근 목격 신고 7건을 바탕으로 별도 현장 조사를 시작합니다.</p>
+          <p>DROP LINK 수신 후 사건 개요와 첫 조사 목표가 열립니다.</p>
         </div>
         <div class="system-message">
           <span>첫 번째 목표</span>
@@ -147,7 +147,7 @@
         <div class="mission-copy">
           <p>2장</p>
           <h2>여러 사람이 그린 하나의 기린</h2>
-          <span>DROP LINK가 표시한 강한 에너지 반응 지점으로 이동해 손상된 과거 기록을 확보하세요.</span>
+          <span>지도에 표시된 3개 신호 지점에서 과거 기록을 확보하세요.</span>
         </div>
         <div class="campus-radar witness-radar">
           <div class="real-map-shell witness-map-shell" id="witnessMap">
@@ -160,7 +160,7 @@
             <div><span>배열 상태</span><strong id="directionWitnessText">0/3</strong></div>
           </div>
         </div>
-        <p class="location-status" id="witnessStatus">에너지 반응이 강한 지점 3곳을 방문해 자료 이미지를 확보하세요.</p>
+        <p class="location-status" id="witnessStatus">지도에서 신호 지점을 선택하고 반경 10m 안에서 자료를 확보하세요.</p>
         <div class="mission-actions witness-actions">
           <button class="secondary-action" type="button" id="checkWitnessLocation">현재 위치 즉시 갱신</button>
           <button class="text-scan-refresh" type="button" id="adminArriveWitness">관리자 권한으로 도착 완료</button>
@@ -174,7 +174,7 @@
           <span>획득한 세 건의 기록을 오래된 순서대로 정렬하고, 연결된 식별 문자를 분석하세요.</span>
         </div>
         <div class="order-quiz-panel" id="orderQuizPanel">
-          <div class="order-quiz-copy"><span>CAMPUSDROP 기록 분석 지시</span><strong>획득한 세 건의 기록을 분석하십시오.</strong><p>기록의 형태와 내용을 확인하고, 오래된 기록부터 순서대로 배치하십시오. 카드를 좌우로 드래그하거나 순서 선택 버튼으로 위치를 교환할 수 있습니다. 카드를 누르면 전체 사진을 확인할 수 있습니다.</p></div>
+          <div class="order-quiz-copy"><span>기록 배열 보드</span><strong>확보한 기록 카드 3장을 시간순 후보로 정렬하세요.</strong><p>카드를 좌우로 드래그하거나 순서 선택 버튼으로 위치를 교환할 수 있습니다. 카드를 누르면 전체 사진을 확인할 수 있습니다.</p></div>
           <div class="order-dropzone" id="orderDropzone" aria-label="자료 이미지 순서 배열"></div>
           <div class="letter-chain" id="letterChain" aria-label="식별 문자 연결" hidden></div>
           <button class="primary-action" type="button" id="submitOrderButton">분석 요청</button>
@@ -223,9 +223,9 @@
 
         <div class="imagination-lab-panel">
           <div class="lab-status-header">
-            <span>CAMPUSDROP 증거 분석 지시</span>
-            <strong>세 기록의 외형 변화만 추적하십시오.</strong>
-            <p>순서는 이미 확정되었습니다. 이번 조사는 배열이 아니라, 같은 개체가 시대별로 어떻게 달라졌는지 비교하는 단계입니다.</p>
+            <span>재분석 상태</span>
+            <strong>시각 비교 모드가 열렸습니다.</strong>
+            <p>확정된 시간축을 잠근 상태에서 이미지의 변화 지점만 확인합니다.</p>
             <div class="lab-signal-row" aria-label="분석 상태">
               <i>ORDER LOCKED</i>
               <i>VISUAL SCAN</i>
@@ -274,7 +274,7 @@
         <div class="conclusion witness-conclusion" id="imaginationConclusion" aria-live="polite">
           <span>분석 대기</span>
           <strong>정답 입력 전에는 3장을 완료할 수 없습니다.</strong>
-          <p>CAMPUSDROP은 아직 기린의 발생 원리를 확정하지 않았습니다.</p>
+          <p>세 기록의 차이를 확인한 뒤 복원 단계가 열립니다.</p>
           <button class="primary-action" type="button" id="startChapterFour" hidden>4장 비어 있는 기록 확인</button>
         </div>
       </section>
@@ -283,34 +283,34 @@
         <div class="mission-copy">
           <p>4장</p>
           <h2>비어 있는 기록</h2>
-          <span>원본 기록을 다시 불러오는 동안 개체로 분류된 영역에서만 정보 손실이 발생했습니다.</span>
+          <span>복원된 기록을 다시 불러오고 있습니다.</span>
         </div>
 
         <div class="order-quiz-panel empty-status-panel">
           <div class="order-quiz-copy">
-            <span>CAMPUSDROP 증거물 상태 변화 감지</span>
-            <strong>현재 기록이 최초 확보본과 일치하지 않습니다.</strong>
-            <p>배경과 문자 정보에는 변화가 없습니다. 개체로 분류된 영역에서만 정보 손실이 확인됩니다. 원인은 확인되지 않았습니다.</p>
+            <span>증거물 재호출</span>
+            <strong>기록 재호출 상태를 확인합니다.</strong>
+            <p>자동 복원 진행률을 확인한 뒤 수동 지정 단계로 이동합니다.</p>
           </div>
           <div class="transmission-progress restore-progress" aria-label="자동 복원 진행률"><i id="emptyAutoProgressBar"></i><strong id="emptyAutoProgressText">0%</strong></div>
-          <p class="order-feedback" id="emptyAutoResult" hidden>[DROPLINK] 배경 정보 복원 완료. 문자 정보 복원 완료. 개체 정보 복원 실패. 개체 영역의 원본 데이터를 확인할 수 없습니다.</p>
+          <p class="order-feedback" id="emptyAutoResult" hidden>자동 복원 실패. 수동 지정이 필요합니다.</p>
         </div>
 
         <div class="order-quiz-panel empty-manual-panel">
           <div class="order-quiz-copy">
-            <span>CAMPUSDROP 수동 복원 지시</span>
+            <span>수동 복원 도구</span>
             <strong>최초 분석 당시 개체가 존재했던 영역을 지정하십시오.</strong>
             <p>기린이 사라진 기록을 한 장씩 확인하고, 기억나는 위치를 터치하세요.</p>
           </div>
           <div class="empty-record-tabs" id="emptyRecordTabs" aria-label="비어 있는 기록 선택"></div>
           <div id="emptyRecordStage"></div>
-          <p class="order-feedback" id="emptyRecordFeedback">[증거물 상태 변화 감지] 현재 기록이 최초 확보본과 일치하지 않습니다. 배경과 문자 정보에는 변화가 없습니다.</p>
+          <p class="order-feedback" id="emptyRecordFeedback">비어 있는 기록을 선택하고 기존 위치를 지정하세요.</p>
         </div>
 
         <div class="conclusion witness-conclusion" id="emptyRecordConclusion" aria-live="polite">
           <span>수동 복원 대기</span>
           <strong>세 기록에서 기린이 있던 위치를 지정해야 합니다.</strong>
-          <p>[운영본부] 파일 저장 과정에서 발생한 오류일 가능성이 있습니다.</p>
+          <p>수동 복원 단계가 대기 중입니다.</p>
           <button class="primary-action" type="button" id="startChapterFive" hidden>5장 잔류 신호 추적</button>
         </div>
       </section>
@@ -319,16 +319,13 @@
         <div class="mission-copy">
           <p>5장</p>
           <h2>최초의 대화</h2>
-          <span>잔류 패턴이 시계탑 인근의 등록되지 않은 이미지와 연결됩니다.</span>
+          <span>특별 포스터 탐색 단계가 열렸습니다.</span>
         </div>
 
         <div class="final-signal-panel">
           <div class="order-quiz-copy">
-            <span>CAMPUSDROP 미확인 패턴 감지</span>
-            <strong>등록되지 않은 이미지를 찾아 조사하십시오.</strong>
-            <p>[DROPLINK] 세 증거물에서 동일한 잔류 패턴이 감지되었습니다.</p>
-            <p>잔류 패턴의 출처는 시계탑 인근으로 추정됩니다. 등록되지 않은 이미지를 찾아 조사하십시오.</p>
-            <p>특별 이미지의 일부분을 확대했습니다. 현장에서 동일한 조각을 찾아 DROPLINK 카메라 중앙에 맞추세요.</p>
+            <span>잔류 패턴 탐색</span>
+            <strong>패턴 조각과 일치하는 현장 이미지를 찾으세요.</strong>
           </div>
           <div class="signal-fragment" aria-label="특별 이미지 조각"><i></i><span>잔류 패턴 조각</span><strong>노란 곡선 / 검은 여백 / 별빛 잡음</strong></div>
           <div class="signal-route"><span>조사 구역</span><strong>시계탑 인근 숨겨진 포스터</strong><p>정확한 좌표보다 현장 관찰이 중요합니다. 조각과 같은 이미지를 찾으세요.</p></div>
@@ -428,6 +425,6 @@
         <button class="primary-action" type="button" id="closeEvidencePreview">닫기</button>
       </div>
     </div>
-    <script src="./app.js?v=chapter3-lab"></script>
+    <script src="./app.js?v=dedupe-modal-copy-2"></script>
   </body>
 </html>
