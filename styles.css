@@ -1141,8 +1141,20 @@ button:focus-visible {
   opacity: 0;
 }
 
+.camera-screen.is-found 
+.camera-discovery-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 64%, rgba(255, 236, 171, 0.98), rgba(255, 199, 77, 0.38) 22%, transparent 52%),
+    rgba(255, 255, 255, 0.52);
+  opacity: 0;
+}
+
 .camera-screen.is-found .camera-discovery-flash {
-  animation: evidence-flash 900ms ease-out both;
+  animation: evidence-flash 900ms ease-out 260ms both;
 }
 
 .camera-scan-line {
@@ -1156,6 +1168,70 @@ button:focus-visible {
   box-shadow: 0 0 18px rgba(115, 242, 223, 0.6);
   opacity: 0.58;
   animation: scan-line 2.6s ease-in-out infinite;
+}
+
+.camera-clue-pin {
+  position: absolute;
+  left: 50%;
+  bottom: calc(232px + env(safe-area-inset-bottom));
+  z-index: 6;
+  width: 30px;
+  aspect-ratio: 1;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, 22px) scale(0.34);
+}
+
+.camera-clue-pin::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff9d8 0 22%, #ffd84f 42%, #ff9f1c 72%, transparent 100%);
+  box-shadow: 0 0 12px rgba(255, 229, 132, 0.98), 0 0 34px rgba(255, 184, 44, 0.78);
+}
+
+.camera-clue-pin::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #fffef2;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 18px rgba(255, 255, 235, 0.94);
+}
+
+.camera-clue-pin i,
+.camera-clue-pin b {
+  position: absolute;
+  inset: -18px;
+  border-radius: 50%;
+}
+
+.camera-clue-pin i {
+  border: 1px solid rgba(255, 232, 143, 0.82);
+  box-shadow: inset 0 0 16px rgba(255, 212, 91, 0.2), 0 0 18px rgba(255, 212, 91, 0.46);
+}
+
+.camera-clue-pin b {
+  inset: -38px;
+  border: 1px dashed rgba(115, 242, 223, 0.58);
+  opacity: 0;
+}
+
+.camera-screen.is-found .camera-clue-pin {
+  animation: clue-pin-pop 1180ms cubic-bezier(.16, .98, .18, 1) both;
+}
+
+.camera-screen.is-found .camera-clue-pin i {
+  animation: clue-pin-ring 820ms ease-out 90ms both;
+}
+
+.camera-screen.is-found .camera-clue-pin b {
+  animation: clue-pin-magnify 980ms ease-out 260ms both;
 }
 
 .camera-evidence-lock {
@@ -1194,11 +1270,11 @@ button:focus-visible {
 }
 
 .camera-screen.is-found .camera-evidence-lock {
-  animation: evidence-lock 1420ms cubic-bezier(.16, .98, .18, 1) both;
+  animation: evidence-lock 1420ms cubic-bezier(.16, .98, .18, 1) 520ms both;
 }
 
 .camera-screen.is-found .camera-evidence-lock i:nth-child(2) {
-  animation: evidence-ring-spin 1320ms linear both;
+  animation: evidence-ring-spin 1320ms linear 520ms both;
 }
 
 .camera-evidence-stamp {
@@ -1222,7 +1298,7 @@ button:focus-visible {
 }
 
 .camera-screen.is-found .camera-evidence-stamp {
-  animation: evidence-stamp 980ms cubic-bezier(.18, .9, .24, 1.18) 420ms both;
+  animation: evidence-stamp 980ms cubic-bezier(.18, .9, .24, 1.18) 920ms both;
 }
 
 .camera-screen.is-found .camera-vignette {
@@ -1308,196 +1384,17 @@ button:focus-visible {
 }
 
 .camera-screen.is-found .camera-spark-field i {
-  animation: evidence-spark 980ms cubic-bezier(.14, .82, .21, 1) both;
+  animation: evidence-spark 980ms cubic-bezier(.14, .82, .21, 1) 500ms both;
 }
 
-.camera-screen.is-found .camera-spark-field i:nth-child(2) { animation-delay: 60ms; }
-.camera-screen.is-found .camera-spark-field i:nth-child(3) { animation-delay: 120ms; }
-.camera-screen.is-found .camera-spark-field i:nth-child(4) { animation-delay: 40ms; }
-.camera-screen.is-found .camera-spark-field i:nth-child(5) { animation-delay: 100ms; }
-.camera-screen.is-found .camera-spark-field i:nth-child(6) { animation-delay: 150ms; }
+.camera-screen.is-found .camera-spark-field i:nth-child(2) { animation-delay: 560ms; }
+.camera-screen.is-found .camera-spark-field i:nth-child(3) { animation-delay: 620ms; }
+.camera-screen.is-found .camera-spark-field i:nth-child(4) { animation-delay: 540ms; }
+.camera-screen.is-found .camera-spark-field i:nth-child(5) { animation-delay: 600ms; }
+.camera-screen.is-found .camera-spark-field i:nth-child(6) { animation-delay: 650ms; }
 
 .camera-screen.is-found .camera-hud {
-  animation: evidence-hud-pulse 920ms ease-out both;
-}
-
-.camera-readout {
-  position: absolute;
-  left: 18px;
-  right: 18px;
-  bottom: calc(86px + env(safe-area-inset-bottom));
-  z-index: 3;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 18px;
-  background: rgba(4, 10, 9, 0.58);
-  padding: 12px 14px;
-  backdrop-filter: blur(16px);
-}
-
-.camera-readout strong {
-  color: #ffdc78;
-  font-size: 16px;
-  font-weight: 950;
-}
-
-.camera-exit {
-  position: absolute;
-  left: 18px;
-  right: 18px;
-  bottom: max(18px, env(safe-area-inset-bottom));
-  z-index: 4;
-  min-height: 54px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.92);
-  color: #111916;
-  cursor: pointer;
-  font-weight: 950;
-  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.28);
-}
-
-.fur-evidence-card {
-  display: grid;
-  gap: 15px;
-  margin-top: 22px;
-  border: 1px solid rgba(255, 209, 102, 0.26);
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.13);
-  padding: 16px;
-  box-shadow: 0 22px 56px rgba(22, 19, 55, 0.18);
-  backdrop-filter: blur(16px);
-}
-
-.fur-image-wrap {
-  display: grid;
-  min-height: 220px;
-  place-items: center;
-  overflow: hidden;
-  border-radius: 20px;
-  background:
-    radial-gradient(circle at 50% 42%, rgba(255, 209, 102, 0.26), transparent 54%),
-    rgba(8, 16, 17, 0.72);
-}
-
-.fur-image-wrap img {
-  width: min(82%, 280px);
-  height: auto;
-  mix-blend-mode: normal;
-  filter: drop-shadow(0 18px 32px rgba(0, 0, 0, 0.34));
-}
-
-.fur-evidence-card strong {
-  display: block;
-  margin-top: 6px;
-  color: #ffe19a;
-  font-size: 24px;
-  font-weight: 950;
-}
-
-.fur-evidence-card p {
-  margin: 8px 0 0;
-  color: rgba(248, 255, 251, 0.76);
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-
-
-.scan-start-action {
-  position: relative;
-  transition: transform 180ms ease, opacity 180ms ease, filter 180ms ease, box-shadow 180ms ease;
-}
-
-.scan-start-action.is-locked,
-.scan-start-action:disabled {
-  cursor: not-allowed;
-  opacity: 0.58;
-  filter: grayscale(0.65) saturate(0.65);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.08));
-  color: rgba(248, 255, 251, 0.62);
-  box-shadow: none;
-}
-
-.scan-start-action.is-locked::after {
-  content: "LOCKED";
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 999px;
-  padding: 4px 7px;
-  color: rgba(248, 255, 251, 0.62);
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  transform: translateY(-50%);
-}
-
-.scan-start-action.is-ready {
-  box-shadow: 0 0 0 1px rgba(115, 242, 223, 0.38), 0 20px 50px rgba(95, 240, 208, 0.24);
-}
-
-.text-scan-refresh {
-  min-height: 42px;
-  border: 0;
-  background: transparent;
-  color: rgba(115, 242, 223, 0.88);
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 900;
-}
-
-.map-user-marker {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  z-index: 3;
-  width: 18px;
-  aspect-ratio: 1;
-  pointer-events: none;
-  border: 3px solid #fff;
-  border-radius: 50%;
-  background: #0b0d0c;
-  box-shadow: 0 0 0 7px rgba(115, 242, 223, 0.18), 0 12px 24px rgba(0, 0, 0, 0.35);
-  transform: translate(-50%, -50%);
-}
-
-.map-user-marker::after {
-  content: "";
-  position: absolute;
-  inset: -14px;
-  border: 1px solid rgba(115, 242, 223, 0.38);
-  border-radius: 50%;
-  animation: user-location-pulse 2.2s ease-out infinite;
-}
-
-.camera-control-stack {
-  position: absolute;
-  left: 18px;
-  right: 18px;
-  bottom: max(18px, env(safe-area-inset-bottom));
-  z-index: 4;
-  display: grid;
-  gap: 9px;
-}
-
-.camera-control-stack .camera-exit,
-.camera-admin-found {
-  position: static;
-  width: 100%;
-  min-height: 52px;
-  border-radius: 18px;
-  cursor: pointer;
-  font-weight: 950;
-}
-
-.camera-admin-found {
-  border: 1px solid rgba(115, 242, 223, 0.28);
-  background: rgba(4, 10, 9, 0.74);
-  color: #73f2df;
-  backdrop-filter: blur(14px);
+  animation: evidence-hud-pulse 920ms ease-out 520ms both;
 }
 
 .camera-readout {
@@ -1520,20 +1417,46 @@ button:focus-visible {
   opacity: 0;
   filter: drop-shadow(0 18px 34px rgba(255, 195, 64, 0.45));
   transform: translate(-50%, 24px) scale(0.72) rotate(-8deg);
-  transition: opacity 460ms ease, transform 460ms cubic-bezier(.18, .9, .24, 1.12);
+  transition: none;
 }
 
 .camera-screen.is-found .camera-fur-glimpse {
-  opacity: 1;
-  transform: translate(-50%, 0) scale(1) rotate(-8deg);
+  animation: fur-from-clue-pin 1480ms cubic-bezier(.16, .98, .18, 1) 430ms both;
 }
+
 
 @keyframes user-location-pulse {
   0% { opacity: 0.7; transform: scale(0.72); }
   100% { opacity: 0; transform: scale(1.45); }
 }
 
+@keyframes clue-pin-pop {
+  0% { opacity: 0; transform: translate(-50%, 24px) scale(0.18); filter: blur(3px); }
+  12% { opacity: 1; transform: translate(-50%, 12px) scale(0.74); filter: blur(0); }
+  34% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  72% { opacity: 0.9; transform: translate(-50%, -4px) scale(0.88); }
+  100% { opacity: 0; transform: translate(-50%, -16px) scale(0.36); }
+}
 
+@keyframes clue-pin-ring {
+  0% { opacity: 0; transform: scale(0.32); }
+  22% { opacity: 1; }
+  100% { opacity: 0; transform: scale(2.6); }
+}
+
+@keyframes clue-pin-magnify {
+  0% { opacity: 0; transform: scale(0.2) rotate(0deg); }
+  24% { opacity: 0.82; }
+  100% { opacity: 0; transform: scale(1.78) rotate(42deg); }
+}
+
+@keyframes fur-from-clue-pin {
+  0% { opacity: 0; transform: translate(-50%, 74px) scale(0.05) rotate(-8deg); filter: blur(10px) drop-shadow(0 0 0 rgba(255, 195, 64, 0)); }
+  24% { opacity: 0; transform: translate(-50%, 62px) scale(0.08) rotate(-8deg); }
+  44% { opacity: 1; transform: translate(-50%, 18px) scale(0.78) rotate(-8deg); filter: blur(0) drop-shadow(0 18px 34px rgba(255, 195, 64, 0.45)); }
+  68% { opacity: 1; transform: translate(-50%, -4px) scale(1.06) rotate(-8deg); }
+  100% { opacity: 1; transform: translate(-50%, 0) scale(1) rotate(-8deg); filter: drop-shadow(0 18px 34px rgba(255, 195, 64, 0.45)); }
+}
 
 @keyframes evidence-flash {
   0% { opacity: 0; }
