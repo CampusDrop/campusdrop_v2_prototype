@@ -30,6 +30,7 @@ const witnesses = [
     id: "A",
     name: "목격자 A",
     location: { lat: 37.55009418972363, lng: 127.0736196575354 },
+    photo: "./gfPhoto_03.png",
     statement: "분명히 위쪽이었습니다. 나무보다 훨씬 높은 곳에서 긴 그림자가 시계탑 쪽으로 움직였어요.",
     correctDirection: "N",
     point: { x: 21.31, y: 80.35 },
@@ -38,6 +39,7 @@ const witnesses = [
     id: "B",
     name: "목격자 B",
     location: { lat: 37.55143211168644, lng: 127.07371716568217 },
+    photo: "./gfPhoto_02.png",
     statement: "대양타워 쪽을 내려다보는 것 같았어요. 창문 위로 노란 무늬가 잠깐 스쳤습니다.",
     correctDirection: "SE",
     point: { x: 25.93, y: 15.65 },
@@ -46,6 +48,7 @@ const witnesses = [
     id: "C",
     name: "목격자 C",
     location: { lat: 37.550652047104954, lng: 127.0748310833212 },
+    photo: "./gfPhoto_01.png",
     statement: "처음엔 조형물인 줄 알았는데, 고개가 천천히 북서쪽으로 돌아갔습니다.",
     correctDirection: "NW",
     point: { x: 78.69, y: 53.37 },
@@ -357,7 +360,14 @@ function updateWitnessUi() {
     document.querySelector(`[data-witness-map="${witness.id}"]`)?.classList.toggle("is-active", activeWitnessId === witness.id);
     document.querySelector(`[data-witness-map="${witness.id}"]`)?.classList.toggle("is-visited", visitedWitnesses[witness.id]);
     const statement = document.querySelector(`[data-witness-statement="${witness.id}"]`);
-    if (statement) statement.textContent = visitedWitnesses[witness.id] ? witness.statement : "현장 반경 10m 안에 들어가면 목격자의 진술을 확인할 수 있습니다.";
+    if (statement) statement.textContent = visitedWitnesses[witness.id] ? witness.statement : "현장 반경 10m 안에 들어가면 목격자의 진술과 사진 자료를 확인할 수 있습니다.";
+    const photo = document.querySelector(`[data-witness-photo="${witness.id}"]`);
+    if (photo) {
+      photo.classList.toggle("is-open", visitedWitnesses[witness.id]);
+      photo.classList.toggle("is-locked", !visitedWitnesses[witness.id]);
+      photo.querySelector("img")?.toggleAttribute("hidden", !visitedWitnesses[witness.id]);
+      photo.querySelector("span")?.toggleAttribute("hidden", visitedWitnesses[witness.id]);
+    }
     document.querySelectorAll(`[data-witness-direction^="${witness.id}:"]`).forEach((button) => {
       const direction = button.dataset.witnessDirection.split(":")[1];
       button.disabled = !visitedWitnesses[witness.id];
