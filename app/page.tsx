@@ -30,8 +30,8 @@ declare global {
   }
 }
 
-const clockTower = { lat: 37.550944, lng: 127.073765 };
-const reachRadiusMeters = 90;
+const missionTarget = { lat: 37.55041617275794, lng: 127.07381801425053 };
+const reachRadiusMeters = 20;
 const dropLinkBriefings = [
   "사용자 인증 완료. 임시 현장 조사원으로 등록합니다. 사건 번호 CD-SJ-01, 사건명 시계탑 대형 생물 목격 사건.",
   "세종대학교에는 오래된 소문이 하나 있습니다. 시계탑 꼭대기에는 기린이 산다. 본부는 목격 신고 7건을 근거로 현장 조사가 필요하다고 판단했습니다.",
@@ -45,19 +45,9 @@ const posterCopy: Record<string, string> = {
 
 const clues = [
   {
-    direction: "흔적 A",
-    title: "사라진 나뭇잎",
-    detail: "사람의 손이 닿지 않는 높이에서만 나뭇잎이 사라져 있습니다. 대형 초식동물의 섭식 흔적과 유사합니다.",
-  },
-  {
-    direction: "흔적 B",
-    title: "노란색 털",
-    detail: "표본을 확인했습니다. 인공 섬유가 아닙니다. 기린과 동물의 체모와 유사하지만 단독 증거로는 확정할 수 없습니다.",
-  },
-  {
-    direction: "흔적 C",
-    title: "발굽 같은 충격음",
-    detail: "단단한 바닥을 밟는 발굽 소리로 분류됐습니다. 발굽이 바닥에 닿는 간격이 대형 개체 보행 패턴과 일치합니다.",
+    direction: "첫 번째 흔적",
+    title: "기린의 노란털",
+    detail: "잔디밭 가장자리에서 노란 털 표본을 확보했습니다. 인공 섬유가 아니며 기린과 동물의 체모와 유사합니다.",
   },
 ];
 
@@ -132,18 +122,18 @@ export default function Home() {
       (position) => {
         const nextDistance = getDistanceMeters(
           { lat: position.coords.latitude, lng: position.coords.longitude },
-          clockTower,
+          missionTarget,
         );
         setDistance(nextDistance);
         if (nextDistance <= reachRadiusMeters) {
-          setLocationStatus("시계탑 신호 범위에 진입했습니다.");
+          setLocationStatus("잔디밭 조사 범위에 진입했습니다.");
           moveToScene("arrival");
           return;
         }
-        setLocationStatus("아직 신호 범위 밖입니다. 시계탑 쪽으로 이동하세요.");
+        setLocationStatus("아직 조사 범위 밖입니다. 지정된 잔디밭 쪽으로 이동하세요.");
       },
       () => {
-        setLocationStatus("위치 권한을 허용하면 시계탑 도착 여부를 확인할 수 있습니다.");
+        setLocationStatus("위치 권한을 허용하면 잔디밭 도착 여부를 확인할 수 있습니다.");
       },
       { enableHighAccuracy: true, timeout: 10000 },
     );
@@ -202,7 +192,7 @@ export default function Home() {
             </article>
             <article>
               <span>진행 방식</span>
-              <p>시계탑으로 이동해 GPS 체크포인트를 열고, 현장에서 세 가지 흔적을 확인합니다.</p>
+              <p>지정된 잔디밭으로 이동해 GPS 체크포인트를 열고, 첫 번째 흔적을 확인합니다.</p>
             </article>
             <article>
               <span>안내</span>
@@ -300,7 +290,7 @@ export default function Home() {
           <div className="mission-copy">
             <p>사건 개요</p>
             <h2>CD-SJ-01 현장 조사 개방</h2>
-            <span>세종대학교 시계탑으로 이동해 소문 속 대형 생물의 흔적을 확인하세요. GPS는 시계탑 근처 도착 여부만 확인합니다.</span>
+            <span>농동로 209 인근 잔디밭으로 이동해 기린의 노란털 흔적을 확인하세요. GPS는 반경 20m 진입 여부만 확인합니다.</span>
           </div>
 
           <div className="campus-radar">
@@ -333,8 +323,8 @@ export default function Home() {
         <section className="screen arrival-screen">
           <div className="arrival-copy">
             <p>체크포인트 열림</p>
-            <h2>시계탑 조사 범위에 진입했습니다.</h2>
-            <span>목격 신고에서 공통적으로 언급된 세 가지 흔적을 찾아주세요.</span>
+            <h2>잔디밭 조사 범위에 진입했습니다.</h2>
+            <span>잔디밭 가장자리에서 기린의 노란털 흔적을 찾아주세요.</span>
           </div>
 
           <div className="clue-list">
@@ -359,10 +349,10 @@ export default function Home() {
             <span>조사 결론</span>
             <strong>
               {foundAllClues
-                ? "분석 완료. 추정 개체 높이 4.5m 이상, 추정 분류 기린과, 실제 개체 존재 가능성 93.7%."
+                ? "노란털 표본 확보. 인공 섬유가 아니며 기린과 동물의 체모와 유사합니다."
                 : `${foundClues.length} / ${clues.length} 흔적 확인`}
             </strong>
-            {foundAllClues && <p>기존 기록과 일치하는 개체가 확인됐습니다. 다음 파트: 지정 이미지를 스캔해 세린이와 첫 접촉하기</p>}
+            {foundAllClues && <p>첫 번째 현장 표본이 확보됐습니다. 다음 파트: 추가 단서를 분석해 세린이와 첫 접촉하기</p>}
           </div>
         </section>
       )}
@@ -384,9 +374,9 @@ function MissionMap() {
     let cancelled = false;
     const renderMap = () => {
       if (cancelled || !mapRef.current || !window.kakao?.maps) return;
-      const center = new window.kakao.maps.LatLng(clockTower.lat, clockTower.lng);
+      const center = new window.kakao.maps.LatLng(missionTarget.lat, missionTarget.lng);
       const map = new window.kakao.maps.Map(mapRef.current, { center, level: 3 });
-      new window.kakao.maps.Marker({ position: center, title: "세종대학교 시계탑" }).setMap(map);
+      new window.kakao.maps.Marker({ position: center, title: "농동로 209 잔디밭" }).setMap(map);
       new window.kakao.maps.Circle({
         center,
         radius: reachRadiusMeters,
@@ -427,18 +417,18 @@ function MissionMap() {
     };
   }, []);
 
-  const fallbackSrc = `https://www.openstreetmap.org/export/embed.html?bbox=${clockTower.lng - 0.003}%2C${clockTower.lat - 0.002}%2C${clockTower.lng + 0.003}%2C${clockTower.lat + 0.002}&layer=mapnik&marker=${clockTower.lat}%2C${clockTower.lng}`;
+  const fallbackSrc = `https://www.openstreetmap.org/export/embed.html?bbox=${missionTarget.lng - 0.003}%2C${missionTarget.lat - 0.002}%2C${missionTarget.lng + 0.003}%2C${missionTarget.lat + 0.002}&layer=mapnik&marker=${missionTarget.lat}%2C${missionTarget.lng}`;
 
   return (
     <div className="real-map-shell">
       {mapState === "fallback" ? (
-        <iframe className="real-map-frame" title="세종대학교 시계탑 지도" src={fallbackSrc} loading="lazy" />
+        <iframe className="real-map-frame" title="농동로 209 잔디밭 지도" src={fallbackSrc} loading="lazy" />
       ) : (
-        <div ref={mapRef} className="real-map-canvas" aria-label="세종대학교 시계탑 실제 지도" />
+        <div ref={mapRef} className="real-map-canvas" aria-label="농동로 209 잔디밭 실제 지도" />
       )}
       <div className="map-target-panel">
         <span>조사 지점</span>
-        <strong>세종대학교 시계탑</strong>
+        <strong>농동로 209 잔디밭</strong>
       </div>
       {mapState === "loading" && <p className="map-loading">지도 불러오는 중...</p>}
       {mapState === "fallback" && <p className="map-loading">Kakao 키 없이 실제 지도 미리보기 표시 중</p>}
