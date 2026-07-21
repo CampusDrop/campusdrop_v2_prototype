@@ -317,6 +317,60 @@
           <span>수동 복원 대기</span>
           <strong>세 기록에서 기린이 있던 위치를 지정해야 합니다.</strong>
           <p>운영본부는 일시적인 데이터 손상이나 저장 오류 가능성을 검토하고 있습니다.</p>
+          <button class="primary-action" type="button" id="startChapterFive" hidden>5장 잔류 신호 추적</button>
+        </div>
+      </section>
+
+      <section class="screen first-contact-screen" data-screen="firstContact">
+        <div class="mission-copy">
+          <p>5장</p>
+          <h2>최초의 대화</h2>
+          <span>기록에서 사라지던 개체 정보가 시계탑 인근의 등록되지 않은 이미지와 연결됩니다.</span>
+        </div>
+
+        <div class="final-signal-panel">
+          <div class="order-quiz-copy">
+            <span>CAMPUSDROP 미확인 패턴 감지</span>
+            <strong>등록되지 않은 이미지를 찾아 조사하십시오.</strong>
+            <p>[미확인 패턴 감지] 세 증거물에서 동일한 잔류 신호가 확인되었습니다.</p>
+            <p>신호의 출처는 시계탑 인근으로 추정됩니다. 등록되지 않은 이미지를 찾아 조사하십시오.</p>
+            <p>특별 이미지의 일부분을 확대했습니다. 현장에서 동일한 조각을 찾아 CAMPUSDROP 카메라 중앙에 맞추세요.</p>
+          </div>
+          <div class="signal-fragment" aria-label="특별 이미지 조각"><i></i><span>잔류 신호 조각</span><strong>노란 곡선 / 검은 여백 / 별빛 잡음</strong></div>
+          <div class="signal-route"><span>조사 구역</span><strong>시계탑 인근 숨겨진 포스터</strong><p>정확한 좌표보다 현장 관찰이 중요합니다. 조각과 같은 이미지를 찾으세요.</p></div>
+        </div>
+
+        <div class="final-camera-panel">
+          <div class="final-camera-view">
+            <video id="finalCameraFeed" class="camera-video" muted playsinline></video>
+            <div class="camera-placeholder" id="finalCameraPlaceholder">CAMPUSDROP 카메라 대기</div>
+            <div class="poster-lock-ui" id="finalPosterLock" hidden><span>이미지 안정화</span><i id="finalScanProgressBar"></i><strong id="finalScanProgressText">0%</strong></div>
+            <div class="giraffe-ar-stage" id="finalArStage" aria-label="3D 기린 등장 연출" hidden>
+              <div class="summon-particles"></div>
+              <div class="final-giraffe-model"><i class="giraffe-horn one"></i><i class="giraffe-horn two"></i><i class="giraffe-ear left"></i><i class="giraffe-ear right"></i><i class="giraffe-head"></i><i class="giraffe-neck"></i><i class="giraffe-star"></i><i class="giraffe-body"></i></div>
+              <div class="analysis-error">[분석 오류] 등록되지 않은 개체 정보가 카메라 화면에 표시되고 있습니다.</div>
+            </div>
+          </div>
+          <p class="order-feedback" id="finalScanStatus">잔류 신호와 일치하는 특별 이미지를 찾아 카메라 중앙에 맞추세요.</p>
+          <div class="final-scan-actions"><button class="primary-action" type="button" id="startFinalPosterScan">CAMPUSDROP 카메라로 조사</button><button class="secondary-action" type="button" id="adminMatchFinalPoster">관리자 권한으로 이미지 일치</button></div>
+        </div>
+
+        <div class="giraffe-dialogue-panel" id="finalDialoguePanel" hidden>
+          <div class="private-channel">[미등록 통신 연결]</div>
+          <div class="giraffe-speech"><p id="giraffeSpeechText">이제야 나를 직접 보고 있네.</p></div>
+          <div class="giraffe-question-grid">
+            <button type="button" data-giraffe-question="origin">너는 어디서 왔어?</button>
+            <button type="button" data-giraffe-question="star">별 모양은 어떻게 생긴 거야?</button>
+            <button type="button" data-giraffe-question="fade">왜 기록에서 사라졌어?</button>
+          </div>
+          <div class="observation-record" id="observationRecord"><span>CAMPUSDROP 개인 관측 기록</span><strong>지금 보고 있는 기린을 한 문장으로 기록하십시오.</strong><textarea id="observationText" placeholder="예: 아무도 보지 않을 때 별을 빛내는 기린" rows="3"></textarea><button class="primary-action" type="button" id="submitObservationRecord">개인 기록 저장</button></div>
+        </div>
+
+        <div class="final-ending-panel" id="finalEndingPanel" hidden>
+          <div class="ending-report official"><span>운영본부 조사 결과</span><strong>미등록 이미지 포스터를 확보했습니다.</strong><p>추가 개체 정보는 확인되지 않았습니다. 현장 조사를 종료합니다.</p></div>
+          <div class="ending-report personal"><span>탐사원 개인 기록</span><strong>시계탑의 미확인 개체와 최초 통신에 성공했습니다.</strong><p id="finalObservationText"></p><em>비공개 연결이 형성되었습니다.</em></div>
+          <div class="last-choice"><p>다음에는 혼자가 아니라 다른 탐사원들과 와도 좋아.</p><button type="button" data-final-response="return">다시 찾아올게</button><button type="button" data-final-response="crew">다른 탐사원과 함께 올게</button></div>
+          <div class="app-transfer-panel" id="appTransferPanel" hidden><strong>다른 탐사원과 함께 이 연결을 이어가시겠습니까?</strong><p>CAMPUSDROP 앱에서는 공통 관심사를 가진 탐사원과 탐사대를 구성할 수 있습니다.</p><button class="primary-action" type="button">앱에서 탐사대 찾기</button><button class="secondary-action" type="button">웹 조사 기록 확인하기</button></div>
         </div>
       </section>
     </main>
