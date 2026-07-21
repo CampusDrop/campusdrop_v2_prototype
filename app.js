@@ -69,6 +69,18 @@ const imaginationResults = [
   "최초 기록의 내용이 이후 학생들에게 전해졌을 가능성이 있습니다.",
   "그러나 현재 확보된 자료만으로 기록 사이의 관계를 확정할 수 없습니다.",
 ];
+const emptyRecordMasks = {
+  C: { x: 32, y: 18, width: 40, height: 54, radius: 28 },
+  B: { x: 24, y: 28, width: 42, height: 48, radius: 27 },
+  A: { x: 35, y: 45, width: 34, height: 38, radius: 25 },
+};
+const emptyRecordResults = [
+  "[수동 복원 완료] 삭제된 개체 정보가 다시 확인되었습니다.",
+  "탐사원이 입력한 정보는 위치 좌표뿐입니다. 해당 정보만으로 개체의 외형이 복원된 원인을 설명할 수 없습니다.",
+  "외부 데이터 사용 기록 없음. 원본 이미지 복구 기록 없음. 탐사원의 수동 지정 직후 개체 영역 재생성.",
+  "[개체 안정성 경고] 복원된 개체 정보가 다시 감소하고 있습니다. 현재 방식으로는 상태를 유지할 수 없습니다.",
+  "기린을 잠깐 되돌리는 것이 아니라, 사라지지 않도록 유지할 방법을 찾아야 합니다.",
+];
 const posterCopy = {
   student_hall: "학생회관 포스터를 통해 접속했습니다. 창문 뒤로 긴 그림자를 봤다는 제보가 남아 있습니다.",
   library: "학술정보원 포스터를 통해 접속했습니다. 새벽 시간대 시계탑 꼭대기 목격 신고가 반복됐습니다.",
@@ -110,6 +122,12 @@ let restoreTouchedPoints = new Set();
 let imagineAnswer = "";
 let imagineFeedback = "복원된 페이지에서 강조된 단어를 확인하십시오.";
 let imagineSolved = false;
+let emptyAutoProgress = 0;
+let emptyAutoTimer = null;
+let activeEmptyRecordId = "C";
+let emptyRecordHits = { A: false, B: false, C: false };
+let emptyRecordFeedback = "[증거물 상태 변화 감지] 현재 기록이 최초 확보본과 일치하지 않습니다. 배경과 문자 정보에는 변화가 없습니다.";
+let emptyRecordComplete = false;
 
 function triggerDropLinkVibration() {
   if (typeof navigator.vibrate !== "function") return;
@@ -176,6 +194,13 @@ function showScreen(name) {
 
   if (name === "imagination") {
     renderChapterThree();
+  }
+
+  if (name === "emptyRecord") {
+    startEmptyRecordScene();
+  } else if (emptyAutoTimer !== null) {
+    window.clearInterval(emptyAutoTimer);
+    emptyAutoTimer = null;
   }
 }
 
@@ -663,6 +688,8 @@ function renderChapterThree() {
   conclusion.querySelector("span").textContent = imagineSolved ? "3장 조사 완료" : "분석 대기";
   conclusion.querySelector("strong").textContent = imagineSolved ? "상상과 이후 기록 사이의 연결 가능성이 확인되었습니다." : "정답 입력 전에는 3장을 완료할 수 없습니다.";
   conclusion.querySelector("p").textContent = imagineSolved ? imaginationResults.join(" ") : "CAMPUSDROP은 아직 기린의 발생 원리를 확정하지 않았습니다.";
+  const startChapterFour = document.querySelector("#startChapterFour");
+  if (startChapterFour) startChapterFour.hidden = !imagineSolved;
 }
 
 function submitStarAnswer() {
@@ -722,6 +749,75 @@ function openChapterThreePreview(index) {
   photo.setAttribute("aria-label", `${record.name} 확대 이미지`);
   document.querySelector("#chapterThreePreviewCopy").textContent = starSolved ? (record.id === "C" ? "증거물 01에서는 동일한 특징이 확인되지 않습니다." : "정답 보고 이후 분석 강조가 활성화되었습니다.") : "세 이미지를 직접 비교해 달라진 특징을 찾으세요.";
   document.querySelector("#chapterThreePreviewModal").hidden = false;
+}
+
+function startEmptyRecordScene() {
+  emptyAutoProgress = 0;
+  emptyRecordFeedback = "[증거물 상태 변화 감지] 현재 기록이 최초 확보본과 일치하지 않습니다. 배경과 문자 정보에는 변화가 없습니다. 개체로 분류된 영역에서만 정보 손실이 확인됩니다. 원인은 확인되지 않았습니다.";
+  renderEmptyRecordScene();
+  if (emptyAutoTimer !== null) window.clearInterval(emptyAutoTimer);
+  emptyAutoTimer = window.setInterval(() => {
+    emptyAutoProgress = Math.min(100, emptyAutoProgress + 4);
+    renderEmptyRecordScene();
+    if (emptyAutoProgress >= 100) {
+      window.clearInterval(emptyAutoTimer);
+      emptyAutoTimer = null;
+    }
+  }, 90);
+}
+
+function renderEmptyRecordScene() {
+  const tabs = document.querySelector("#emptyRecordTabs");
+  if (tabs) {
+    tabs.innerHTML = chapterThreeRecords.map((record) => `<button type="button" class="${activeEmptyRecordId === record.id ? "is-active" : ""}" data-empty-tab="${record.id}">${record.name}</button>`).join("");
+  }
+  const stage = document.querySelector("#emptyRecordStage");
+  if (stage) {
+    stage.innerHTML = chapterThreeRecords.map((record) => {
+      const mask = emptyRecordMasks[record.id];
+      const isActive = activeEmptyRecordId === record.id;
+      const isHit = emptyRecordHits[record.id];
+      return `<button type="button" class="empty-record-card${isActive ? " is-active" : ""}${isHit ? " is-restored" : ""}${emptyRecordComplete ? " is-unstable" : ""}" data-empty-record="${record.id}" ${isActive ? "" : "hidden"}><span>${record.recordTitle}</span><div class="empty-record-image" style="background-image:url(${record.photo})"><i class="empty-loss-mask" style="left:${mask.x}%;top:${mask.y}%;width:${mask.width}%;height:${mask.height}%"></i><b class="empty-ghost-signal" style="left:${mask.x}%;top:${mask.y}%;width:${mask.width}%;height:${mask.height}%"></b></div><strong>${isHit ? "개체 영역 재생성" : "개체 정보 손실"}</strong></button>`;
+    }).join("");
+  }
+  document.querySelector("#emptyAutoProgressBar").style.width = `${emptyAutoProgress}%`;
+  document.querySelector("#emptyAutoProgressText").textContent = `${emptyAutoProgress}%`;
+  document.querySelector("#emptyAutoResult").hidden = emptyAutoProgress < 100;
+  const feedback = document.querySelector("#emptyRecordFeedback");
+  feedback.textContent = emptyRecordFeedback;
+  feedback.classList.toggle("is-correct", emptyRecordComplete);
+  const conclusion = document.querySelector("#emptyRecordConclusion");
+  conclusion.classList.toggle("is-open", emptyRecordComplete);
+  conclusion.querySelector("span").textContent = emptyRecordComplete ? "개체 안정성 경고" : "수동 복원 대기";
+  conclusion.querySelector("strong").textContent = emptyRecordComplete ? "복원된 개체 정보가 다시 감소하고 있습니다." : "세 기록에서 기린이 있던 위치를 지정해야 합니다.";
+  conclusion.querySelector("p").textContent = emptyRecordComplete ? emptyRecordResults.join(" ") : "운영본부는 일시적인 데이터 손상이나 저장 오류 가능성을 검토하고 있습니다.";
+}
+
+function handleEmptyRecordPoint(recordId, event) {
+  if (emptyRecordComplete) return;
+  const card = event.target.closest("[data-empty-record]");
+  if (!card) return;
+  const rect = card.getBoundingClientRect();
+  const x = ((event.clientX - rect.left) / rect.width) * 100;
+  const y = ((event.clientY - rect.top) / rect.height) * 100;
+  const mask = emptyRecordMasks[recordId];
+  const centerX = mask.x + mask.width / 2;
+  const centerY = mask.y + mask.height / 2;
+  const distance = Math.hypot(x - centerX, y - centerY);
+  activeEmptyRecordId = recordId;
+  if (distance > mask.radius) {
+    emptyRecordFeedback = "지정한 영역에서 개체의 기존 좌표가 확인되지 않습니다.";
+    renderEmptyRecordScene();
+    return;
+  }
+  emptyRecordHits[recordId] = true;
+  if (chapterThreeRecords.every((record) => emptyRecordHits[record.id])) {
+    emptyRecordComplete = true;
+    emptyRecordFeedback = "[수동 복원 완료] 삭제된 개체 정보가 다시 확인되었습니다.";
+  } else {
+    emptyRecordFeedback = "개체 영역 일부가 희미하게 재생성되었습니다. 남은 기록에서도 기존 위치를 지정하십시오.";
+  }
+  renderEmptyRecordScene();
 }
 
 function updateEvidenceTransmissionUi() {
@@ -950,6 +1046,24 @@ document.addEventListener("click", (event) => {
 
   if (event.target.closest("#startChapterThree")) {
     showScreen("imagination");
+    return;
+  }
+
+  if (event.target.closest("#startChapterFour")) {
+    showScreen("emptyRecord");
+    return;
+  }
+
+  const emptyTab = event.target.closest("[data-empty-tab]");
+  if (emptyTab) {
+    activeEmptyRecordId = emptyTab.dataset.emptyTab;
+    renderEmptyRecordScene();
+    return;
+  }
+
+  const emptyRecord = event.target.closest("[data-empty-record]");
+  if (emptyRecord) {
+    handleEmptyRecordPoint(emptyRecord.dataset.emptyRecord, event);
     return;
   }
 
