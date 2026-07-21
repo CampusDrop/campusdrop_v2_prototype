@@ -6,7 +6,8 @@ type Scene = "entry" | "incident" | "mission" | "camera" | "arrival";
 type MessageStep = "hidden" | "first";
 
 type KakaoLatLng = object;
-type KakaoMap = object;
+type KakaoMap = { panTo?: (position: KakaoLatLng) => void };
+type KakaoMarker = { setMap: (map: KakaoMap) => void; setPosition?: (position: KakaoLatLng) => void };
 
 type KakaoMarkerImage = object;
 
@@ -17,7 +18,7 @@ type KakaoMapsApi = {
   Size: new (width: number, height: number) => object;
   Point: new (x: number, y: number) => object;
   MarkerImage: new (src: string, size: object, options?: { offset?: object }) => KakaoMarkerImage;
-  Marker: new (options: { position: KakaoLatLng; title?: string; image?: KakaoMarkerImage }) => { setMap: (map: KakaoMap) => void };
+  Marker: new (options: { position: KakaoLatLng; title?: string; image?: KakaoMarkerImage }) => KakaoMarker;
   Circle: new (options: {
     center: KakaoLatLng;
     radius: number;
@@ -37,6 +38,7 @@ declare global {
 
 const missionTarget = { lat: 37.55041617275794, lng: 127.07381801425053 };
 const reachRadiusMeters = 20;
+const clueRevealRadiusMeters = 10;
 const investigationMarkerSrc = "/investigation-marker-v2.png";
 const dropLinkBriefings = [
   "사용자 인증 완료. 임시 현장 조사원으로 등록합니다. 사건 번호 CD-SJ-01, 사건명 시계탑 대형 생물 목격 사건.",
@@ -70,7 +72,10 @@ export default function Home() {
   const [scene, setScene] = useState<Scene>("entry");
   const [messageStep, setMessageStep] = useState<MessageStep>("hidden");
   const [distance, setDistance] = useState<number | null>(null);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationStatus, setLocationStatus] = useState("위치 확인 전");
+  const [locationInReach, setLocationInReach] = useState(false);
+  const [lastLocationUpdatedAt, setLastLocationUpdatedAt] = useState<string | null>(null);
   const [caseModalOpen, setCaseModalOpen] = useState(false);
   const [dropLinkText, setDropLinkText] = useState("");
   const [caseTransferActive, setCaseTransferActive] = useState(false);
@@ -128,6 +133,50 @@ export default function Home() {
     }
   }
 
+  function applyMissionLocation(position: GeolocationPosition, options: { silent?: boolean } = {}) {
+    const nextLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
+    const nextDistance = getDistanceMeters(nextLocation, missionTarget);
+    setUserLocation(nextLocation);
+    setDistance(nextDistance);
+    setLocationInReach(nextDistance <= reachRadiusMeters);
+    setLastLocationUpdatedAt(new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
+
+    if (options.silent) return;
+    if (nextDistance <= reachRadiusMeters) {
+      setLocationStatus("잔디밭 조사 범위에 진입했습니다. 카메라 조사를 시작할 수 있습니다.");
+      return;
+    }
+    setLocationStatus("아직 조사 범위 밖입니다. 지정된 잔디밭 쪽으로 이동하세요.");
+  }
+
+  function requestMissionLocation(options: { silent?: boolean } = {}) {
+    if (!navigator.geolocation) {
+      if (!options.silent) setLocationStatus("이 브라우저에서는 위치 확인을 사용할 수 없습니다.");
+      return;
+    }
+
+    if (!options.silent) setLocationStatus("현재 위치 확인 중...");
+    navigator.geolocation.getCurrentPosition(
+      (position) => applyMissionLocation(position, options),
+      () => {
+        if (!options.silent) setLocationStatus("위치 권한을 허용하면 잔디밭 도착 여부를 확인할 수 있습니다.");
+      },
+      { enableHighAccuracy: true, timeout: 10000 },
+    );
+  }
+
+  useEffect(() => {
+    if (scene !== "mission") return;
+    const initial = window.setTimeout(() => requestMissionLocation({ silent: true }), 0);
+    const interval = window.setInterval(() => requestMissionLocation({ silent: true }), 10000);
+    return () => {
+      window.clearTimeout(initial);
+      window.clearInterval(interval);
+    };
+    // Location polling is intentionally tied to entering/leaving the mission scene.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scene]);
+
   function completeCameraScan() {
     if (cameraFoundTimerRef.current !== null) return;
     setScanFound(true);
@@ -146,20 +195,24 @@ export default function Home() {
     setDistance(nextDistance);
     setScanDistance(nextDistance);
 
-    if (nextDistance <= reachRadiusMeters) {
+    if (nextDistance <= clueRevealRadiusMeters) {
       completeCameraScan();
       return;
     }
 
-    setCameraStatus(`현재 조사 지점까지 ${nextDistance}m. 잔디밭을 천천히 훑어보세요.`);
+    setCameraStatus(`현재 조사 지점까지 ${nextDistance}m. 10m 안으로 접근하면 노란털 신호가 보입니다.`);
   }
 
-  async function startCameraScan() {
+  async function startCameraScan(options: { adminOverride?: boolean } = {}) {
+    if (!options.adminOverride && !locationInReach) {
+      setLocationStatus("조사 지점 반경 20m 안에 들어오면 카메라 조사를 시작할 수 있습니다.");
+      return;
+    }
     if (!navigator.mediaDevices?.getUserMedia) {
       setLocationStatus("이 브라우저에서는 카메라 조사를 사용할 수 없습니다.");
       return;
     }
-    if (!navigator.geolocation) {
+    if (!navigator.geolocation && !options.adminOverride) {
       setLocationStatus("위치 확인을 사용할 수 없어 조사 범위 판정을 할 수 없습니다.");
       return;
     }
@@ -180,12 +233,18 @@ export default function Home() {
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
       }
-      setCameraStatus("잔디밭 아래쪽을 천천히 비춰 주세요. 반경 20m 안에서 신호가 반응합니다.");
-      cameraWatchRef.current = navigator.geolocation.watchPosition(
-        updateCameraDistance,
-        () => setCameraStatus("위치 권한을 허용하면 노란털 신호를 감지할 수 있습니다."),
-        { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 },
+      setCameraStatus(
+        options.adminOverride
+          ? "관리자 권한으로 AR 카메라를 실행했습니다. 단서 발견 버튼으로 결과를 확인할 수 있습니다."
+          : "잔디밭 아래쪽을 천천히 비춰 주세요. 10m 안으로 접근하면 신호가 반응합니다.",
       );
+      if (navigator.geolocation) {
+        cameraWatchRef.current = navigator.geolocation.watchPosition(
+          updateCameraDistance,
+          () => setCameraStatus("위치 권한을 허용하면 노란털 신호를 감지할 수 있습니다."),
+          { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 },
+        );
+      }
     } catch {
       stopCameraScan();
       setLocationStatus("카메라 권한을 허용하면 잔디밭 조사 화면을 열 수 있습니다.");
@@ -206,30 +265,7 @@ export default function Home() {
   }
 
   function checkLocation() {
-    if (!navigator.geolocation) {
-      setLocationStatus("이 브라우저에서는 위치 확인을 사용할 수 없습니다.");
-      return;
-    }
-
-    setLocationStatus("현재 위치 확인 중...");
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const nextDistance = getDistanceMeters(
-          { lat: position.coords.latitude, lng: position.coords.longitude },
-          missionTarget,
-        );
-        setDistance(nextDistance);
-        if (nextDistance <= reachRadiusMeters) {
-          setLocationStatus("잔디밭 조사 범위에 진입했습니다. 카메라 조사를 시작하면 신호가 반응합니다.");
-          return;
-        }
-        setLocationStatus("아직 조사 범위 밖입니다. 지정된 잔디밭 쪽으로 이동하세요.");
-      },
-      () => {
-        setLocationStatus("위치 권한을 허용하면 잔디밭 도착 여부를 확인할 수 있습니다.");
-      },
-      { enableHighAccuracy: true, timeout: 10000 },
-    );
+    requestMissionLocation();
   }
 
   function handleDropLink() {
@@ -383,7 +419,7 @@ export default function Home() {
           </div>
 
           <div className="campus-radar">
-            <MissionMap />
+            <MissionMap userLocation={userLocation} />
             <div className="radar-data">
               <div>
                 <span>예상 거리</span>
@@ -393,16 +429,28 @@ export default function Home() {
                 <span>조사 가능 범위</span>
                 <strong>{reachRadiusMeters}m</strong>
               </div>
+              <div>
+                <span>내 위치 갱신</span>
+                <strong>{lastLocationUpdatedAt ?? "대기 중"}</strong>
+              </div>
             </div>
           </div>
 
           <p className="location-status">{locationStatus}</p>
           <div className="mission-actions">
-            <button className="primary-action" type="button" onClick={startCameraScan}>
-              카메라로 노란털 조사 시작
+            <button
+              className={`primary-action scan-start-action${locationInReach ? " is-ready" : " is-locked"}`}
+              type="button"
+              onClick={() => startCameraScan()}
+              disabled={!locationInReach}
+            >
+              {locationInReach ? "카메라로 노란털 조사 시작" : "20m 안에서 조사 시작 가능"}
             </button>
-            <button className="secondary-action" type="button" onClick={checkLocation}>
-              현재 거리만 확인
+            <button className="secondary-action" type="button" onClick={() => startCameraScan({ adminOverride: true })}>
+              관리자 권한으로 AR 실행
+            </button>
+            <button className="text-scan-refresh" type="button" onClick={checkLocation}>
+              현재 위치 즉시 갱신
             </button>
           </div>
         </section>
@@ -425,9 +473,13 @@ export default function Home() {
           </div>
           <div className="camera-readout">
             <span>조사 반경</span>
-            <strong>{scanDistance === null ? "측정 중" : `${scanDistance}m / ${reachRadiusMeters}m`}</strong>
+            <strong>{scanDistance === null ? "측정 중" : `${scanDistance}m / ${clueRevealRadiusMeters}m`}</strong>
           </div>
-          <button className="camera-exit" type="button" onClick={() => moveToScene("mission")}>조사 종료</button>
+          <div className="camera-control-stack">
+            <button className="camera-exit" type="button" onClick={() => moveToScene("mission")}>조사 종료</button>
+            <button className="camera-admin-found" type="button" onClick={completeCameraScan}>관리자 권한으로 단서 발견</button>
+          </div>
+          <div className="camera-fur-glimpse" aria-hidden="true" />
         </section>
       )}
 
@@ -461,8 +513,10 @@ export default function Home() {
   );
 }
 
-function MissionMap() {
+function MissionMap({ userLocation }: { userLocation: { lat: number; lng: number } | null }) {
   const mapRef = useRef<HTMLDivElement | null>(null);
+  const kakaoMapRef = useRef<KakaoMap | null>(null);
+  const userMarkerRef = useRef<KakaoMarker | null>(null);
   const [mapState, setMapState] = useState<"loading" | "ready" | "fallback">("loading");
 
   useEffect(() => {
@@ -477,6 +531,7 @@ function MissionMap() {
       if (cancelled || !mapRef.current || !window.kakao?.maps) return;
       const center = new window.kakao.maps.LatLng(missionTarget.lat, missionTarget.lng);
       const map = new window.kakao.maps.Map(mapRef.current, { center, level: 3 });
+      kakaoMapRef.current = map;
       const markerSize = new window.kakao.maps.Size(48, 60);
       const markerOffset = new window.kakao.maps.Point(24, 60);
       const markerImage = new window.kakao.maps.MarkerImage(investigationMarkerSrc, markerSize, { offset: markerOffset });
@@ -521,6 +576,17 @@ function MissionMap() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!userLocation || !window.kakao?.maps || !kakaoMapRef.current) return;
+    const position = new window.kakao.maps.LatLng(userLocation.lat, userLocation.lng);
+    if (!userMarkerRef.current) {
+      userMarkerRef.current = new window.kakao.maps.Marker({ position, title: "내 위치" });
+      userMarkerRef.current.setMap(kakaoMapRef.current);
+      return;
+    }
+    userMarkerRef.current.setPosition?.(position);
+  }, [userLocation]);
+
   const fallbackSrc = `https://www.openstreetmap.org/export/embed.html?bbox=${missionTarget.lng - 0.003}%2C${missionTarget.lat - 0.002}%2C${missionTarget.lng + 0.003}%2C${missionTarget.lat + 0.002}&layer=mapnik&marker=${missionTarget.lat}%2C${missionTarget.lng}`;
 
   return (
@@ -531,6 +597,7 @@ function MissionMap() {
         <div ref={mapRef} className="real-map-canvas" aria-label="농동로 209 잔디밭 실제 지도" />
       )}
       <div className="map-investigation-marker" aria-hidden="true" />
+      {userLocation && <div className="map-user-marker" aria-hidden="true" style={getFallbackUserMarkerStyle(userLocation)} />}
       <div className="map-target-panel">
         <span>조사 지점</span>
         <strong>농동로 209 잔디밭</strong>
@@ -539,4 +606,15 @@ function MissionMap() {
       {mapState === "fallback" && <p className="map-loading">Kakao 키 없이 실제 지도 미리보기 표시 중</p>}
     </div>
   );
+}
+
+
+function getFallbackUserMarkerStyle(location: { lat: number; lng: number }) {
+  const lngMin = missionTarget.lng - 0.003;
+  const lngMax = missionTarget.lng + 0.003;
+  const latMin = missionTarget.lat - 0.002;
+  const latMax = missionTarget.lat + 0.002;
+  const x = Math.min(88, Math.max(12, ((location.lng - lngMin) / (lngMax - lngMin)) * 100));
+  const y = Math.min(88, Math.max(12, (1 - (location.lat - latMin) / (latMax - latMin)) * 100));
+  return { left: `${x}%`, top: `${y}%` };
 }

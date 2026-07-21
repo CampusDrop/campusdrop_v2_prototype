@@ -97,18 +97,21 @@
           <div class="real-map-shell" id="missionMap">
             <iframe class="real-map-frame" title="농동로 209 잔디밭 지도" src="https://www.openstreetmap.org/export/embed.html?bbox=127.07081801425053%2C37.54841617275794%2C127.07681801425053%2C37.552416172757944&layer=mapnik&marker=37.55041617275794%2C127.07381801425053" loading="lazy"></iframe>
             <div class="map-investigation-marker" aria-hidden="true"></div>
+            <div class="map-user-marker" aria-hidden="true" hidden></div>
             <div class="map-target-panel"><span>조사 지점</span><strong>농동로 209 잔디밭</strong></div>
             <p class="map-loading" id="mapLoading">Kakao 키 없이 실제 지도 미리보기 표시 중</p>
           </div>
           <div class="radar-data">
             <div><span>예상 거리</span><strong id="distanceText">위치 확인 필요</strong></div>
             <div><span>조사 가능 범위</span><strong>20m</strong></div>
+            <div><span>내 위치 갱신</span><strong id="locationUpdatedText">대기 중</strong></div>
           </div>
         </div>
         <p class="location-status" id="locationStatus">위치 확인 전</p>
         <div class="mission-actions">
-          <button class="primary-action" type="button" id="startCameraScan">카메라로 노란털 조사 시작</button>
-          <button class="secondary-action" type="button" id="checkLocation">현재 거리만 확인</button>
+          <button class="primary-action scan-start-action is-locked" type="button" id="startCameraScan" disabled>20m 안에서 조사 시작 가능</button>
+          <button class="secondary-action" type="button" id="adminStartCameraScan">관리자 권한으로 AR 실행</button>
+          <button class="text-scan-refresh" type="button" id="checkLocation">현재 위치 즉시 갱신</button>
         </div>
       </section>
 
@@ -123,7 +126,11 @@
         <div class="camera-scan-line" aria-hidden="true"></div>
         <div class="camera-bottom-signal" aria-hidden="true"><i></i><i></i><i></i></div>
         <div class="camera-readout"><span>조사 반경</span><strong id="scanDistanceText">측정 중</strong></div>
-        <button class="camera-exit" type="button" data-go="mission">조사 종료</button>
+        <div class="camera-control-stack">
+          <button class="camera-exit" type="button" data-go="mission">조사 종료</button>
+          <button class="camera-admin-found" type="button" id="adminFindClue">관리자 권한으로 단서 발견</button>
+        </div>
+        <div class="camera-fur-glimpse" aria-hidden="true"></div>
       </section>
 
       <section class="screen arrival-screen" data-screen="arrival">
