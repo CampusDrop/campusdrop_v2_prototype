@@ -2,6 +2,7 @@ const app = document.querySelector("#app");
 const screens = [...document.querySelectorAll("[data-screen]")];
 const reachRadiusMeters = 20;
 const missionTarget = { lat: 37.55041617275794, lng: 127.07381801425053 };
+const investigationMarkerSrc = "./investigation-marker-v2.png";
 const dropLinkBriefings = [
   "사용자 인증 완료. 임시 현장 조사원으로 등록합니다. 사건 번호 CD-SJ-01, 사건명 시계탑 대형 생물 목격 사건.",
   "세종대학교에는 오래된 소문이 하나 있습니다. 시계탑 꼭대기에는 기린이 산다. 본부는 목격 신고 7건을 근거로 현장 조사가 필요하다고 판단했습니다.",
@@ -74,7 +75,10 @@ function initMissionMap() {
     window.kakao.maps.load(() => {
       const center = new window.kakao.maps.LatLng(missionTarget.lat, missionTarget.lng);
       const map = new window.kakao.maps.Map(canvas, { center, level: 3 });
-      new window.kakao.maps.Marker({ position: center, title: "농동로 209 잔디밭" }).setMap(map);
+      const markerSize = new window.kakao.maps.Size(48, 60);
+      const markerOffset = new window.kakao.maps.Point(24, 60);
+      const markerImage = new window.kakao.maps.MarkerImage(investigationMarkerSrc, markerSize, { offset: markerOffset });
+      new window.kakao.maps.Marker({ position: center, title: "농동로 209 잔디밭", image: markerImage }).setMap(map);
       new window.kakao.maps.Circle({
         center,
         radius: reachRadiusMeters,

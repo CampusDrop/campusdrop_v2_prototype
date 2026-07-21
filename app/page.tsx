@@ -8,11 +8,16 @@ type MessageStep = "hidden" | "first";
 type KakaoLatLng = object;
 type KakaoMap = object;
 
+type KakaoMarkerImage = object;
+
 type KakaoMapsApi = {
   load: (callback: () => void) => void;
   LatLng: new (lat: number, lng: number) => KakaoLatLng;
   Map: new (container: HTMLElement, options: { center: KakaoLatLng; level: number }) => KakaoMap;
-  Marker: new (options: { position: KakaoLatLng; title?: string }) => { setMap: (map: KakaoMap) => void };
+  Size: new (width: number, height: number) => object;
+  Point: new (x: number, y: number) => object;
+  MarkerImage: new (src: string, size: object, options?: { offset?: object }) => KakaoMarkerImage;
+  Marker: new (options: { position: KakaoLatLng; title?: string; image?: KakaoMarkerImage }) => { setMap: (map: KakaoMap) => void };
   Circle: new (options: {
     center: KakaoLatLng;
     radius: number;
@@ -32,6 +37,7 @@ declare global {
 
 const missionTarget = { lat: 37.55041617275794, lng: 127.07381801425053 };
 const reachRadiusMeters = 20;
+const investigationMarkerSrc = "/investigation-marker-v2.png";
 const dropLinkBriefings = [
   "사용자 인증 완료. 임시 현장 조사원으로 등록합니다. 사건 번호 CD-SJ-01, 사건명 시계탑 대형 생물 목격 사건.",
   "세종대학교에는 오래된 소문이 하나 있습니다. 시계탑 꼭대기에는 기린이 산다. 본부는 목격 신고 7건을 근거로 현장 조사가 필요하다고 판단했습니다.",
@@ -463,7 +469,10 @@ function MissionMap() {
       if (cancelled || !mapRef.current || !window.kakao?.maps) return;
       const center = new window.kakao.maps.LatLng(missionTarget.lat, missionTarget.lng);
       const map = new window.kakao.maps.Map(mapRef.current, { center, level: 3 });
-      new window.kakao.maps.Marker({ position: center, title: "농동로 209 잔디밭" }).setMap(map);
+      const markerSize = new window.kakao.maps.Size(48, 60);
+      const markerOffset = new window.kakao.maps.Point(24, 60);
+      const markerImage = new window.kakao.maps.MarkerImage(investigationMarkerSrc, markerSize, { offset: markerOffset });
+      new window.kakao.maps.Marker({ position: center, title: "농동로 209 잔디밭", image: markerImage }).setMap(map);
       new window.kakao.maps.Circle({
         center,
         radius: reachRadiusMeters,
@@ -513,6 +522,7 @@ function MissionMap() {
       ) : (
         <div ref={mapRef} className="real-map-canvas" aria-label="농동로 209 잔디밭 실제 지도" />
       )}
+      <div className="map-investigation-marker" aria-hidden="true" />
       <div className="map-target-panel">
         <span>조사 지점</span>
         <strong>농동로 209 잔디밭</strong>
