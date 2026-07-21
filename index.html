@@ -168,16 +168,16 @@
       <section class="screen witness-screen" data-screen="witness">
         <div class="mission-copy">
           <p>2장</p>
-          <h2>에너지 지점을 조사하라</h2>
-          <span>DROP LINK가 표시한 강한 에너지 반응 지점으로 이동해 자료 이미지를 확보하세요.</span>
+          <h2>여러 사람이 그린 하나의 기린</h2>
+          <span>DROP LINK가 표시한 강한 에너지 반응 지점으로 이동해 손상된 과거 기록을 확보하세요.</span>
         </div>
         <div class="campus-radar witness-radar">
           <div class="real-map-shell witness-map-shell" id="witnessMap">
-            <iframe class="real-map-frame" title="목격 지점 실제 지도" src="https://www.openstreetmap.org/export/embed.html?bbox=127.0731696575354%2C37.54974418972363%2C127.0752810833212%2C37.55178211168644&layer=mapnik&marker=37.55106257128708%2C127.07392616012359" loading="lazy"></iframe>
+            <iframe class="real-map-frame" title="기록 확보 지점 실제 지도" src="https://www.openstreetmap.org/export/embed.html?bbox=127.0731696575354%2C37.54974418972363%2C127.0752810833212%2C37.55178211168644&layer=mapnik&marker=37.55106257128708%2C127.07392616012359" loading="lazy"></iframe>
             <svg class="witness-line-layer" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" id="witnessLines"></svg>
-            <button type="button" class="witness-map-marker is-active" data-witness-map="A" style="left: 21.31%; top: 80.35%;" aria-label="목격자 A 위치">A</button>
-            <button type="button" class="witness-map-marker" data-witness-map="B" style="left: 25.93%; top: 15.65%;" aria-label="목격자 B 위치">B</button>
-            <button type="button" class="witness-map-marker" data-witness-map="C" style="left: 78.69%; top: 53.37%;" aria-label="목격자 C 위치">C</button>
+            <button type="button" class="witness-map-marker is-active" data-witness-map="A" style="left: 21.31%; top: 80.35%;" aria-label="기록 03 확보 지점">A</button>
+            <button type="button" class="witness-map-marker" data-witness-map="B" style="left: 25.93%; top: 15.65%;" aria-label="기록 02 확보 지점">B</button>
+            <button type="button" class="witness-map-marker" data-witness-map="C" style="left: 78.69%; top: 53.37%;" aria-label="기록 01 확보 지점">C</button>
             <div class="map-user-marker" id="witnessUserMarker" aria-hidden="true" hidden></div>
             <p class="map-loading" id="witnessMapLoading">Kakao 키 없이 실제 지도 미리보기 표시 중</p>
           </div>
@@ -194,24 +194,31 @@
         </div>
         <div class="witness-list" aria-label="에너지 지점 자료 목록">
           <article class="witness-card is-active" data-witness-card="A">
-            <button type="button" class="witness-card-head" data-select-witness="A"><span>목격자 A</span><strong>잔디밭 남서쪽</strong><em data-witness-distance="A">거리 측정 전</em></button>
-            <div class="witness-photo is-locked" data-witness-photo="A"><img src="./gfPhoto_03.png" alt="목격자 A 자료 이미지" hidden><span>도착 전 접근 잠김</span></div>
+            <button type="button" class="witness-card-head" data-select-witness="A"><span data-witness-name="A">기록 03</span><strong data-witness-title="A">잔디밭 남서쪽</strong><em data-witness-distance="A">거리 측정 전</em></button>
+            <div class="witness-photo is-locked" data-witness-photo="A"><img src="./gfPhoto_03.png" alt="기록 03 자료 이미지" data-preview-witness="A" hidden><span>도착 전 접근 잠김</span></div>
           </article>
           <article class="witness-card" data-witness-card="B">
-            <button type="button" class="witness-card-head" data-select-witness="B"><span>목격자 B</span><strong>북쪽 보행로</strong><em data-witness-distance="B">거리 측정 전</em></button>
-            <div class="witness-photo is-locked" data-witness-photo="B"><img src="./gfPhoto_02.png" alt="목격자 B 자료 이미지" hidden><span>도착 전 접근 잠김</span></div>
+            <button type="button" class="witness-card-head" data-select-witness="B"><span data-witness-name="B">기록 02</span><strong data-witness-title="B">북쪽 보행로</strong><em data-witness-distance="B">거리 측정 전</em></button>
+            <div class="witness-photo is-locked" data-witness-photo="B"><img src="./gfPhoto_02.png" alt="기록 02 자료 이미지" data-preview-witness="B" hidden><span>도착 전 접근 잠김</span></div>
           </article>
           <article class="witness-card" data-witness-card="C">
-            <button type="button" class="witness-card-head" data-select-witness="C"><span>목격자 C</span><strong>동쪽 진입로</strong><em data-witness-distance="C">거리 측정 전</em></button>
-            <div class="witness-photo is-locked" data-witness-photo="C"><img src="./gfPhoto_01.png" alt="목격자 C 자료 이미지" hidden><span>도착 전 접근 잠김</span></div>
+            <button type="button" class="witness-card-head" data-select-witness="C"><span data-witness-name="C">기록 01</span><strong data-witness-title="C">동쪽 진입로</strong><em data-witness-distance="C">거리 측정 전</em></button>
+            <div class="witness-photo is-locked" data-witness-photo="C"><img src="./gfPhoto_01.png" alt="기록 01 자료 이미지" data-preview-witness="C" hidden><span>도착 전 접근 잠김</span></div>
           </article>
         </div>
 
         <div class="order-quiz-panel" id="orderQuizPanel" hidden>
-          <div class="order-quiz-copy"><span>CAMPUSDROP 분석 지시</span><strong>자료 이미지를 오래된 순서대로 배열하세요.</strong><p>카드를 드래그해 순서를 바꾼 뒤, 세 자료가 나타내는 영문 단어를 제출하세요.</p></div>
+          <div class="order-quiz-copy"><span>CAMPUSDROP 기록 분석 지시</span><strong>획득한 세 건의 기록을 분석하십시오.</strong><p>기록의 형태와 내용을 확인하고, 오래된 기록부터 순서대로 배치하십시오. 드래그하거나 카드 두 장을 차례로 눌러 위치를 교환할 수 있습니다.</p></div>
           <div class="order-dropzone" id="orderDropzone" aria-label="자료 이미지 순서 배열"></div>
-          <label class="word-submit"><span>증거물이 나타내는 단어</span><input id="witnessWordAnswer" placeholder="영문 정답 입력" aria-label="증거물이 나타내는 단어"></label>
-          <p class="order-feedback" id="orderFeedback">순서를 정한 뒤 단어를 제출하세요.</p>
+          <div class="letter-chain" id="letterChain" aria-label="식별 문자 연결" hidden></div>
+          <button class="primary-action" type="button" id="submitOrderButton">분석 요청</button>
+          <p class="order-feedback" id="orderFeedback">기록을 오래된 순서대로 배치한 뒤 분석을 요청하세요.</p>
+          <div class="word-report-panel" id="wordReportPanel" hidden>
+            <div class="order-quiz-copy"><span>CAMPUSDROP 분석 보고 요청</span><strong>세 기록에 공통으로 등장하는 생물을 확인하십시오.</strong><p>확인한 생물의 명칭을 영문으로 보고하십시오.</p></div>
+            <label class="word-submit"><span>생물 명칭 보고</span><input id="witnessWordAnswer" placeholder="영문 정답 입력" aria-label="생물 명칭 보고"></label>
+            <button class="primary-action" type="button" id="submitAnswerButton">보고 제출</button>
+            <p class="order-feedback" id="answerFeedback">기록 배열이 확인되면 보고 입력창이 열립니다.</p>
+          </div>
         </div>
         <div class="conclusion witness-conclusion" id="witnessConclusion" aria-live="polite">
           <span>운영본부 분석 대기</span>
@@ -228,6 +235,15 @@
         <div class="witness-acquisition-photo" id="witnessAcquisitionPhoto" role="img" aria-label="자료 이미지"></div>
         <p>목표 지점 반경 10m 안에서 자료 이미지를 확보했습니다. 이미지는 2장 분석 카드에 저장됩니다.</p>
         <button class="primary-action" type="button" id="closeWitnessAcquisition">자료 확인 완료</button>
+      </div>
+    </div>
+    <div class="witness-acquisition-modal evidence-preview-modal" id="evidencePreviewModal" role="dialog" aria-modal="true" aria-label="기록 이미지 확대" hidden>
+      <div class="witness-acquisition-card evidence-preview-card">
+        <span id="evidencePreviewTitle">기록</span>
+        <strong id="evidencePreviewSubtitle">자료 이미지</strong>
+        <div class="witness-acquisition-photo evidence-preview-photo" id="evidencePreviewPhoto" role="img" aria-label="기록 이미지"></div>
+        <p>이미지 속 기록 방식과 식별 문자를 확인하세요.</p>
+        <button class="primary-action" type="button" id="closeEvidencePreview">닫기</button>
       </div>
     </div>
     <script src="./app.js"></script>
