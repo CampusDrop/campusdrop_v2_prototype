@@ -247,7 +247,6 @@ export default function Home() {
   const [scanDistance, setScanDistance] = useState<number | null>(null);
   const [scanFound, setScanFound] = useState(false);
   const [activeWitnessId, setActiveWitnessId] = useState(witnesses[0].id);
-  const [witnessDistances, setWitnessDistances] = useState<Record<string, number | null>>(() => Object.fromEntries(witnesses.map((witness) => [witness.id, null])));
   const [visitedWitnesses, setVisitedWitnesses] = useState<Record<string, boolean>>(() => Object.fromEntries(witnesses.map((witness) => [witness.id, false])));
   const [witnessStatus, setWitnessStatus] = useState("에너지 반응이 강한 지점 3곳을 방문해 자료 이미지를 확보하세요.");
   const [acquiredWitnessId, setAcquiredWitnessId] = useState<string | null>(null);
@@ -428,8 +427,6 @@ export default function Home() {
     const nextDistances = Object.fromEntries(
       witnesses.map((witness) => [witness.id, getDistanceMeters(nextLocation, witness.location)]),
     ) as Record<string, number>;
-    setWitnessDistances(nextDistances);
-
     const arrivedWitness = witnesses.find((witness) => nextDistances[witness.id] <= witnessReachRadiusMeters);
     if (arrivedWitness) {
       acquireWitnessEvidence(arrivedWitness.id, options);
@@ -1172,51 +1169,7 @@ export default function Home() {
             <button className="secondary-action" type="button" onClick={() => requestWitnessLocation()}>현재 위치 즉시 갱신</button>
             <button className="text-scan-refresh" type="button" onClick={markActiveWitnessArrived}>관리자 권한으로 도착 완료</button>
           </div>
-          {allWitnessImagesAcquired && !witnessOrderSolved && (
-            <div className="next-briefing-panel">
-              <span>자료 이미지 3건 확보</span>
-              <strong>DROP LINK 배열 지시를 수신할 수 있습니다.</strong>
-              <button className="primary-action" type="button" onClick={openArrangeBriefing}>DROP LINK 배열 지시 수신</button>
-            </div>
-          )}
 
-          <div className="witness-list" aria-label="에너지 지점 자료 목록">
-            {witnesses.map((witness) => {
-              const isActive = activeWitnessId === witness.id;
-              const isVisited = visitedWitnesses[witness.id];
-              return (
-                <article key={witness.id} className={`witness-card${isActive ? " is-active" : ""}${isVisited ? " is-visited" : ""}`}>
-                  <button type="button" className="witness-card-head" onClick={() => setActiveWitnessId(witness.id)}>
-                    <span>{witness.name}</span>
-                    <strong>{isVisited ? witness.recordTitle : witness.place}</strong>
-                    <em>{witnessDistances[witness.id] === null ? "거리 측정 전" : `${witnessDistances[witness.id]}m`}</em>
-                  </button>
-                  <div className={`witness-photo${isVisited ? " is-open" : " is-locked"}`}>
-                    {isVisited ? (
-                      <button
-                        type="button"
-                        className="witness-photo-image"
-                        aria-label={`${witness.name} 자료 이미지 확대`}
-                        style={{ backgroundImage: `url(${witness.photo})` }}
-                        onClick={() => setExpandedWitnessId(witness.id)}
-                      />
-                    ) : (
-                      <span>도착 전 접근 잠김</span>
-                    )}
-                  </div>
-                  {!isVisited && (
-                    <button
-                      type="button"
-                      className="witness-admin-arrive"
-                      onClick={() => acquireWitnessEvidence(witness.id, { admin: true })}
-                    >
-                      관리자 권한으로 이 지점 도착 처리
-                    </button>
-                  )}
-                </article>
-              );
-            })}
-          </div>
 
         </section>
       )}
