@@ -8,7 +8,7 @@
       name="description"
       content="QR 포스터에서 시작되는 Campus Drop 시계탑 목격 신고 조사 웹 데모"
     />
-    <link rel="stylesheet" href="./styles.css?v=1db0c62" />
+    <link rel="stylesheet" href="./styles.css?v=chapter2-cleanup" />
   </head>
   <body>
     <main class="case-app scene-entry" id="app">
@@ -184,13 +184,8 @@
             <label class="word-submit"><span>생물 명칭 보고</span><input id="witnessWordAnswer" placeholder="영문 정답 입력" aria-label="생물 명칭 보고"></label>
             <button class="primary-action" type="button" id="submitAnswerButton">보고 제출</button>
             <p class="order-feedback" id="answerFeedback">기록 배열이 확인되면 보고 입력창이 열립니다.</p>
+            <button class="primary-action" type="button" id="startChapterThree" hidden>3장 기록 재분석 시작</button>
           </div>
-        </div>
-        <div class="conclusion witness-conclusion" id="witnessConclusion" aria-live="polite">
-          <span>운영본부 분석 대기</span>
-          <strong>자료 이미지를 오래된 순서대로 배열하세요.</strong>
-          <p>배열이 확인되기 전에는 생물명 보고 입력창이 열리지 않습니다.</p>
-          <button class="primary-action" type="button" id="startChapterThree" hidden>3장 기록 재분석 시작</button>
         </div>
       </section>
 
@@ -410,6 +405,6 @@
         <button class="primary-action" type="button" id="closeEvidencePreview">닫기</button>
       </div>
     </div>
-    <script src="./app.js?v=1db0c62"></script>
+    <script src="./app.js?v=chapter2-cleanup"></script>
   </body>
 </html>

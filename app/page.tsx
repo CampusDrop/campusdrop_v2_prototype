@@ -1258,15 +1258,9 @@ export default function Home() {
                 </label>
                 <button className="primary-action" type="button" onClick={submitWitnessAnswer} disabled={witnessAnswerSubmitted}>보고 제출</button>
                 <p className={`order-feedback${witnessAnswerSubmitted ? " is-correct" : ""}`}>{witnessAnswerFeedback}</p>
+                {witnessSolved && <button className="primary-action" type="button" onClick={() => openDropLinkBriefing("chapter3")}>3장 기록 재분석 시작</button>}
               </div>
             )}
-          </div>
-
-          <div className={`conclusion witness-conclusion${witnessSolved ? " is-open" : ""}`} aria-live="polite">
-            <span>{witnessSolved ? "조사 결과 갱신" : "운영본부 분석 대기"}</span>
-            <strong>{witnessSolved ? "해당 개체가 최근에 처음 나타난 것은 아닐 가능성이 있습니다." : "자료 이미지를 오래된 순서대로 배열하세요."}</strong>
-            <p>{witnessSolved ? "분석 결과가 등록되었습니다. 확인된 생물: GIRAFFE. 세 기록은 서로 다른 시기에 작성되었고, 작성자 사이의 직접적인 연관성은 확인되지 않습니다. 그러나 모든 기록에는 시계탑 상부에 나타난 긴 목의 기린이 묘사되어 있습니다." : "배열이 확인되기 전에는 생물명 보고 입력창이 열리지 않습니다."}</p>
-            {witnessSolved && <button className="primary-action" type="button" onClick={() => openDropLinkBriefing("chapter3")}>3장 기록 재분석 시작</button>}
           </div>
         </section>
       )}
