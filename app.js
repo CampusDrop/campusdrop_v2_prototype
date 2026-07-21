@@ -470,11 +470,14 @@ function updateWitnessConclusion() {
 }
 
 function updateEvidenceTransmissionUi() {
-  const panel = document.querySelector("#evidenceTransmission");
+  const modal = document.querySelector("#transmissionModal");
   const progressBar = document.querySelector("#evidenceProgressBar");
   const progressText = document.querySelector("#evidenceProgressText");
-  const conclusion = document.querySelector("#conclusion");
-  panel?.classList.toggle("is-active", evidenceSending);
+  const title = document.querySelector("#transmissionModalTitle");
+  const copy = document.querySelector("#transmissionModalCopy");
+  if (modal) modal.hidden = !evidenceSending;
+  if (title) title.textContent = evidenceProgress >= 100 ? "본부 수신 완료" : "표본을 운영본부로 전송 중";
+  if (copy) copy.textContent = evidenceProgress >= 100 ? "분석 채널을 연결합니다." : "노란 털 표본 이미지와 위치 기록을 묶어 보안 전송합니다.";
   if (progressBar) progressBar.style.width = `${evidenceProgress}%`;
   if (progressText) progressText.textContent = `${evidenceProgress}%`;
   document.querySelectorAll("[data-transmission-step]").forEach((step) => {
@@ -482,12 +485,6 @@ function updateEvidenceTransmissionUi() {
     if (threshold === 100) step.textContent = evidenceProgress >= 100 ? "수신 확인" : evidenceSending ? "전송 중" : "대기";
     else step.textContent = evidenceProgress >= threshold ? "완료" : "대기";
   });
-  if (conclusion) {
-    conclusion.classList.toggle("is-open", evidenceProgress >= 100);
-    conclusion.querySelector("span").textContent = evidenceProgress >= 100 ? "본부 수신 완료" : "전송 대기";
-    conclusion.querySelector("strong").textContent = evidenceProgress >= 100 ? "운영본부가 표본 분석을 시작했습니다." : "확보한 표본을 먼저 운영본부에 전송하세요.";
-    conclusion.querySelector("p").textContent = evidenceProgress >= 100 ? "분석 결과와 다음 조사 지시가 DROP LINK로 도착합니다." : "전송이 완료되면 다음 미션이 개방됩니다.";
-  }
   const button = document.querySelector("#sendEvidenceButton");
   if (button) {
     button.disabled = evidenceSending;
