@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 type Scene = "entry" | "incident" | "mission" | "camera" | "arrival" | "witness";
 type MessageStep = "hidden" | "first";
+type DropLinkMode = "case" | "clue";
 type DirectionKey = "N" | "NE" | "E" | "SE" | "S" | "SW" | "W" | "NW";
 
 type KakaoLatLng = object;
@@ -102,6 +103,11 @@ const dropLinkBriefings = [
   "사용자 인증 완료. 임시 현장 조사원으로 등록합니다. 사건 번호 CD-SJ-01, 사건명 시계탑 대형 생물 목격 사건.",
   "세종대학교에는 오래된 소문이 하나 있습니다. 시계탑 꼭대기에는 기린이 산다. 본부는 목격 신고 7건을 근거로 현장 조사가 필요하다고 판단했습니다.",
 ];
+const clueTransmissionBriefings = [
+  "표본 A 수신 완료. 위치 기록과 촬영 시점이 현장 조사 로그에 정상 연결됐습니다.",
+  "노란색 섬유는 인공 재료가 아닙니다. 기존 동물 자료와 정확히 일치하지 않지만, 대형 초식동물의 체모 특성과 유사합니다.",
+  "같은 구역에서 접수된 세 건의 목격 기록을 개방합니다. 다음 미션은 목격 지점을 연결하는 현장 추론 조사입니다.",
+];
 
 const posterCopy: Record<string, string> = {
   student_hall: "학생회관 포스터를 통해 접속했습니다. 창문 뒤로 긴 그림자를 봤다는 제보가 남아 있습니다.",
@@ -140,9 +146,13 @@ export default function Home() {
   const [locationInReach, setLocationInReach] = useState(false);
   const [lastLocationUpdatedAt, setLastLocationUpdatedAt] = useState<string | null>(null);
   const [caseModalOpen, setCaseModalOpen] = useState(false);
+  const [dropLinkMode, setDropLinkMode] = useState<DropLinkMode>("case");
   const [dropLinkText, setDropLinkText] = useState("");
   const [caseTransferActive, setCaseTransferActive] = useState(false);
   const [dropLinkLine, setDropLinkLine] = useState(0);
+  const [evidenceSending, setEvidenceSending] = useState(false);
+  const [evidenceProgress, setEvidenceProgress] = useState(0);
+  const evidenceTimerRef = useRef<number | null>(null);
   const [cameraStatus, setCameraStatus] = useState("카메라 권한을 요청하는 중...");
   const [scanDistance, setScanDistance] = useState<number | null>(null);
   const [scanFound, setScanFound] = useState(false);
@@ -168,7 +178,8 @@ export default function Home() {
   useEffect(() => {
     if (!caseModalOpen) return;
 
-    const currentBriefing = dropLinkBriefings[dropLinkLine];
+    const activeBriefings = dropLinkMode === "case" ? dropLinkBriefings : clueTransmissionBriefings;
+    const currentBriefing = activeBriefings[dropLinkLine];
     let index = 0;
     const typer = window.setInterval(() => {
       index += 1;
@@ -179,7 +190,7 @@ export default function Home() {
     }, 34);
 
     return () => window.clearInterval(typer);
-  }, [caseModalOpen, dropLinkLine]);
+  }, [caseModalOpen, dropLinkLine, dropLinkMode]);
 
   const posterId = useMemo(() => {
     if (typeof window === "undefined") return "student_hall";
@@ -369,7 +380,10 @@ export default function Home() {
     }
   }
 
-  useEffect(() => () => stopCameraScan(), []);
+  useEffect(() => () => {
+    stopCameraScan();
+    if (evidenceTimerRef.current !== null) window.clearInterval(evidenceTimerRef.current);
+  }, []);
 
   function moveToScene(nextScene: Scene) {
     if (scene === "camera" && nextScene !== "camera") {
@@ -394,6 +408,7 @@ export default function Home() {
 
   function handleDropLink() {
     if (messageStep === "first") {
+      setDropLinkMode("case");
       setDropLinkLine(0);
       setDropLinkText("");
       setCaseModalOpen(true);
@@ -403,7 +418,8 @@ export default function Home() {
   }
 
   function advanceDropLinkDialogue() {
-    if (dropLinkLine < dropLinkBriefings.length - 1) {
+    const activeBriefings = dropLinkMode === "case" ? dropLinkBriefings : clueTransmissionBriefings;
+    if (dropLinkLine < activeBriefings.length - 1) {
       setDropLinkText("");
       setDropLinkLine((current) => current + 1);
       return;
@@ -414,8 +430,35 @@ export default function Home() {
       setCaseModalOpen(false);
       setCaseTransferActive(false);
       setMessageStep("hidden");
-      moveToScene("mission");
+      setDropLinkLine(0);
+      setDropLinkText("");
+      moveToScene(dropLinkMode === "case" ? "mission" : "witness");
     }, 1500);
+  }
+
+  function startEvidenceTransmission() {
+    if (evidenceSending) return;
+    triggerDropLinkVibration();
+    setEvidenceSending(true);
+    setEvidenceProgress(0);
+    if (evidenceTimerRef.current !== null) window.clearInterval(evidenceTimerRef.current);
+    evidenceTimerRef.current = window.setInterval(() => {
+      setEvidenceProgress((current) => {
+        const next = Math.min(100, current + 4);
+        if (next >= 100) {
+          if (evidenceTimerRef.current !== null) window.clearInterval(evidenceTimerRef.current);
+          evidenceTimerRef.current = null;
+          window.setTimeout(() => {
+            setDropLinkMode("clue");
+            setDropLinkLine(0);
+            setDropLinkText("");
+            setCaseModalOpen(true);
+            triggerDropLinkVibration();
+          }, 420);
+        }
+        return next;
+      });
+    }, 46);
   }
 
   return (
@@ -523,9 +566,9 @@ export default function Home() {
                     className="drop-link-next"
                     type="button"
                     onClick={advanceDropLinkDialogue}
-                    disabled={dropLinkText.length < dropLinkBriefings[dropLinkLine].length || caseTransferActive}
+                    disabled={dropLinkText.length < (dropLinkMode === "case" ? dropLinkBriefings : clueTransmissionBriefings)[dropLinkLine].length || caseTransferActive}
                   >
-                    {dropLinkLine < dropLinkBriefings.length - 1 ? "다음" : "사건 개요 수신"}
+                    {dropLinkLine < (dropLinkMode === "case" ? dropLinkBriefings : clueTransmissionBriefings).length - 1 ? "다음" : dropLinkMode === "case" ? "사건 개요 수신" : "다음 미션 수신"}
                   </button>
                 </div>
               </div>
@@ -645,18 +688,24 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="transmission-panel" aria-live="polite">
-            <div><span>01</span><strong>표본 이미지 압축</strong><em>완료</em></div>
-            <div><span>02</span><strong>위치 기록 첨부</strong><em>완료</em></div>
-            <div><span>03</span><strong>CAMPUS DROP 운영본부 전송</strong><em>수신 확인</em></div>
+          <div className={`transmission-panel${evidenceSending ? " is-active" : ""}`} aria-live="polite">
+            <div><span>01</span><strong>표본 이미지 압축</strong><em>{evidenceProgress >= 28 ? "완료" : "대기"}</em></div>
+            <div><span>02</span><strong>위치 기록 첨부</strong><em>{evidenceProgress >= 62 ? "완료" : "대기"}</em></div>
+            <div><span>03</span><strong>CAMPUS DROP 운영본부 전송</strong><em>{evidenceProgress >= 100 ? "수신 확인" : "전송 중"}</em></div>
+            <div className="transmission-progress" aria-label={`표본 전송 진행률 ${evidenceProgress}%`}>
+              <i style={{ width: `${evidenceProgress}%` }} />
+              <strong>{evidenceProgress}%</strong>
+            </div>
           </div>
 
-          <div className="conclusion is-open mission-received" aria-live="polite">
-            <span>본부 분석 결과</span>
-            <strong>기존 동물 자료와 정확히 일치하지 않습니다.</strong>
-            <p>같은 구역에서 접수된 세 건의 목격 기록을 다음 조사 미션으로 전달합니다.</p>
+          <div className={`conclusion mission-received${evidenceProgress >= 100 ? " is-open" : ""}`} aria-live="polite">
+            <span>{evidenceProgress >= 100 ? "본부 수신 완료" : "전송 대기"}</span>
+            <strong>{evidenceProgress >= 100 ? "운영본부가 표본 분석을 시작했습니다." : "확보한 표본을 먼저 운영본부에 전송하세요."}</strong>
+            <p>{evidenceProgress >= 100 ? "분석 결과와 다음 조사 지시가 DROP LINK로 도착합니다." : "전송이 완료되면 다음 미션이 개방됩니다."}</p>
           </div>
-          <button className="primary-action chapter-next-action" type="button" onClick={() => moveToScene("witness")}>다음 미션 수신 — 목격 지점 연결하기</button>
+          <button className="primary-action chapter-next-action" type="button" onClick={startEvidenceTransmission} disabled={evidenceSending}>
+            {evidenceSending ? "표본 전송 중..." : "표본 전송하기"}
+          </button>
         </section>
       )}
 

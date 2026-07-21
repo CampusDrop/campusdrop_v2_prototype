@@ -148,17 +148,18 @@
           <div class="fur-image-wrap"><img src="./GFfur.png" alt="기린의 노란털 표본" /></div>
           <div class="fur-evidence-copy"><span>현장 표본 A</span><strong>기린의 노란털</strong><p>잔디밭 가장자리에서 확보한 노란 털 표본입니다. 운영본부 분석 서버로 원본 데이터를 전송합니다.</p></div>
         </div>
-        <div class="transmission-panel" aria-live="polite">
-          <div><span>01</span><strong>표본 이미지 압축</strong><em>완료</em></div>
-          <div><span>02</span><strong>위치 기록 첨부</strong><em>완료</em></div>
-          <div><span>03</span><strong>CAMPUS DROP 운영본부 전송</strong><em>수신 확인</em></div>
+        <div class="transmission-panel" id="evidenceTransmission" aria-live="polite">
+          <div><span>01</span><strong>표본 이미지 압축</strong><em data-transmission-step="28">대기</em></div>
+          <div><span>02</span><strong>위치 기록 첨부</strong><em data-transmission-step="62">대기</em></div>
+          <div><span>03</span><strong>CAMPUS DROP 운영본부 전송</strong><em data-transmission-step="100">대기</em></div>
+          <div class="transmission-progress" aria-label="표본 전송 진행률"><i id="evidenceProgressBar"></i><strong id="evidenceProgressText">0%</strong></div>
         </div>
-        <div class="conclusion is-open mission-received" id="conclusion" aria-live="polite">
-          <span>본부 분석 결과</span>
-          <strong>기존 동물 자료와 정확히 일치하지 않습니다.</strong>
-          <p>같은 구역에서 접수된 세 건의 목격 기록을 다음 조사 미션으로 전달합니다.</p>
+        <div class="conclusion mission-received" id="conclusion" aria-live="polite">
+          <span>전송 대기</span>
+          <strong>확보한 표본을 먼저 운영본부에 전송하세요.</strong>
+          <p>전송이 완료되면 다음 미션이 개방됩니다.</p>
         </div>
-        <button class="primary-action chapter-next-action" type="button" data-go="witness">다음 미션 수신 — 목격 지점 연결하기</button>
+        <button class="primary-action chapter-next-action" type="button" id="sendEvidenceButton">표본 전송하기</button>
       </section>
 
       <section class="screen witness-screen" data-screen="witness">
