@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { PointerEvent } from "react";
 
-type Scene = "entry" | "incident" | "mission" | "camera" | "arrival" | "witness" | "imagination" | "emptyRecord";
+type Scene = "entry" | "incident" | "mission" | "camera" | "arrival" | "witness" | "imagination" | "emptyRecord" | "firstContact";
 type MessageStep = "hidden" | "first";
 type DropLinkMode = "case" | "clue" | "arrange";
+type GiraffeQuestionKey = "origin" | "star" | "fade";
 type DirectionKey = "N" | "NE" | "E" | "SE" | "S" | "SW" | "W" | "NW";
 
 type KakaoLatLng = object;
@@ -131,6 +132,30 @@ const emptyRecordMasks: Record<string, { x: number; y: number; width: number; he
   B: { x: 24, y: 28, width: 42, height: 48, radius: 27 },
   A: { x: 35, y: 45, width: 34, height: 38, radius: 25 },
 };
+
+const finalSignalBriefings = [
+  "[미확인 패턴 감지] 세 증거물에서 동일한 잔류 신호가 확인되었습니다.",
+  "신호의 출처는 시계탑 인근으로 추정됩니다. 등록되지 않은 이미지를 찾아 조사하십시오.",
+  "특별 이미지의 일부분을 확대했습니다. 현장에서 동일한 조각을 찾아 CAMPUSDROP 카메라 중앙에 맞추세요.",
+];
+const giraffeQuestions: Array<{ key: GiraffeQuestionKey; label: string; answer: string }> = [
+  {
+    key: "origin",
+    label: "너는 어디서 왔어?",
+    answer: "처음에는 누군가 탑을 보다가 떠올린 작은 생각이었어. 그다음부터 여러 사람이 나를 조금씩 다르게 상상해줬어.",
+  },
+  {
+    key: "star",
+    label: "별 모양은 어떻게 생긴 거야?",
+    answer: "처음부터 있던 건 아니야. 누군가 나에게 별이 있으면 좋겠다고 생각했어. 그 뒤부터 정말로 생겼어.",
+  },
+  {
+    key: "fade",
+    label: "왜 기록에서 사라졌어?",
+    answer: "사람들이 더 이상 나를 떠올리지 않으면 내 모습도 흐려져. 그림 속에서도, 여기에서도 조금씩 보이지 않게 돼.",
+  },
+];
+
 const emptyRecordResults = [
   "[수동 복원 완료] 삭제된 개체 정보가 다시 확인되었습니다.",
   "탐사원이 입력한 정보는 위치 좌표뿐입니다. 해당 정보만으로 개체의 외형이 복원된 원인을 설명할 수 없습니다.",
@@ -215,6 +240,15 @@ export default function Home() {
   const [emptyRecordHits, setEmptyRecordHits] = useState<Record<string, boolean>>(() => Object.fromEntries(chapterThreeRecords.map((record) => [record.id, false])));
   const [emptyRecordFeedback, setEmptyRecordFeedback] = useState("[증거물 상태 변화 감지] 현재 기록이 최초 확보본과 일치하지 않습니다. 배경과 문자 정보에는 변화가 없습니다.");
   const [emptyRecordComplete, setEmptyRecordComplete] = useState(false);
+  const [finalScanStarted, setFinalScanStarted] = useState(false);
+  const [finalScanProgress, setFinalScanProgress] = useState(0);
+  const [finalScanMatched, setFinalScanMatched] = useState(false);
+  const [finalScanStatus, setFinalScanStatus] = useState("잔류 신호와 일치하는 특별 이미지를 찾아 카메라 중앙에 맞추세요.");
+  const [answeredGiraffeQuestions, setAnsweredGiraffeQuestions] = useState<Record<GiraffeQuestionKey, boolean>>({ origin: false, star: false, fade: false });
+  const [activeGiraffeQuestion, setActiveGiraffeQuestion] = useState<GiraffeQuestionKey | null>(null);
+  const [observationText, setObservationText] = useState("");
+  const [observationSubmitted, setObservationSubmitted] = useState(false);
+  const [finalResponse, setFinalResponse] = useState("");
   const [draggedWitnessId, setDraggedWitnessId] = useState<string | null>(null);
   const restoreBoardRef = useRef<HTMLDivElement | null>(null);
   const restoreTouchedRef = useRef<Set<string>>(new Set());
@@ -222,6 +256,7 @@ export default function Home() {
   const cameraStreamRef = useRef<MediaStream | null>(null);
   const cameraWatchRef = useRef<number | null>(null);
   const cameraFoundTimerRef = useRef<number | null>(null);
+  const finalScanTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (scene !== "incident") return;
@@ -272,6 +307,10 @@ export default function Home() {
     if (cameraFoundTimerRef.current !== null) {
       window.clearTimeout(cameraFoundTimerRef.current);
       cameraFoundTimerRef.current = null;
+    }
+    if (finalScanTimerRef.current !== null) {
+      window.clearInterval(finalScanTimerRef.current);
+      finalScanTimerRef.current = null;
     }
   }
 
@@ -497,7 +536,7 @@ export default function Home() {
   }, []);
 
   function moveToScene(nextScene: Scene) {
-    if (scene === "camera" && nextScene !== "camera") {
+    if ((scene === "camera" && nextScene !== "camera") || (scene === "firstContact" && nextScene !== "firstContact")) {
       stopCameraScan();
     }
     if (nextScene === "incident") {
@@ -633,6 +672,65 @@ export default function Home() {
     setImagineFeedback("기록 복원이 완료되었습니다.");
   }
 
+  function completeFinalPosterScan() {
+    if (finalScanTimerRef.current !== null) {
+      window.clearInterval(finalScanTimerRef.current);
+      finalScanTimerRef.current = null;
+    }
+    setFinalScanProgress(100);
+    setFinalScanMatched(true);
+    triggerEvidenceVibration();
+    setFinalScanStatus("[이미지 일치] 잔류 신호의 출처를 확인했습니다. 미등록 데이터가 복원되고 있습니다.");
+  }
+
+  async function startFinalPosterScan(options: { adminOverride?: boolean } = {}) {
+    setFinalScanStarted(true);
+    setFinalScanMatched(false);
+    setFinalScanProgress(0);
+    setAnsweredGiraffeQuestions({ origin: false, star: false, fade: false });
+    setActiveGiraffeQuestion(null);
+    setObservationSubmitted(false);
+    setFinalResponse("");
+    setFinalScanStatus(options.adminOverride ? "관리자 권한으로 이미지 일치 안정화를 시작합니다." : "카메라 권한을 요청하는 중...");
+    moveToScene("firstContact");
+    await new Promise<void>((resolve) => window.requestAnimationFrame(() => resolve()));
+
+    if (!options.adminOverride && navigator.mediaDevices?.getUserMedia) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false });
+        cameraStreamRef.current = stream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          await videoRef.current.play();
+        }
+      } catch {
+        setFinalScanStatus("카메라 권한을 허용하면 특별 이미지를 조사할 수 있습니다. 데모에서는 관리자 버튼으로 진행할 수 있습니다.");
+        setFinalScanStarted(false);
+        return;
+      }
+    }
+
+    setFinalScanStatus("특별 이미지를 화면 중앙에 2~3초 동안 안정적으로 맞춰 주세요.");
+    if (finalScanTimerRef.current !== null) window.clearInterval(finalScanTimerRef.current);
+    finalScanTimerRef.current = window.setInterval(() => {
+      setFinalScanProgress((current) => {
+        const next = Math.min(100, current + 4);
+        if (next >= 100) completeFinalPosterScan();
+        return next;
+      });
+    }, 110);
+  }
+
+  function answerGiraffeQuestion(key: GiraffeQuestionKey) {
+    setActiveGiraffeQuestion(key);
+    setAnsweredGiraffeQuestions((current) => ({ ...current, [key]: true }));
+  }
+
+  function submitObservationRecord() {
+    if (!allGiraffeQuestionsAnswered || observationText.trim().length < 6) return;
+    setObservationSubmitted(true);
+  }
+
   function handleEmptyRecordPoint(recordId: string, event: PointerEvent<HTMLButtonElement>) {
     if (emptyRecordComplete) return;
     const rect = event.currentTarget.getBoundingClientRect();
@@ -657,6 +755,7 @@ export default function Home() {
     setEmptyRecordFeedback("개체 영역 일부가 희미하게 재생성되었습니다. 남은 기록에서도 기존 위치를 지정하십시오.");
   }
 
+  const allGiraffeQuestionsAnswered = giraffeQuestions.every((question) => answeredGiraffeQuestions[question.key]);
   const allWitnessImagesAcquired = witnesses.every((witness) => visitedWitnesses[witness.id]);
   const witnessOrderSolved = witnessOrderSubmitted;
   const witnessSolved = witnessAnswerSubmitted;
@@ -1264,7 +1363,121 @@ export default function Home() {
             <span>{emptyRecordComplete ? "개체 안정성 경고" : "수동 복원 대기"}</span>
             <strong>{emptyRecordComplete ? "복원된 개체 정보가 다시 감소하고 있습니다." : "세 기록에서 기린이 있던 위치를 지정해야 합니다."}</strong>
             <p>{emptyRecordComplete ? emptyRecordResults.join(" ") : "운영본부는 일시적인 데이터 손상이나 저장 오류 가능성을 검토하고 있습니다."}</p>
+            {emptyRecordComplete && <button className="primary-action" type="button" onClick={() => moveToScene("firstContact")}>5장 잔류 신호 추적</button>}
           </div>
+        </section>
+      )}
+
+      {scene === "firstContact" && (
+        <section className={`screen first-contact-screen${finalScanMatched ? " is-matched" : ""}${observationSubmitted ? " is-recorded" : ""}`}>
+          <div className="mission-copy">
+            <p>5장</p>
+            <h2>최초의 대화</h2>
+            <span>기록에서 사라지던 개체 정보가 시계탑 인근의 등록되지 않은 이미지와 연결됩니다.</span>
+          </div>
+
+          <div className="final-signal-panel">
+            <div className="order-quiz-copy">
+              <span>CAMPUSDROP 미확인 패턴 감지</span>
+              <strong>등록되지 않은 이미지를 찾아 조사하십시오.</strong>
+              {finalSignalBriefings.map((line) => <p key={line}>{line}</p>)}
+            </div>
+            <div className="signal-fragment" aria-label="특별 이미지 조각">
+              <i />
+              <span>잔류 신호 조각</span>
+              <strong>노란 곡선 / 검은 여백 / 별빛 잡음</strong>
+            </div>
+            <div className="signal-route">
+              <span>조사 구역</span>
+              <strong>시계탑 인근 숨겨진 포스터</strong>
+              <p>정확한 좌표보다 현장 관찰이 중요합니다. 조각과 같은 이미지를 찾으세요.</p>
+            </div>
+          </div>
+
+          <div className="final-camera-panel">
+            <div className="final-camera-view">
+              {!finalScanMatched && <video ref={videoRef} className="camera-video" muted playsInline />}
+              {!finalScanStarted && <div className="camera-placeholder">CAMPUSDROP 카메라 대기</div>}
+              {finalScanStarted && !finalScanMatched && (
+                <div className="poster-lock-ui">
+                  <span>이미지 안정화</span>
+                  <i style={{ width: `${finalScanProgress}%` }} />
+                  <strong>{finalScanProgress}%</strong>
+                </div>
+              )}
+              {finalScanMatched && (
+                <div className="giraffe-ar-stage" aria-label="3D 기린 등장 연출">
+                  <div className="summon-particles" />
+                  <div className="final-giraffe-model">
+                    <i className="giraffe-horn one" />
+                    <i className="giraffe-horn two" />
+                    <i className="giraffe-ear left" />
+                    <i className="giraffe-ear right" />
+                    <i className="giraffe-head" />
+                    <i className="giraffe-neck" />
+                    <i className="giraffe-star" />
+                    <i className="giraffe-body" />
+                  </div>
+                  <div className="analysis-error">[분석 오류] 등록되지 않은 개체 정보가 카메라 화면에 표시되고 있습니다.</div>
+                </div>
+              )}
+            </div>
+            <p className={`order-feedback${finalScanMatched ? " is-correct" : ""}`}>{finalScanStatus}</p>
+            <div className="final-scan-actions">
+              <button className="primary-action" type="button" onClick={() => startFinalPosterScan()} disabled={finalScanStarted && !finalScanMatched}>CAMPUSDROP 카메라로 조사</button>
+              <button className="secondary-action" type="button" onClick={() => startFinalPosterScan({ adminOverride: true })}>관리자 권한으로 이미지 일치</button>
+            </div>
+          </div>
+
+          {finalScanMatched && (
+            <div className="giraffe-dialogue-panel">
+              <div className="private-channel">[미등록 통신 연결]</div>
+              <div className="giraffe-speech">
+                <p>{observationSubmitted ? "이제 네가 남긴 기록 속에도 내가 있네. 이 모습은 조금 더 오래 기억할 수 있을 것 같아." : activeGiraffeQuestion ? giraffeQuestions.find((question) => question.key === activeGiraffeQuestion)?.answer : "이제야 나를 직접 보고 있네."}</p>
+              </div>
+              <div className="giraffe-question-grid">
+                {giraffeQuestions.map((question) => (
+                  <button key={question.key} type="button" className={answeredGiraffeQuestions[question.key] ? "is-answered" : ""} onClick={() => answerGiraffeQuestion(question.key)}>{question.label}</button>
+                ))}
+              </div>
+
+              <div className={`observation-record${allGiraffeQuestionsAnswered ? " is-open" : ""}`}>
+                <span>CAMPUSDROP 개인 관측 기록</span>
+                <strong>지금 보고 있는 기린을 한 문장으로 기록하십시오.</strong>
+                <textarea value={observationText} onChange={(event) => setObservationText(event.target.value)} placeholder="예: 아무도 보지 않을 때 별을 빛내는 기린" rows={3} />
+                <button className="primary-action" type="button" onClick={submitObservationRecord} disabled={!allGiraffeQuestionsAnswered || observationText.trim().length < 6 || observationSubmitted}>개인 기록 저장</button>
+              </div>
+            </div>
+          )}
+
+          {observationSubmitted && (
+            <div className="final-ending-panel">
+              <div className="ending-report official">
+                <span>운영본부 조사 결과</span>
+                <strong>미등록 이미지 포스터를 확보했습니다.</strong>
+                <p>추가 개체 정보는 확인되지 않았습니다. 현장 조사를 종료합니다.</p>
+              </div>
+              <div className="ending-report personal">
+                <span>탐사원 개인 기록</span>
+                <strong>시계탑의 미확인 개체와 최초 통신에 성공했습니다.</strong>
+                <p>“{observationText.trim()}”</p>
+                <em>비공개 연결이 형성되었습니다.</em>
+              </div>
+              <div className="last-choice">
+                <p>다음에는 혼자가 아니라 다른 탐사원들과 와도 좋아.</p>
+                <button type="button" className={finalResponse === "return" ? "is-selected" : ""} onClick={() => setFinalResponse("return")}>다시 찾아올게</button>
+                <button type="button" className={finalResponse === "crew" ? "is-selected" : ""} onClick={() => setFinalResponse("crew")}>다른 탐사원과 함께 올게</button>
+              </div>
+              {finalResponse && (
+                <div className="app-transfer-panel">
+                  <strong>다른 탐사원과 함께 이 연결을 이어가시겠습니까?</strong>
+                  <p>CAMPUSDROP 앱에서는 공통 관심사를 가진 탐사원과 탐사대를 구성할 수 있습니다.</p>
+                  <button className="primary-action" type="button">앱에서 탐사대 찾기</button>
+                  <button className="secondary-action" type="button">웹 조사 기록 확인하기</button>
+                </div>
+              )}
+            </div>
+          )}
         </section>
       )}
 

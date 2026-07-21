@@ -77,6 +77,11 @@ const emptyRecordMasks = {
   B: { x: 24, y: 28, width: 42, height: 48, radius: 27 },
   A: { x: 35, y: 45, width: 34, height: 38, radius: 25 },
 };
+const giraffeQuestions = [
+  { key: "origin", label: "너는 어디서 왔어?", answer: "처음에는 누군가 탑을 보다가 떠올린 작은 생각이었어. 그다음부터 여러 사람이 나를 조금씩 다르게 상상해줬어." },
+  { key: "star", label: "별 모양은 어떻게 생긴 거야?", answer: "처음부터 있던 건 아니야. 누군가 나에게 별이 있으면 좋겠다고 생각했어. 그 뒤부터 정말로 생겼어." },
+  { key: "fade", label: "왜 기록에서 사라졌어?", answer: "사람들이 더 이상 나를 떠올리지 않으면 내 모습도 흐려져. 그림 속에서도, 여기에서도 조금씩 보이지 않게 돼." },
+];
 const emptyRecordResults = [
   "[수동 복원 완료] 삭제된 개체 정보가 다시 확인되었습니다.",
   "탐사원이 입력한 정보는 위치 좌표뿐입니다. 해당 정보만으로 개체의 외형이 복원된 원인을 설명할 수 없습니다.",
@@ -131,6 +136,16 @@ let activeEmptyRecordId = "C";
 let emptyRecordHits = { A: false, B: false, C: false };
 let emptyRecordFeedback = "[증거물 상태 변화 감지] 현재 기록이 최초 확보본과 일치하지 않습니다. 배경과 문자 정보에는 변화가 없습니다.";
 let emptyRecordComplete = false;
+let finalScanStarted = false;
+let finalScanProgress = 0;
+let finalScanMatched = false;
+let finalScanStatus = "잔류 신호와 일치하는 특별 이미지를 찾아 카메라 중앙에 맞추세요.";
+let finalScanTimer = null;
+let answeredGiraffeQuestions = { origin: false, star: false, fade: false };
+let activeGiraffeQuestion = null;
+let observationText = "";
+let observationSubmitted = false;
+let finalResponse = "";
 
 function triggerDropLinkVibration() {
   if (typeof navigator.vibrate !== "function") return;
@@ -159,10 +174,14 @@ function stopCameraScan() {
     window.clearTimeout(cameraFoundTimer);
     cameraFoundTimer = null;
   }
+  if (finalScanTimer !== null) {
+    window.clearInterval(finalScanTimer);
+    finalScanTimer = null;
+  }
 }
 
 function showScreen(name) {
-  if (app.classList.contains("scene-camera") && name !== "camera") {
+  if ((app.classList.contains("scene-camera") && name !== "camera") || (app.classList.contains("scene-firstContact") && name !== "firstContact")) {
     stopCameraScan();
   }
   screens.forEach((screen) => {
@@ -204,6 +223,10 @@ function showScreen(name) {
   } else if (emptyAutoTimer !== null) {
     window.clearInterval(emptyAutoTimer);
     emptyAutoTimer = null;
+  }
+
+  if (name === "firstContact") {
+    renderFirstContactScene();
   }
 }
 
@@ -794,6 +817,8 @@ function renderEmptyRecordScene() {
   conclusion.querySelector("span").textContent = emptyRecordComplete ? "개체 안정성 경고" : "수동 복원 대기";
   conclusion.querySelector("strong").textContent = emptyRecordComplete ? "복원된 개체 정보가 다시 감소하고 있습니다." : "세 기록에서 기린이 있던 위치를 지정해야 합니다.";
   conclusion.querySelector("p").textContent = emptyRecordComplete ? emptyRecordResults.join(" ") : "운영본부는 일시적인 데이터 손상이나 저장 오류 가능성을 검토하고 있습니다.";
+  const startChapterFive = document.querySelector("#startChapterFive");
+  if (startChapterFive) startChapterFive.hidden = !emptyRecordComplete;
 }
 
 function handleEmptyRecordPoint(recordId, event) {
@@ -821,6 +846,106 @@ function handleEmptyRecordPoint(recordId, event) {
     emptyRecordFeedback = "개체 영역 일부가 희미하게 재생성되었습니다. 남은 기록에서도 기존 위치를 지정하십시오.";
   }
   renderEmptyRecordScene();
+}
+
+
+function completeFinalPosterScan() {
+  if (finalScanTimer !== null) {
+    window.clearInterval(finalScanTimer);
+    finalScanTimer = null;
+  }
+  finalScanProgress = 100;
+  finalScanMatched = true;
+  finalScanStatus = "[이미지 일치] 잔류 신호의 출처를 확인했습니다. 미등록 데이터가 복원되고 있습니다.";
+  triggerEvidenceVibration();
+  renderFirstContactScene();
+}
+
+async function startFinalPosterScan(options = {}) {
+  finalScanStarted = true;
+  finalScanMatched = false;
+  finalScanProgress = 0;
+  answeredGiraffeQuestions = { origin: false, star: false, fade: false };
+  activeGiraffeQuestion = null;
+  observationSubmitted = false;
+  finalResponse = "";
+  finalScanStatus = options.adminOverride ? "관리자 권한으로 이미지 일치 안정화를 시작합니다." : "카메라 권한을 요청하는 중...";
+  renderFirstContactScene();
+  const video = document.querySelector("#finalCameraFeed");
+
+  if (!options.adminOverride && navigator.mediaDevices?.getUserMedia) {
+    try {
+      cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false });
+      if (video) {
+        video.srcObject = cameraStream;
+        await video.play();
+      }
+    } catch {
+      finalScanStarted = false;
+      finalScanStatus = "카메라 권한을 허용하면 특별 이미지를 조사할 수 있습니다. 데모에서는 관리자 버튼으로 진행할 수 있습니다.";
+      renderFirstContactScene();
+      return;
+    }
+  }
+
+  finalScanStatus = "특별 이미지를 화면 중앙에 2~3초 동안 안정적으로 맞춰 주세요.";
+  renderFirstContactScene();
+  if (finalScanTimer !== null) window.clearInterval(finalScanTimer);
+  finalScanTimer = window.setInterval(() => {
+    finalScanProgress = Math.min(100, finalScanProgress + 4);
+    renderFirstContactScene();
+    if (finalScanProgress >= 100) completeFinalPosterScan();
+  }, 110);
+}
+
+function answerGiraffeQuestion(key) {
+  activeGiraffeQuestion = key;
+  answeredGiraffeQuestions[key] = true;
+  renderFirstContactScene();
+}
+
+function submitObservationRecord() {
+  if (!giraffeQuestions.every((question) => answeredGiraffeQuestions[question.key]) || observationText.trim().length < 6) return;
+  observationSubmitted = true;
+  renderFirstContactScene();
+}
+
+function renderFirstContactScene() {
+  const screen = document.querySelector('[data-screen="firstContact"]');
+  if (!screen) return;
+  screen.classList.toggle("is-matched", finalScanMatched);
+  screen.classList.toggle("is-recorded", observationSubmitted);
+  const status = document.querySelector("#finalScanStatus");
+  if (status) {
+    status.textContent = finalScanStatus;
+    status.classList.toggle("is-correct", finalScanMatched);
+  }
+  const progress = document.querySelector("#finalScanProgressBar");
+  if (progress) progress.style.width = `${finalScanProgress}%`;
+  const progressText = document.querySelector("#finalScanProgressText");
+  if (progressText) progressText.textContent = `${finalScanProgress}%`;
+  document.querySelector("#finalCameraPlaceholder").hidden = finalScanStarted;
+  document.querySelector("#finalPosterLock").hidden = !finalScanStarted || finalScanMatched;
+  document.querySelector("#finalArStage").hidden = !finalScanMatched;
+  document.querySelector("#finalDialoguePanel").hidden = !finalScanMatched;
+  document.querySelector("#finalEndingPanel").hidden = !observationSubmitted;
+  const startButton = document.querySelector("#startFinalPosterScan");
+  if (startButton) startButton.disabled = finalScanStarted && !finalScanMatched;
+  const speech = document.querySelector("#giraffeSpeechText");
+  if (speech) {
+    const active = giraffeQuestions.find((question) => question.key === activeGiraffeQuestion);
+    speech.textContent = observationSubmitted ? "이제 네가 남긴 기록 속에도 내가 있네. 이 모습은 조금 더 오래 기억할 수 있을 것 같아." : active ? active.answer : "이제야 나를 직접 보고 있네.";
+  }
+  document.querySelectorAll("[data-giraffe-question]").forEach((button) => button.classList.toggle("is-answered", answeredGiraffeQuestions[button.dataset.giraffeQuestion]));
+  const allAnswered = giraffeQuestions.every((question) => answeredGiraffeQuestions[question.key]);
+  document.querySelector("#observationRecord")?.classList.toggle("is-open", allAnswered);
+  const submit = document.querySelector("#submitObservationRecord");
+  if (submit) submit.disabled = !allAnswered || observationText.trim().length < 6 || observationSubmitted;
+  const finalText = document.querySelector("#finalObservationText");
+  if (finalText) finalText.textContent = `“${observationText.trim()}”`;
+  document.querySelectorAll("[data-final-response]").forEach((button) => button.classList.toggle("is-selected", finalResponse === button.dataset.finalResponse));
+  const appTransfer = document.querySelector("#appTransferPanel");
+  if (appTransfer) appTransfer.hidden = !finalResponse;
 }
 
 function updateEvidenceTransmissionUi() {
@@ -1029,6 +1154,10 @@ document.addEventListener("input", (event) => {
     imagineAnswer = event.target.value;
     renderChapterThree();
   }
+  if (event.target.matches("#observationText")) {
+    observationText = event.target.value;
+    renderFirstContactScene();
+  }
 });
 
 document.addEventListener("pointerdown", (event) => {
@@ -1054,6 +1183,11 @@ document.addEventListener("click", (event) => {
 
   if (event.target.closest("#startChapterFour")) {
     showScreen("emptyRecord");
+    return;
+  }
+
+  if (event.target.closest("#startChapterFive")) {
+    showScreen("firstContact");
     return;
   }
 
@@ -1171,6 +1305,34 @@ document.addEventListener("click", (event) => {
 
   if (event.target.closest("#sendEvidenceButton")) {
     startEvidenceTransmission();
+    return;
+  }
+
+  if (event.target.closest("#startFinalPosterScan")) {
+    startFinalPosterScan();
+    return;
+  }
+
+  if (event.target.closest("#adminMatchFinalPoster")) {
+    startFinalPosterScan({ adminOverride: true });
+    return;
+  }
+
+  const giraffeQuestion = event.target.closest("[data-giraffe-question]");
+  if (giraffeQuestion) {
+    answerGiraffeQuestion(giraffeQuestion.dataset.giraffeQuestion);
+    return;
+  }
+
+  if (event.target.closest("#submitObservationRecord")) {
+    submitObservationRecord();
+    return;
+  }
+
+  const finalChoice = event.target.closest("[data-final-response]");
+  if (finalChoice) {
+    finalResponse = finalChoice.dataset.finalResponse;
+    renderFirstContactScene();
     return;
   }
 
