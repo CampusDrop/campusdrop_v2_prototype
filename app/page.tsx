@@ -489,12 +489,13 @@ export default function Home() {
           if (evidenceTimerRef.current !== null) window.clearInterval(evidenceTimerRef.current);
           evidenceTimerRef.current = null;
           window.setTimeout(() => {
+            setEvidenceSending(false);
             setDropLinkMode("clue");
             setDropLinkLine(0);
             setDropLinkText("");
             setCaseModalOpen(true);
             triggerDropLinkVibration();
-          }, 420);
+          }, 520);
         }
         return next;
       });
@@ -728,25 +729,29 @@ export default function Home() {
             </div>
           </div>
 
-          <div className={`transmission-panel${evidenceSending ? " is-active" : ""}`} aria-live="polite">
-            <div><span>01</span><strong>표본 이미지 압축</strong><em>{evidenceProgress >= 28 ? "완료" : "대기"}</em></div>
-            <div><span>02</span><strong>위치 기록 첨부</strong><em>{evidenceProgress >= 62 ? "완료" : "대기"}</em></div>
-            <div><span>03</span><strong>CAMPUS DROP 운영본부 전송</strong><em>{evidenceProgress >= 100 ? "수신 확인" : "전송 중"}</em></div>
-            <div className="transmission-progress" aria-label={`표본 전송 진행률 ${evidenceProgress}%`}>
-              <i style={{ width: `${evidenceProgress}%` }} />
-              <strong>{evidenceProgress}%</strong>
-            </div>
-          </div>
-
-          <div className={`conclusion mission-received${evidenceProgress >= 100 ? " is-open" : ""}`} aria-live="polite">
-            <span>{evidenceProgress >= 100 ? "본부 수신 완료" : "전송 대기"}</span>
-            <strong>{evidenceProgress >= 100 ? "운영본부가 표본 분석을 시작했습니다." : "확보한 표본을 먼저 운영본부에 전송하세요."}</strong>
-            <p>{evidenceProgress >= 100 ? "분석 결과와 다음 조사 지시가 DROP LINK로 도착합니다." : "전송이 완료되면 다음 미션이 개방됩니다."}</p>
-          </div>
           <button className="primary-action chapter-next-action" type="button" onClick={startEvidenceTransmission} disabled={evidenceSending}>
             {evidenceSending ? "표본 전송 중..." : "표본 전송하기"}
           </button>
         </section>
+      )}
+
+      {scene === "arrival" && evidenceSending && (
+        <div className="transmission-modal" role="dialog" aria-modal="true" aria-label="표본 전송 중">
+          <div className="transmission-card">
+            <span>Sample Upload</span>
+            <strong>{evidenceProgress >= 100 ? "본부 수신 완료" : "표본을 운영본부로 전송 중"}</strong>
+            <p>{evidenceProgress >= 100 ? "분석 채널을 연결합니다." : "노란 털 표본 이미지와 위치 기록을 묶어 보안 전송합니다."}</p>
+            <div className="transmission-panel is-active" aria-live="polite">
+              <div><span>01</span><strong>표본 이미지 압축</strong><em>{evidenceProgress >= 28 ? "완료" : "대기"}</em></div>
+              <div><span>02</span><strong>위치 기록 첨부</strong><em>{evidenceProgress >= 62 ? "완료" : "대기"}</em></div>
+              <div><span>03</span><strong>CAMPUS DROP 운영본부 전송</strong><em>{evidenceProgress >= 100 ? "수신 확인" : "전송 중"}</em></div>
+              <div className="transmission-progress" aria-label={`표본 전송 진행률 ${evidenceProgress}%`}>
+                <i style={{ width: `${evidenceProgress}%` }} />
+                <strong>{evidenceProgress}%</strong>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       {scene === "witness" && (

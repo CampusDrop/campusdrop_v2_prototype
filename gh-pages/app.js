@@ -509,12 +509,14 @@ function startEvidenceTransmission() {
       window.clearInterval(evidenceTimer);
       evidenceTimer = null;
       window.setTimeout(() => {
+        evidenceSending = false;
+        updateEvidenceTransmissionUi();
         dropLinkMode = "clue";
         dropLinkLine = 0;
         document.querySelector("#dropLinkModal").hidden = false;
         startDropLinkTyping();
         triggerDropLinkVibration();
-      }, 420);
+      }, 520);
     }
   }, 46);
 }

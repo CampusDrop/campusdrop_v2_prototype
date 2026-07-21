@@ -3071,3 +3071,77 @@ button:focus-visible {
   to { transform: rotate(360deg); }
 }
 
+
+
+/* Evidence upload modal */
+.transmission-modal[hidden] {
+  display: none;
+}
+
+.transmission-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 62;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  background: radial-gradient(circle at 50% 42%, rgba(115, 242, 223, 0.12), transparent 34%), rgba(4, 9, 9, 0.64);
+  backdrop-filter: blur(10px);
+  animation: transmission-modal-in 260ms ease both;
+}
+
+.transmission-card {
+  width: min(100%, 390px);
+  border: 1px solid rgba(115, 242, 223, 0.34);
+  border-radius: 26px;
+  background: linear-gradient(155deg, rgba(9, 31, 28, 0.96), rgba(7, 14, 18, 0.94));
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.42), 0 0 34px rgba(115, 242, 223, 0.15);
+  padding: 20px;
+  color: #f7f1e3;
+  animation: transmission-card-in 420ms cubic-bezier(.16, .98, .18, 1) both;
+}
+
+.transmission-card > span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  border-radius: 999px;
+  background: rgba(115, 242, 223, 0.12);
+  color: #73f2df;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.transmission-card > strong {
+  display: block;
+  margin-top: 14px;
+  color: #f7f1e3;
+  font-size: 22px;
+  font-weight: 950;
+  letter-spacing: 0;
+}
+
+.transmission-card > p {
+  margin: 7px 0 4px;
+  color: rgba(247, 241, 227, 0.72);
+  font-size: 13px;
+  font-weight: 780;
+  line-height: 1.55;
+}
+
+.transmission-card .transmission-panel {
+  margin-top: 16px;
+}
+
+@keyframes transmission-modal-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes transmission-card-in {
+  from { opacity: 0; transform: translateY(18px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
