@@ -123,7 +123,7 @@ const chapterThreeBriefings = [
   "[DROPLINK] 개체의 외형에서 달라진 점이나 특별한 특징이 발견된다면 해당 요소를 영문으로 보고하십시오.",
 ];
 const chapterFourBriefings = [
-  "[DROPLINK] 강조 단어 확인: IMAGINE",
+  "강조 단어가 확인되었습니다.",
   "[DROPLINK] 최초 학생수첩의 기록은 일반적인 목격 보고와 형식이 다릅니다.",
   "[DROPLINK] 작성자는 탑을 바라보며 기린이 있는 모습을 떠올렸습니다.",
   "[DROPLINK] 이후 기록에서는 유사한 개체가 반복해서 나타납니다.",
@@ -131,7 +131,7 @@ const chapterFourBriefings = [
   "[운영본부] 최초 기록의 내용이 다른 학생들에게 전달되었을 가능성이 있습니다.",
   "[운영본부] 현재 자료만으로는 기록 사이의 관계를 확정할 수 없습니다.",
   "[DROPLINK] 증거물 상태 변화가 감지되었습니다.",
-  "[DROPLINK] 현재 기록이 최초 확보본과 일치하지 않습니다.",
+  "[DROPLINK] 기록 재호출 상태를 확인합니다.",
   "[DROPLINK] 배경과 문자 정보에는 변화가 없습니다.",
   "[DROPLINK] 개체로 분류된 영역에서만 정보 손실이 확인됩니다.",
   "[DROPLINK] 원인은 확인되지 않았습니다.",
@@ -139,7 +139,7 @@ const chapterFourBriefings = [
 const chapterFiveBriefings = [
   "[DROPLINK] 개체 정보가 다시 감소하고 있습니다.",
   "[DROPLINK] 현재 방식으로는 복원 상태를 유지할 수 없습니다.",
-  "[DROPLINK] 세 증거물에서 동일한 잔류 패턴이 감지되었습니다.",
+
   "[DROPLINK] 잔류 패턴의 출처는 시계탑 인근으로 추정됩니다.",
   "[DROPLINK] 현장 추가 조사가 필요합니다.",
   "[DROPLINK] [현장 조사 지시]",
@@ -147,26 +147,12 @@ const chapterFiveBriefings = [
   "[DROPLINK] 발견한 이미지를 DROPLINK 카메라로 조사하십시오.",
 ];
 const chapterThreeRecords = correctWitnessOrder.map((id) => witnesses.find((witness) => witness.id === id)!);
-const imaginationResults = [
-  "[DROPLINK] 강조 단어 확인: IMAGINE",
-  "[DROPLINK] 최초 학생수첩의 기록은 일반적인 목격 보고와 형식이 다릅니다.",
-  "[DROPLINK] 작성자는 탑을 바라보며 기린이 있는 모습을 떠올렸습니다.",
-  "[DROPLINK] 이후 기록에서는 유사한 개체가 반복해서 나타납니다.",
-  "[DROPLINK] 기록 사이의 관계는 확인되지 않았습니다.",
-  "[운영본부] 최초 기록의 내용이 다른 학생들에게 전달되었을 가능성이 있습니다.",
-  "[운영본부] 현재 자료만으로는 기록 사이의 관계를 확정할 수 없습니다.",
-];
 const emptyRecordMasks: Record<string, { x: number; y: number; width: number; height: number; radius: number }> = {
   C: { x: 32, y: 18, width: 40, height: 54, radius: 28 },
   B: { x: 24, y: 28, width: 42, height: 48, radius: 27 },
   A: { x: 35, y: 45, width: 34, height: 38, radius: 25 },
 };
 
-const finalSignalBriefings = [
-  "[DROPLINK] 세 증거물에서 동일한 잔류 패턴이 감지되었습니다.",
-  "잔류 패턴의 출처는 시계탑 인근으로 추정됩니다. 등록되지 않은 이미지를 찾아 조사하십시오.",
-  "특별 이미지의 일부분을 확대했습니다. 현장에서 동일한 조각을 찾아 DROPLINK 카메라 중앙에 맞추세요.",
-];
 const giraffeQuestions: Array<{ key: GiraffeQuestionKey; label: string; answer: string }> = [
   {
     key: "origin",
@@ -183,19 +169,6 @@ const giraffeQuestions: Array<{ key: GiraffeQuestionKey; label: string; answer: 
     label: "왜 기록에서 사라졌어?",
     answer: "사람들이 더 이상 나를 떠올리지 않으면 내 모습도 흐려져. 그림 속에서도, 여기에서도 조금씩 보이지 않게 돼.",
   },
-];
-
-const emptyRecordResults = [
-  "[DROPLINK] 수동 위치 지정이 완료되었습니다.",
-  "[DROPLINK] 삭제된 개체 정보가 다시 확인됩니다.",
-  "[DROPLINK] 탐사원이 입력한 정보는 위치 좌표뿐입니다.",
-  "[DROPLINK] 입력된 좌표만으로 개체의 외형이 복원된 원인을 설명할 수 없습니다.",
-  "[운영본부] 저장된 임시 데이터가 뒤늦게 복구되었을 가능성이 있습니다.",
-  "[운영본부] 복원된 증거물의 상태를 다시 확인하십시오.",
-  "[DROPLINK] 개체 정보가 다시 감소하고 있습니다.",
-  "[DROPLINK] 현재 방식으로는 복원 상태를 유지할 수 없습니다.",
-  "[DROPLINK] 세 증거물에서 동일한 잔류 패턴이 감지되었습니다.",
-  "[DROPLINK] 잔류 패턴의 출처는 시계탑 인근으로 추정됩니다.",
 ];
 
 const posterCopy: Record<string, string> = {
@@ -248,7 +221,7 @@ export default function Home() {
   const [scanFound, setScanFound] = useState(false);
   const [activeWitnessId, setActiveWitnessId] = useState(witnesses[0].id);
   const [visitedWitnesses, setVisitedWitnesses] = useState<Record<string, boolean>>(() => Object.fromEntries(witnesses.map((witness) => [witness.id, false])));
-  const [witnessStatus, setWitnessStatus] = useState("에너지 반응이 강한 지점 3곳을 방문해 자료 이미지를 확보하세요.");
+  const [witnessStatus, setWitnessStatus] = useState("지도에서 신호 지점을 선택하고 반경 10m 안에서 자료를 확보하세요.");
   const [acquiredWitnessId, setAcquiredWitnessId] = useState<string | null>(null);
   const [arrangeBriefingQueued, setArrangeBriefingQueued] = useState(false);
   const arrangeBriefingQueuedRef = useRef(false);
@@ -276,7 +249,7 @@ export default function Home() {
   const [emptyAutoProgress, setEmptyAutoProgress] = useState(0);
   const [activeEmptyRecordId, setActiveEmptyRecordId] = useState(chapterThreeRecords[0].id);
   const [emptyRecordHits, setEmptyRecordHits] = useState<Record<string, boolean>>(() => Object.fromEntries(chapterThreeRecords.map((record) => [record.id, false])));
-  const [emptyRecordFeedback, setEmptyRecordFeedback] = useState("[증거물 상태 변화 감지] 현재 기록이 최초 확보본과 일치하지 않습니다. 배경과 문자 정보에는 변화가 없습니다.");
+  const [emptyRecordFeedback, setEmptyRecordFeedback] = useState("비어 있는 기록을 선택하고 기존 위치를 지정하세요.");
   const [emptyRecordComplete, setEmptyRecordComplete] = useState(false);
   const [finalScanStarted, setFinalScanStarted] = useState(false);
   const [finalScanProgress, setFinalScanProgress] = useState(0);
@@ -492,7 +465,7 @@ export default function Home() {
     let timer: number | null = null;
     const starter = window.setTimeout(() => {
       setEmptyAutoProgress(0);
-      setEmptyRecordFeedback("[DROPLINK] 증거물 상태 변화가 감지되었습니다. 현재 기록이 최초 확보본과 일치하지 않습니다. 배경과 문자 정보에는 변화가 없습니다. 개체로 분류된 영역에서만 정보 손실이 확인됩니다. 원인은 확인되지 않았습니다.");
+      setEmptyRecordFeedback("비어 있는 기록을 선택하고 기존 위치를 지정하세요.");
       timer = window.setInterval(() => {
         setEmptyAutoProgress((current) => {
           const next = Math.min(100, current + 4);
@@ -749,7 +722,7 @@ export default function Home() {
       return;
     }
     setStarSolved(true);
-    setStarFeedback("[DROPLINK] STAR 확인. 해당 특징은 증거물 02와 03에서 발견됩니다. 증거물 01에서는 동일한 특징이 확인되지 않습니다. 증거물 01에서 미복원 기록이 발견되었습니다. 손상된 다음 페이지를 복원하십시오.");
+    setStarFeedback("STAR 확인. 증거물 01의 미복원 페이지가 열렸습니다.");
   }
 
   function markRestorePoint(clientX: number, clientY: number) {
@@ -865,7 +838,7 @@ export default function Home() {
     setEmptyRecordHits(nextHits);
     if (chapterThreeRecords.every((record) => nextHits[record.id])) {
       setEmptyRecordComplete(true);
-      setEmptyRecordFeedback("[DROPLINK] 수동 위치 지정이 완료되었습니다. 삭제된 개체 정보가 다시 확인됩니다.");
+      setEmptyRecordFeedback("수동 위치 지정 완료. 개체 영역이 재생성됩니다.");
       return;
     }
     setEmptyRecordFeedback("기존 개체 좌표를 확인했습니다. 남은 기록에서도 기존 위치를 지정하십시오.");
@@ -1033,7 +1006,7 @@ export default function Home() {
           <div className="time-report">
             <span>CAMPUS DROP 운영본부</span>
             <strong>시계탑 대형 생물 목격 사건</strong>
-            <p>세종대학교에는 오래된 소문이 하나 있습니다. “시계탑 꼭대기에는 기린이 산다.” 본부는 최근 목격 신고 7건을 바탕으로 별도 현장 조사를 시작합니다.</p>
+            <p>DROP LINK 수신 후 사건 개요와 첫 조사 목표가 열립니다.</p>
           </div>
 
           <div className="system-message">
@@ -1196,7 +1169,7 @@ export default function Home() {
           <div className="mission-copy">
             <p>2장</p>
             <h2>여러 사람이 그린 하나의 기린</h2>
-            <span>DROP LINK가 표시한 강한 에너지 반응 지점으로 이동해 손상된 과거 기록을 확보하세요.</span>
+            <span>지도에 표시된 3개 신호 지점에서 과거 기록을 확보하세요.</span>
           </div>
 
           <div className="campus-radar witness-radar">
@@ -1233,9 +1206,9 @@ export default function Home() {
 
           <div className={`order-quiz-panel${witnessOrderSubmitted ? " is-analysis-success" : ""}`}>
             <div className="order-quiz-copy">
-              <span>CAMPUSDROP 분석 지시</span>
-              <strong>획득한 세 건의 기록을 분석하십시오.</strong>
-              <p>기록의 형태와 내용을 확인하고, 오래된 기록부터 순서대로 배치하십시오. 카드를 좌우로 드래그하거나 순서 선택 버튼으로 위치를 교환할 수 있습니다. 카드를 누르면 전체 사진을 확인할 수 있습니다.</p>
+              <span>기록 배열 보드</span>
+              <strong>확보한 기록 카드 3장을 시간순 후보로 정렬하세요.</strong>
+              <p>카드를 좌우로 드래그하거나 순서 선택 버튼으로 위치를 교환할 수 있습니다. 카드를 누르면 전체 사진을 확인할 수 있습니다.</p>
             </div>
             <div className="order-dropzone" aria-label="자료 이미지 순서 배열">
               {witnessOrder.map((id, index) => {
@@ -1320,9 +1293,9 @@ export default function Home() {
 
           <div className="imagination-lab-panel">
             <div className="lab-status-header">
-              <span>CAMPUSDROP 증거 분석 지시</span>
-              <strong>세 기록의 외형 변화만 추적하십시오.</strong>
-              <p>순서는 이미 확정되었습니다. 이번 조사는 배열이 아니라, 같은 개체가 시대별로 어떻게 달라졌는지 비교하는 단계입니다.</p>
+              <span>재분석 상태</span>
+              <strong>시각 비교 모드가 열렸습니다.</strong>
+              <p>확정된 시간축을 잠근 상태에서 이미지의 변화 지점만 확인합니다.</p>
               <div className="lab-signal-row" aria-label="분석 상태">
                 <i>ORDER LOCKED</i>
                 <i>VISUAL SCAN</i>
@@ -1403,7 +1376,7 @@ export default function Home() {
           <div className={`conclusion witness-conclusion${imagineSolved ? " is-open" : ""}`} aria-live="polite">
             <span>{imagineSolved ? "3장 조사 완료" : "분석 대기"}</span>
             <strong>{imagineSolved ? "상상과 이후 기록 사이의 관계는 확정되지 않았습니다." : "정답 입력 전에는 3장을 완료할 수 없습니다."}</strong>
-            <p>{imagineSolved ? imaginationResults.join(" ") : "CAMPUSDROP은 아직 기린의 발생 원리를 확정하지 않았습니다."}</p>
+            <p>{imagineSolved ? "복원 결과가 저장되었습니다. 다음 상태 변화를 확인하세요." : "세 기록의 차이를 확인한 뒤 복원 단계가 열립니다."}</p>
             {imagineSolved && <button className="primary-action" type="button" onClick={() => openDropLinkBriefing("chapter4")}>4장 비어 있는 기록 확인</button>}
           </div>
         </section>
@@ -1414,25 +1387,25 @@ export default function Home() {
           <div className="mission-copy">
             <p>4장</p>
             <h2>비어 있는 기록</h2>
-            <span>원본 기록을 다시 불러오는 동안 개체로 분류된 영역에서만 정보 손실이 발생했습니다.</span>
+            <span>복원된 기록을 다시 불러오고 있습니다.</span>
           </div>
 
           <div className="order-quiz-panel empty-status-panel">
             <div className="order-quiz-copy">
-              <span>CAMPUSDROP 증거물 상태 변화 감지</span>
-              <strong>현재 기록이 최초 확보본과 일치하지 않습니다.</strong>
-              <p>배경과 문자 정보에는 변화가 없습니다. 개체로 분류된 영역에서만 정보 손실이 확인됩니다. 원인은 확인되지 않았습니다.</p>
+              <span>증거물 재호출</span>
+              <strong>기록 재호출 상태를 확인합니다.</strong>
+              <p>자동 복원 진행률을 확인한 뒤 수동 지정 단계로 이동합니다.</p>
             </div>
             <div className="transmission-progress restore-progress" aria-label={`자동 복원 진행률 ${emptyAutoProgress}%`}>
               <i style={{ width: `${emptyAutoProgress}%` }} />
               <strong>{emptyAutoProgress}%</strong>
             </div>
-            {emptyAutoProgress >= 100 && <p className="order-feedback">[DROPLINK] 배경 정보 복원 완료. 문자 정보 복원 완료. 개체 정보 복원 실패. 개체 영역의 원본 데이터를 확인할 수 없습니다.</p>}
+            {emptyAutoProgress >= 100 && <p className="order-feedback">자동 복원 실패. 수동 지정이 필요합니다.</p>}
           </div>
 
           <div className="order-quiz-panel empty-manual-panel">
             <div className="order-quiz-copy">
-              <span>CAMPUSDROP 수동 복원 지시</span>
+              <span>수동 복원 도구</span>
               <strong>최초 분석 당시 개체가 존재했던 영역을 지정하십시오.</strong>
               <p>기린이 사라진 기록을 한 장씩 확인하고, 기억나는 위치를 터치하세요.</p>
             </div>
@@ -1469,7 +1442,7 @@ export default function Home() {
           <div className={`conclusion witness-conclusion${emptyRecordComplete ? " is-open" : ""}`} aria-live="polite">
             <span>{emptyRecordComplete ? "개체 안정성 경고" : "수동 복원 대기"}</span>
             <strong>{emptyRecordComplete ? "개체 정보가 다시 감소하고 있습니다." : "세 기록에서 기린이 있던 위치를 지정해야 합니다."}</strong>
-            <p>{emptyRecordComplete ? emptyRecordResults.join(" ") : "[운영본부] 파일 저장 과정에서 발생한 오류일 가능성이 있습니다."}</p>
+            <p>{emptyRecordComplete ? "복원 상태가 불안정합니다. 다음 추적 단계가 열렸습니다." : "수동 복원 단계가 대기 중입니다."}</p>
             {emptyRecordComplete && <button className="primary-action" type="button" onClick={() => openDropLinkBriefing("chapter5")}>5장 잔류 신호 추적</button>}
           </div>
         </section>
@@ -1480,14 +1453,13 @@ export default function Home() {
           <div className="mission-copy">
             <p>5장</p>
             <h2>최초의 대화</h2>
-            <span>잔류 패턴이 시계탑 인근의 등록되지 않은 이미지와 연결됩니다.</span>
+            <span>특별 포스터 탐색 단계가 열렸습니다.</span>
           </div>
 
           <div className="final-signal-panel">
             <div className="order-quiz-copy">
-              <span>CAMPUSDROP 미확인 패턴 감지</span>
-              <strong>등록되지 않은 이미지를 찾아 조사하십시오.</strong>
-              {finalSignalBriefings.map((line) => <p key={line}>{line}</p>)}
+              <span>잔류 패턴 탐색</span>
+              <strong>패턴 조각과 일치하는 현장 이미지를 찾으세요.</strong>
             </div>
             <div className="signal-fragment" aria-label="특별 이미지 조각">
               <i />

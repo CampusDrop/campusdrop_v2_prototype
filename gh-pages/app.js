@@ -77,7 +77,7 @@ const chapterThreeBriefings = [
   "[DROPLINK] 개체의 외형에서 달라진 점이나 특별한 특징이 발견된다면 해당 요소를 영문으로 보고하십시오.",
 ];
 const chapterFourBriefings = [
-  "[DROPLINK] 강조 단어 확인: IMAGINE",
+  "강조 단어가 확인되었습니다.",
   "[DROPLINK] 최초 학생수첩의 기록은 일반적인 목격 보고와 형식이 다릅니다.",
   "[DROPLINK] 작성자는 탑을 바라보며 기린이 있는 모습을 떠올렸습니다.",
   "[DROPLINK] 이후 기록에서는 유사한 개체가 반복해서 나타납니다.",
@@ -85,7 +85,7 @@ const chapterFourBriefings = [
   "[운영본부] 최초 기록의 내용이 다른 학생들에게 전달되었을 가능성이 있습니다.",
   "[운영본부] 현재 자료만으로는 기록 사이의 관계를 확정할 수 없습니다.",
   "[DROPLINK] 증거물 상태 변화가 감지되었습니다.",
-  "[DROPLINK] 현재 기록이 최초 확보본과 일치하지 않습니다.",
+  "[DROPLINK] 기록 재호출 상태를 확인합니다.",
   "[DROPLINK] 배경과 문자 정보에는 변화가 없습니다.",
   "[DROPLINK] 개체로 분류된 영역에서만 정보 손실이 확인됩니다.",
   "[DROPLINK] 원인은 확인되지 않았습니다.",
@@ -93,7 +93,7 @@ const chapterFourBriefings = [
 const chapterFiveBriefings = [
   "[DROPLINK] 개체 정보가 다시 감소하고 있습니다.",
   "[DROPLINK] 현재 방식으로는 복원 상태를 유지할 수 없습니다.",
-  "[DROPLINK] 세 증거물에서 동일한 잔류 패턴이 감지되었습니다.",
+
   "[DROPLINK] 잔류 패턴의 출처는 시계탑 인근으로 추정됩니다.",
   "[DROPLINK] 현장 추가 조사가 필요합니다.",
   "[DROPLINK] [현장 조사 지시]",
@@ -101,15 +101,6 @@ const chapterFiveBriefings = [
   "[DROPLINK] 발견한 이미지를 DROPLINK 카메라로 조사하십시오.",
 ];
 const chapterThreeRecords = correctWitnessOrder.map((id) => witnesses.find((witness) => witness.id === id));
-const imaginationResults = [
-  "[DROPLINK] 강조 단어 확인: IMAGINE",
-  "[DROPLINK] 최초 학생수첩의 기록은 일반적인 목격 보고와 형식이 다릅니다.",
-  "[DROPLINK] 작성자는 탑을 바라보며 기린이 있는 모습을 떠올렸습니다.",
-  "[DROPLINK] 이후 기록에서는 유사한 개체가 반복해서 나타납니다.",
-  "[DROPLINK] 기록 사이의 관계는 확인되지 않았습니다.",
-  "[운영본부] 최초 기록의 내용이 다른 학생들에게 전달되었을 가능성이 있습니다.",
-  "[운영본부] 현재 자료만으로는 기록 사이의 관계를 확정할 수 없습니다.",
-];
 const emptyRecordMasks = {
   C: { x: 32, y: 18, width: 40, height: 54, radius: 28 },
   B: { x: 24, y: 28, width: 42, height: 48, radius: 27 },
@@ -119,18 +110,6 @@ const giraffeQuestions = [
   { key: "origin", label: "너는 어디서 왔어?", answer: "처음에는 누군가 탑을 보다가 떠올린 작은 생각이었어. 그다음부터 여러 사람이 나를 조금씩 다르게 상상해줬어." },
   { key: "star", label: "별 모양은 어떻게 생긴 거야?", answer: "처음부터 있던 건 아니야. 누군가 나에게 별이 있으면 좋겠다고 생각했어. 그 뒤부터 정말로 생겼어." },
   { key: "fade", label: "왜 기록에서 사라졌어?", answer: "사람들이 더 이상 나를 떠올리지 않으면 내 모습도 흐려져. 그림 속에서도, 여기에서도 조금씩 보이지 않게 돼." },
-];
-const emptyRecordResults = [
-  "[DROPLINK] 수동 위치 지정이 완료되었습니다.",
-  "[DROPLINK] 삭제된 개체 정보가 다시 확인됩니다.",
-  "[DROPLINK] 탐사원이 입력한 정보는 위치 좌표뿐입니다.",
-  "[DROPLINK] 입력된 좌표만으로 개체의 외형이 복원된 원인을 설명할 수 없습니다.",
-  "[운영본부] 저장된 임시 데이터가 뒤늦게 복구되었을 가능성이 있습니다.",
-  "[운영본부] 복원된 증거물의 상태를 다시 확인하십시오.",
-  "[DROPLINK] 개체 정보가 다시 감소하고 있습니다.",
-  "[DROPLINK] 현재 방식으로는 복원 상태를 유지할 수 없습니다.",
-  "[DROPLINK] 세 증거물에서 동일한 잔류 패턴이 감지되었습니다.",
-  "[DROPLINK] 잔류 패턴의 출처는 시계탑 인근으로 추정됩니다.",
 ];
 const posterCopy = {
   student_hall: "학생회관 포스터를 통해 접속했습니다. 창문 뒤로 긴 그림자를 봤다는 제보가 남아 있습니다.",
@@ -188,7 +167,7 @@ let emptyAutoProgress = 0;
 let emptyAutoTimer = null;
 let activeEmptyRecordId = "C";
 let emptyRecordHits = { A: false, B: false, C: false };
-let emptyRecordFeedback = "[증거물 상태 변화 감지] 현재 기록이 최초 확보본과 일치하지 않습니다. 배경과 문자 정보에는 변화가 없습니다.";
+let emptyRecordFeedback = "비어 있는 기록을 선택하고 기존 위치를 지정하세요.";
 let emptyRecordComplete = false;
 let finalScanStarted = false;
 let finalScanProgress = 0;
@@ -939,7 +918,7 @@ function renderChapterThree() {
   conclusion.classList.toggle("is-open", imagineSolved);
   conclusion.querySelector("span").textContent = imagineSolved ? "3장 조사 완료" : "분석 대기";
   conclusion.querySelector("strong").textContent = imagineSolved ? "상상과 이후 기록 사이의 관계는 확정되지 않았습니다." : "정답 입력 전에는 3장을 완료할 수 없습니다.";
-  conclusion.querySelector("p").textContent = imagineSolved ? imaginationResults.join(" ") : "CAMPUSDROP은 아직 기린의 발생 원리를 확정하지 않았습니다.";
+  conclusion.querySelector("p").textContent = imagineSolved ? "복원 결과가 저장되었습니다. 다음 상태 변화를 확인하세요." : "세 기록의 차이를 확인한 뒤 복원 단계가 열립니다.";
   const startChapterFour = document.querySelector("#startChapterFour");
   if (startChapterFour) startChapterFour.hidden = !imagineSolved;
 }
@@ -952,7 +931,7 @@ function submitStarAnswer() {
     starFeedback = "보고된 특징을 증거물에서 확인할 수 없습니다.";
   } else {
     starSolved = true;
-    starFeedback = "[DROPLINK] STAR 확인. 해당 특징은 증거물 02와 03에서 발견됩니다. 증거물 01에서는 동일한 특징이 확인되지 않습니다. 증거물 01에서 미복원 기록이 발견되었습니다. 손상된 다음 페이지를 복원하십시오.";
+    starFeedback = "STAR 확인. 증거물 01의 미복원 페이지가 열렸습니다.";
   }
   renderChapterThree();
 }
@@ -985,7 +964,7 @@ function submitImagineAnswer() {
     imagineFeedback = "강조된 단어와 입력한 내용이 일치하지 않습니다.";
   } else {
     imagineSolved = true;
-    imagineFeedback = "[DROPLINK] 강조 단어 확인: IMAGINE";
+    imagineFeedback = "강조 단어가 확인되었습니다.";
   }
   renderChapterThree();
 }
@@ -1005,7 +984,7 @@ function openChapterThreePreview(index) {
 
 function startEmptyRecordScene() {
   emptyAutoProgress = 0;
-  emptyRecordFeedback = "[DROPLINK] 증거물 상태 변화가 감지되었습니다. 현재 기록이 최초 확보본과 일치하지 않습니다. 배경과 문자 정보에는 변화가 없습니다. 개체로 분류된 영역에서만 정보 손실이 확인됩니다. 원인은 확인되지 않았습니다.";
+  emptyRecordFeedback = "비어 있는 기록을 선택하고 기존 위치를 지정하세요.";
   renderEmptyRecordScene();
   if (emptyAutoTimer !== null) window.clearInterval(emptyAutoTimer);
   emptyAutoTimer = window.setInterval(() => {
@@ -1042,7 +1021,7 @@ function renderEmptyRecordScene() {
   conclusion.classList.toggle("is-open", emptyRecordComplete);
   conclusion.querySelector("span").textContent = emptyRecordComplete ? "개체 안정성 경고" : "수동 복원 대기";
   conclusion.querySelector("strong").textContent = emptyRecordComplete ? "개체 정보가 다시 감소하고 있습니다." : "세 기록에서 기린이 있던 위치를 지정해야 합니다.";
-  conclusion.querySelector("p").textContent = emptyRecordComplete ? emptyRecordResults.join(" ") : "[운영본부] 파일 저장 과정에서 발생한 오류일 가능성이 있습니다.";
+  conclusion.querySelector("p").textContent = emptyRecordComplete ? "복원 상태가 불안정합니다. 다음 추적 단계가 열렸습니다." : "수동 복원 단계가 대기 중입니다.";
   const startChapterFive = document.querySelector("#startChapterFive");
   if (startChapterFive) startChapterFive.hidden = !emptyRecordComplete;
 }
@@ -1067,7 +1046,7 @@ function handleEmptyRecordPoint(recordId, event) {
   emptyRecordHits[recordId] = true;
   if (chapterThreeRecords.every((record) => emptyRecordHits[record.id])) {
     emptyRecordComplete = true;
-    emptyRecordFeedback = "[DROPLINK] 수동 위치 지정이 완료되었습니다. 삭제된 개체 정보가 다시 확인됩니다.";
+    emptyRecordFeedback = "수동 위치 지정 완료. 개체 영역이 재생성됩니다.";
   } else {
     emptyRecordFeedback = "기존 개체 좌표를 확인했습니다. 남은 기록에서도 기존 위치를 지정하십시오.";
   }
