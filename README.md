@@ -90,10 +90,12 @@ https://campusdrop.github.io
 http://localhost:3000
 ```
 
-Kakao JavaScript 키는 저장소에 커밋하지 않고, GitHub Pages 주소 뒤에 다음처럼 붙여 접속합니다.
+GitHub Pages 데모에는 기본 Kakao JavaScript 키가 설정되어 있어 아래 주소로 바로 접속하면 지도가 표시됩니다.
 
 ```text
-https://campusdrop.github.io/campusdrop_v2_prototype/?kakaoKey=YOUR_KAKAO_JAVASCRIPT_KEY
+https://campusdrop.github.io/campusdrop_v2_prototype/
+
+현재 데모에는 기본 카카오 JavaScript 키가 설정되어 있어 별도 쿼리 없이 지도가 표시됩니다. 다른 앱 키로 테스트하려면 `?kakaoKey=YOUR_KAKAO_JAVASCRIPT_KEY`를 붙여 접속하세요.
 ```
 
 ## AR 라이브러리 구조

@@ -42,6 +42,7 @@ declare global {
 }
 
 const missionTarget = { lat: 37.55041617275794, lng: 127.07381801425053 };
+const DEFAULT_KAKAO_JAVASCRIPT_KEY = "97b8390b5c4e8c53f8504d89c5a5c8f4";
 const towerTarget = { lat: 37.55106257128708, lng: 127.07392616012359 };
 const reachRadiusMeters = 20;
 const clueRevealRadiusMeters = 10;
@@ -1627,7 +1628,7 @@ function WitnessMap({
   const [mapState, setMapState] = useState<"loading" | "ready" | "fallback">("loading");
 
   useEffect(() => {
-    const key = new URLSearchParams(window.location.search).get("kakaoKey");
+    const key = new URLSearchParams(window.location.search).get("kakaoKey") || DEFAULT_KAKAO_JAVASCRIPT_KEY;
     if (!key || !mapRef.current) {
       setMapState("fallback");
       return;
@@ -1708,7 +1709,7 @@ function MissionMap() {
   const [mapState, setMapState] = useState<"loading" | "ready" | "fallback">("loading");
 
   useEffect(() => {
-    const key = new URLSearchParams(window.location.search).get("kakaoKey");
+    const key = new URLSearchParams(window.location.search).get("kakaoKey") || DEFAULT_KAKAO_JAVASCRIPT_KEY;
     if (!key || !mapRef.current) {
       setMapState("fallback");
       return;
