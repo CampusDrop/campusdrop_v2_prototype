@@ -103,12 +103,13 @@ const dropLinkBriefings = [
 const clueTransmissionBriefings = [
   "표본 A 수신 완료. 위치 기록과 촬영 시점이 현장 조사 로그에 정상 연결됐습니다.",
   "노란색 섬유는 인공 재료가 아닙니다. 기존 동물 자료와 정확히 일치하지 않지만, 대형 초식동물의 체모 특성과 유사합니다.",
-  "표본 분석 중 같은 구역에서 비정상적인 에너지 반응 3곳을 확인했습니다. 해당 지점을 지도상에 표시합니다.",
-  "각 목적지 반경 10m 안에 진입하면 현장 사진이 자동으로 확보됩니다. 세 사진을 모두 회수한 뒤, 에너지 방향을 연결해 대상을 추론하세요.",
+  "표본 A 수신 완료. 위치 기록과 촬영 시점이 현장 조사 로그에 정상 연결됐습니다.",
+  "분석 결과, 시계탑 주변 세 지점에서 비정상 에너지 반응이 강하게 감지됩니다. 해당 위치를 지도상에 표시했습니다.",
+  "각 목적지 반경 10m 안에 진입해 현장 자료 이미지를 확보하세요. 도착 전에는 자료 접근 권한이 열리지 않습니다.",
 ];
 const witnessArrangeBriefings = [
-  "목격 기록 사진 3건이 모두 확보됐습니다. 각 기록은 서로 다른 시점과 위치에서 수집된 자료입니다.",
-  "이제 세 지점에서 감지된 에너지 방향을 순서대로 표시하세요. 확보한 사진을 비교해 반응이 교차하는 지점을 찾아야 합니다.",
+  "자료 이미지 3건이 모두 확보됐습니다. 각 기록은 서로 다른 시점과 위치에서 수집된 자료입니다.",
+  "이제 세 지점에서 감지된 에너지 방향을 순서대로 표시하세요. 확보한 자료 이미지를 비교해 반응이 교차하는 지점을 찾아야 합니다.",
   "세 방향선이 하나의 지점에서 겹치면, 목격 대상이 어디에 있었는지 운영본부가 분석할 수 있습니다.",
 ];
 
@@ -163,7 +164,7 @@ export default function Home() {
   const [witnessDistances, setWitnessDistances] = useState<Record<string, number | null>>(() => Object.fromEntries(witnesses.map((witness) => [witness.id, null])));
   const [visitedWitnesses, setVisitedWitnesses] = useState<Record<string, boolean>>(() => Object.fromEntries(witnesses.map((witness) => [witness.id, false])));
   const [witnessDirections, setWitnessDirections] = useState<Record<string, DirectionKey | null>>(() => Object.fromEntries(witnesses.map((witness) => [witness.id, null])));
-  const [witnessStatus, setWitnessStatus] = useState("목격 지점 3곳을 방문해 증거 사진을 확보하세요.");
+  const [witnessStatus, setWitnessStatus] = useState("에너지 반응이 강한 지점 3곳을 방문해 자료 이미지를 확보하세요.");
   const [acquiredWitnessId, setAcquiredWitnessId] = useState<string | null>(null);
   const [arrangeBriefingQueued, setArrangeBriefingQueued] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -260,7 +261,7 @@ export default function Home() {
     if (!witness) return;
     setActiveWitnessId(witness.id);
     if (visitedWitnesses[witness.id]) {
-      if (!options.silent) setWitnessStatus(`${witness.name} 사진은 이미 확보했습니다. 사진을 확인하고 에너지 방향을 표시하세요.`);
+      if (!options.silent) setWitnessStatus(`${witness.name} 자료 이미지는 이미 확보했습니다. 자료를 확인하고 에너지 방향을 표시하세요.`);
       return;
     }
 
@@ -268,7 +269,7 @@ export default function Home() {
     setVisitedWitnesses(nextVisited);
     setAcquiredWitnessId(witness.id);
     triggerEvidenceVibration();
-    setWitnessStatus(`${witness.name} 증거 사진을 확보했습니다. 획득 자료를 확인하세요.`);
+    setWitnessStatus(`${witness.name} 자료 이미지를 확보했습니다. 획득 자료를 확인하세요.`);
     if (witnesses.every((item) => nextVisited[item.id])) {
       setArrangeBriefingQueued(true);
     }
@@ -301,7 +302,7 @@ export default function Home() {
       acquireWitnessEvidence(arrivedWitness.id, options);
       return;
     }
-    if (!options.silent) setWitnessStatus("가장 가까운 목격 지점으로 이동하세요. 반경 10m 안에서 증거 사진이 열립니다.");
+    if (!options.silent) setWitnessStatus("가장 가까운 에너지 지점으로 이동하세요. 반경 10m 안에서만 자료 이미지가 열립니다.");
   }
 
   function requestWitnessLocation(options: { silent?: boolean } = {}) {
@@ -770,8 +771,8 @@ export default function Home() {
         <section className="screen witness-screen">
           <div className="mission-copy">
             <p>2장</p>
-            <h2>목격 지점을 연결하라</h2>
-            <span>지도에 표시된 세 에너지 지점의 반경 10m 안에 들어가 현장 사진을 확보하세요.</span>
+            <h2>에너지 지점을 조사하라</h2>
+            <span>DROP LINK가 표시한 강한 에너지 반응 지점으로 이동해 자료 이미지를 확보하세요.</span>
           </div>
 
           <div className="campus-radar witness-radar">
@@ -784,7 +785,7 @@ export default function Home() {
             />
             <div className="radar-data witness-data">
               <div><span>조사 범위</span><strong>{witnessReachRadiusMeters}m</strong></div>
-              <div><span>확보한 사진</span><strong>{witnesses.filter((witness) => visitedWitnesses[witness.id]).length}/3</strong></div>
+              <div><span>확보한 자료</span><strong>{witnesses.filter((witness) => visitedWitnesses[witness.id]).length}/3</strong></div>
               <div><span>에너지 방향</span><strong>{witnesses.filter((witness) => witnessDirections[witness.id]).length}/3</strong></div>
             </div>
           </div>
@@ -795,7 +796,7 @@ export default function Home() {
             <button className="text-scan-refresh" type="button" onClick={markActiveWitnessArrived}>관리자 권한으로 도착 완료</button>
           </div>
 
-          <div className="witness-list" aria-label="에너지 지점 사진 목록">
+          <div className="witness-list" aria-label="에너지 지점 자료 목록">
             {witnesses.map((witness) => {
               const isActive = activeWitnessId === witness.id;
               const isVisited = visitedWitnesses[witness.id];
@@ -812,11 +813,11 @@ export default function Home() {
                       <div
                         className="witness-photo-image"
                         role="img"
-                        aria-label={`${witness.name} 목격 기록 사진`}
+                        aria-label={`${witness.name} 자료 이미지`}
                         style={{ backgroundImage: `url(${witness.photo})` }}
                       />
                     ) : (
-                      <span>현장 사진 잠김</span>
+                      <span>도착 전 접근 잠김</span>
                     )}
                   </div>
                   <div className="direction-picker" aria-label={`${witness.name} 방향 선택`}>
@@ -839,8 +840,8 @@ export default function Home() {
 
           <div className={`conclusion witness-conclusion${witnessSolved ? " is-open" : ""}`} aria-live="polite">
             <span>{witnessSolved ? "분석 완료" : "운영본부 분석 대기"}</span>
-            <strong>{witnessSolved ? "세 에너지 방향선이 대양타워 상부에서 교차합니다." : "세 지점의 사진을 확보하고 에너지 방향을 표시하세요."}</strong>
-            <p>{witnessSolved ? "세 지점의 반응은 서로 다른 현상이 아니었습니다. 모두 시계탑 상부에서 잔디밭을 내려다보던, 목이 긴 존재를 가리킵니다. 사건 분류를 ‘미확인 생명체 조사’로 전환합니다." : "확보한 사진을 바탕으로 에너지 방향을 선택하면 지도 위에 추정선이 표시됩니다."}</p>
+            <strong>{witnessSolved ? "세 에너지 방향선이 대양타워 상부에서 교차합니다." : "세 지점의 자료 이미지를 확보하고 에너지 방향을 표시하세요."}</strong>
+            <p>{witnessSolved ? "세 지점의 반응은 서로 다른 현상이 아니었습니다. 모두 시계탑 상부에서 잔디밭을 내려다보던, 목이 긴 존재를 가리킵니다. 사건 분류를 ‘미확인 생명체 조사’로 전환합니다." : "확보한 자료 이미지를 바탕으로 에너지 방향을 선택하면 지도 위에 추정선이 표시됩니다."}</p>
           </div>
         </section>
       )}
@@ -849,12 +850,12 @@ export default function Home() {
         const witness = witnesses.find((item) => item.id === acquiredWitnessId);
         if (!witness) return null;
         return (
-          <div className="witness-acquisition-modal" role="dialog" aria-modal="true" aria-label="증거 사진 획득">
+          <div className="witness-acquisition-modal" role="dialog" aria-modal="true" aria-label="자료 이미지 획득">
             <div className="witness-acquisition-card">
               <span>Evidence Acquired</span>
-              <strong>{witness.name} 증거 사진 획득</strong>
-              <div className="witness-acquisition-photo" style={{ backgroundImage: `url(${witness.photo})` }} role="img" aria-label={`${witness.name} 증거 사진`} />
-              <p>목표 지점 반경 10m 안에서 현장 사진을 확보했습니다. 사진은 2장 분석 카드에 저장됩니다.</p>
+              <strong>{witness.name} 자료 이미지 획득</strong>
+              <div className="witness-acquisition-photo" style={{ backgroundImage: `url(${witness.photo})` }} role="img" aria-label={`${witness.name} 자료 이미지`} />
+              <p>목표 지점 반경 10m 안에서 자료 이미지를 확보했습니다. 이미지는 2장 분석 카드에 저장됩니다.</p>
               <button className="primary-action" type="button" onClick={closeWitnessAcquisition}>자료 확인 완료</button>
             </div>
           </div>

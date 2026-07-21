@@ -58,12 +58,13 @@ const dropLinkBriefings = [
 const clueTransmissionBriefings = [
   "표본 A 수신 완료. 위치 기록과 촬영 시점이 현장 조사 로그에 정상 연결됐습니다.",
   "노란색 섬유는 인공 재료가 아닙니다. 기존 동물 자료와 정확히 일치하지 않지만, 대형 초식동물의 체모 특성과 유사합니다.",
-  "표본 분석 중 같은 구역에서 비정상적인 에너지 반응 3곳을 확인했습니다. 해당 지점을 지도상에 표시합니다.",
-  "각 목적지 반경 10m 안에 진입하면 현장 사진이 자동으로 확보됩니다. 세 사진을 모두 회수한 뒤, 에너지 방향을 연결해 대상을 추론하세요.",
+  "표본 A 수신 완료. 위치 기록과 촬영 시점이 현장 조사 로그에 정상 연결됐습니다.",
+  "분석 결과, 시계탑 주변 세 지점에서 비정상 에너지 반응이 강하게 감지됩니다. 해당 위치를 지도상에 표시했습니다.",
+  "각 목적지 반경 10m 안에 진입해 현장 자료 이미지를 확보하세요. 도착 전에는 자료 접근 권한이 열리지 않습니다.",
 ];
 const witnessArrangeBriefings = [
-  "목격 기록 사진 3건이 모두 확보됐습니다. 각 기록은 서로 다른 시점과 위치에서 수집된 자료입니다.",
-  "이제 세 지점에서 감지된 에너지 방향을 순서대로 표시하세요. 확보한 사진을 비교해 반응이 교차하는 지점을 찾아야 합니다.",
+  "자료 이미지 3건이 모두 확보됐습니다. 각 기록은 서로 다른 시점과 위치에서 수집된 자료입니다.",
+  "이제 세 지점에서 감지된 에너지 방향을 순서대로 표시하세요. 확보한 자료 이미지를 비교해 반응이 교차하는 지점을 찾아야 합니다.",
   "세 방향선이 하나의 지점에서 겹치면, 목격 대상이 어디에 있었는지 운영본부가 분석할 수 있습니다.",
 ];
 const posterCopy = {
@@ -321,7 +322,7 @@ function applyWitnessLocation(position, options = {}) {
     return;
   }
 
-  if (!options.silent) document.querySelector("#witnessStatus").textContent = "가장 가까운 목격 지점으로 이동하세요. 반경 10m 안에서 증거 사진이 열립니다.";
+  if (!options.silent) document.querySelector("#witnessStatus").textContent = "가장 가까운 에너지 지점으로 이동하세요. 반경 10m 안에서 자료 이미지가 열립니다.";
   updateWitnessUi();
 }
 
@@ -362,14 +363,14 @@ function acquireWitnessEvidence(id, options = {}) {
   if (!witness) return;
   activeWitnessId = witness.id;
   if (visitedWitnesses[witness.id]) {
-    if (!options.silent) document.querySelector("#witnessStatus").textContent = `${witness.name} 사진은 이미 확보했습니다. 사진을 확인하고 에너지 방향을 표시하세요.`;
+    if (!options.silent) document.querySelector("#witnessStatus").textContent = `${witness.name} 자료 이미지는 이미 확보했습니다. 자료를 확인하고 에너지 방향을 표시하세요.`;
     updateWitnessUi();
     return;
   }
 
   visitedWitnesses[witness.id] = true;
   triggerEvidenceVibration();
-  document.querySelector("#witnessStatus").textContent = `${witness.name} 증거 사진을 확보했습니다. 획득 자료를 확인하세요.`;
+  document.querySelector("#witnessStatus").textContent = `${witness.name} 자료 이미지를 확보했습니다. 획득 자료를 확인하세요.`;
   openWitnessAcquisition(witness);
   if (witnesses.every((item) => visitedWitnesses[item.id])) arrangeBriefingQueued = true;
   updateWitnessUi();
@@ -380,9 +381,9 @@ function openWitnessAcquisition(witness) {
   const title = document.querySelector("#witnessAcquisitionTitle");
   const photo = document.querySelector("#witnessAcquisitionPhoto");
   if (!modal || !title || !photo) return;
-  title.textContent = `${witness.name} 증거 사진 획득`;
+  title.textContent = `${witness.name} 자료 이미지 획득`;
   photo.style.backgroundImage = `url(${witness.photo})`;
-  photo.setAttribute("aria-label", `${witness.name} 증거 사진`);
+  photo.setAttribute("aria-label", `${witness.name} 자료 이미지`);
   modal.hidden = false;
 }
 
@@ -459,10 +460,10 @@ function updateWitnessConclusion() {
   const conclusion = document.querySelector("#witnessConclusion");
   conclusion.classList.toggle("is-open", solved);
   conclusion.querySelector("span").textContent = solved ? "분석 완료" : "운영본부 분석 대기";
-  conclusion.querySelector("strong").textContent = solved ? "세 에너지 방향선이 대양타워 상부에서 교차합니다." : "세 지점의 사진을 확보하고 에너지 방향을 표시하세요.";
+  conclusion.querySelector("strong").textContent = solved ? "세 에너지 방향선이 대양타워 상부에서 교차합니다." : "세 지점의 자료 이미지를 확보하고 에너지 방향을 표시하세요.";
   conclusion.querySelector("p").textContent = solved
     ? "세 지점의 반응은 서로 다른 현상이 아니었습니다. 모두 시계탑 상부에서 잔디밭을 내려다보던, 목이 긴 존재를 가리킵니다. 사건 분류를 ‘미확인 생명체 조사’로 전환합니다."
-    : "확보한 사진을 바탕으로 에너지 방향을 선택하면 지도 위에 추정선이 표시됩니다.";
+    : "확보한 자료 이미지를 바탕으로 에너지 방향을 선택하면 지도 위에 추정선이 표시됩니다.";
 }
 
 function updateEvidenceTransmissionUi() {
