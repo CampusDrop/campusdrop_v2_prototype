@@ -904,7 +904,7 @@ function renderChapterThree() {
   const recordGrid = document.querySelector("#chapterThreeRecords");
   if (recordGrid) {
     recordGrid.classList.toggle("is-solved", starSolved);
-    recordGrid.innerHTML = chapterThreeRecords.map((record, index) => `<button type="button" class="imagination-record-card" data-chapter-three-preview="${index}"><span>${record.name}</span><div style="background-image:url(${record.photo})" role="img" aria-label="${record.recordTitle}"></div><strong>${record.recordTitle}</strong></button>`).join("");
+    recordGrid.innerHTML = chapterThreeRecords.map((record, index) => `<button type="button" class="imagination-record-card" data-chapter-three-preview="${index}"><span>${String(index + 1).padStart(2, "0")}</span><div style="background-image:url(${record.photo})" role="img" aria-label="${record.recordTitle}"></div><strong>${record.recordTitle}</strong><small>${index === 0 ? "최초 기록" : index === 1 ? "중간 기록" : "최근 기록"}</small></button>`).join("");
   }
   const starInput = document.querySelector("#starAnswer");
   if (starInput) {
@@ -914,6 +914,8 @@ function renderChapterThree() {
   document.querySelector("#submitStarAnswer").disabled = starSolved;
   document.querySelector("#starFeedback").textContent = starFeedback;
   document.querySelector("#starFeedback").classList.toggle("is-correct", starSolved);
+  const featureSignal = document.querySelector("#featureSignalState");
+  if (featureSignal) featureSignal.textContent = starSolved ? "FEATURE FOUND" : "FEATURE UNKNOWN";
   document.querySelector("#restorePanel").hidden = !starSolved;
   const board = document.querySelector("#restoreBoard");
   board?.classList.toggle("is-restored", restoreSolved);
