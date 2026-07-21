@@ -195,10 +195,24 @@ export default function Home() {
             <p>아직 확인된 사진은 없습니다.</p>
           </div>
           <p className="poster-source">{posterText}</p>
+          <div className="entry-guide" aria-label="조사 안내">
+            <article>
+              <span>소개</span>
+              <p>Campus Drop은 교내 QR 포스터에서 시작되는 현장 조사형 웹 게임입니다.</p>
+            </article>
+            <article>
+              <span>진행 방식</span>
+              <p>시계탑으로 이동해 GPS 체크포인트를 열고, 현장에서 세 가지 흔적을 확인합니다.</p>
+            </article>
+            <article>
+              <span>안내</span>
+              <p>이야기의 단서가 중요합니다. 큰 소리나 스포일러 없이 천천히 진행해 주세요.</p>
+            </article>
+          </div>
           <button className="primary-action" type="button" onClick={() => moveToScene("incident")}>
             조사 참여하기
           </button>
-          <p className="warning-copy">※ 시계탑 꼭대기를 너무 오래 올려다보지 마세요.</p>
+          <p className="warning-copy">※ 이동 중에는 주변을 확인하고 안전한 위치에서 화면을 조작하세요.</p>
         </section>
       )}
       {scene === "incident" && (
