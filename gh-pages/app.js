@@ -59,6 +59,16 @@ const witnessArrangeBriefings = [
   "[CAMPUSDROP 기록 분석 지시] 획득한 세 건의 기록을 분석하십시오.",
   "기록의 형태와 내용을 확인하고, 오래된 기록부터 순서대로 배치하십시오.",
 ];
+const chapterThreeRecords = correctWitnessOrder.map((id) => witnesses.find((witness) => witness.id === id));
+const imaginationResults = [
+  "기록 복원이 완료되었습니다.",
+  "최초 학생수첩의 기록은 명확한 목격 보고가 아닙니다.",
+  "작성자는 탑을 바라보며 기린의 모습을 떠올렸습니다.",
+  "이후 기록에서는 유사한 기린의 모습이 반복해서 나타납니다.",
+  "기록 사이의 변화가 발생한 원인은 확인되지 않았습니다.",
+  "최초 기록의 내용이 이후 학생들에게 전해졌을 가능성이 있습니다.",
+  "그러나 현재 확보된 자료만으로 기록 사이의 관계를 확정할 수 없습니다.",
+];
 const posterCopy = {
   student_hall: "학생회관 포스터를 통해 접속했습니다. 창문 뒤로 긴 그림자를 봤다는 제보가 남아 있습니다.",
   library: "학술정보원 포스터를 통해 접속했습니다. 새벽 시간대 시계탑 꼭대기 목격 신고가 반복됐습니다.",
@@ -90,6 +100,16 @@ let cameraStream = null;
 let cameraWatch = null;
 let cameraFoundTimer = null;
 let arrangeBriefingQueued = false;
+let chapterThreePreviewIndex = 0;
+let starAnswer = "";
+let starSolved = false;
+let starFeedback = "기록 속 개체의 외형에서 달라진 특징을 영문으로 보고하십시오.";
+let restoreProgress = 0;
+let restoreSolved = false;
+let restoreTouchedPoints = new Set();
+let imagineAnswer = "";
+let imagineFeedback = "복원된 페이지에서 강조된 단어를 확인하십시오.";
+let imagineSolved = false;
 
 function triggerDropLinkVibration() {
   if (typeof navigator.vibrate !== "function") return;
@@ -152,6 +172,10 @@ function showScreen(name) {
     startWitnessLocationUpdates();
   } else {
     stopWitnessLocationUpdates();
+  }
+
+  if (name === "imagination") {
+    renderChapterThree();
   }
 }
 
@@ -597,6 +621,107 @@ function updateWitnessConclusion() {
   conclusion.querySelector("p").textContent = witnessAnswerSubmitted
     ? "분석 결과가 등록되었습니다. 확인된 생물: GIRAFFE. 세 기록은 서로 다른 시기에 작성되었고, 작성자 사이의 직접적인 연관성은 확인되지 않습니다. 그러나 모든 기록에는 시계탑 상부에 나타난 긴 목의 기린이 묘사되어 있습니다."
     : allVisited ? "배열이 확인되기 전에는 생물명 보고 입력창이 열리지 않습니다." : "각 에너지 지점 반경 10m 안에 들어가야 자료 이미지가 열립니다.";
+  const startChapterThree = document.querySelector("#startChapterThree");
+  if (startChapterThree) startChapterThree.hidden = !witnessAnswerSubmitted;
+}
+
+function renderChapterThree() {
+  const recordGrid = document.querySelector("#chapterThreeRecords");
+  if (recordGrid) {
+    recordGrid.classList.toggle("is-solved", starSolved);
+    recordGrid.innerHTML = chapterThreeRecords.map((record, index) => `<button type="button" class="imagination-record-card" data-chapter-three-preview="${index}"><span>${record.name}</span><div style="background-image:url(${record.photo})" role="img" aria-label="${record.recordTitle}"></div><strong>${record.recordTitle}</strong></button>`).join("");
+  }
+  const starInput = document.querySelector("#starAnswer");
+  if (starInput) {
+    starInput.value = starAnswer;
+    starInput.disabled = starSolved;
+  }
+  document.querySelector("#submitStarAnswer").disabled = starSolved;
+  document.querySelector("#starFeedback").textContent = starFeedback;
+  document.querySelector("#starFeedback").classList.toggle("is-correct", starSolved);
+  document.querySelector("#restorePanel").hidden = !starSolved;
+  const board = document.querySelector("#restoreBoard");
+  board?.classList.toggle("is-restored", restoreSolved);
+  const damage = document.querySelector("#restoreDamageLayer");
+  if (damage) damage.style.opacity = String(Math.max(0.18, 0.9 - restoreProgress / 100));
+  const note = document.querySelector("#restoreNoteText");
+  if (note) note.setAttribute("aria-hidden", restoreSolved ? "false" : "true");
+  document.querySelector("#restoreProgressBar").style.width = `${restoreProgress}%`;
+  document.querySelector("#restoreProgressText").textContent = `${restoreProgress}%`;
+  document.querySelector("#completeRestoreButton").hidden = restoreSolved;
+  document.querySelector("#imaginePanel").hidden = !restoreSolved;
+  const imagineInput = document.querySelector("#imagineAnswer");
+  if (imagineInput) {
+    imagineInput.value = imagineAnswer;
+    imagineInput.disabled = imagineSolved;
+  }
+  document.querySelector("#submitImagineAnswer").disabled = imagineSolved;
+  document.querySelector("#imagineFeedback").textContent = imagineFeedback;
+  document.querySelector("#imagineFeedback").classList.toggle("is-correct", imagineSolved);
+  const conclusion = document.querySelector("#imaginationConclusion");
+  conclusion.classList.toggle("is-open", imagineSolved);
+  conclusion.querySelector("span").textContent = imagineSolved ? "3장 조사 완료" : "분석 대기";
+  conclusion.querySelector("strong").textContent = imagineSolved ? "상상과 이후 기록 사이의 연결 가능성이 확인되었습니다." : "정답 입력 전에는 3장을 완료할 수 없습니다.";
+  conclusion.querySelector("p").textContent = imagineSolved ? imaginationResults.join(" ") : "CAMPUSDROP은 아직 기린의 발생 원리를 확정하지 않았습니다.";
+}
+
+function submitStarAnswer() {
+  const normalized = starAnswer.trim().toUpperCase();
+  if (starAnswer.trim() === "별") {
+    starFeedback = "분석 보고는 영문으로 입력하십시오.";
+  } else if (normalized !== "STAR") {
+    starFeedback = "보고된 특징을 증거물에서 확인할 수 없습니다.";
+  } else {
+    starSolved = true;
+    starFeedback = "[증거 분석 결과] STAR 확인. 해당 특징은 증거물 02와 03에서 발견됩니다. 증거물 01에서는 동일한 특징이 확인되지 않습니다. 증거물 01에 미복원 기록이 남아 있습니다. 누락된 내용을 복원하십시오.";
+  }
+  renderChapterThree();
+}
+
+function markRestorePoint(clientX, clientY) {
+  if (!starSolved || restoreSolved) return;
+  const board = document.querySelector("#restoreBoard");
+  if (!board) return;
+  const rect = board.getBoundingClientRect();
+  const x = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+  const y = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
+  restoreTouchedPoints.add(`${Math.floor(x * 10)}-${Math.floor(y * 14)}`);
+  restoreProgress = Math.min(100, Math.round((restoreTouchedPoints.size / 58) * 100));
+  if (restoreProgress >= 72) {
+    restoreSolved = true;
+    restoreProgress = 100;
+  }
+  renderChapterThree();
+}
+
+function completeRestoreByAdmin() {
+  restoreSolved = true;
+  restoreProgress = 100;
+  renderChapterThree();
+}
+
+function submitImagineAnswer() {
+  if (!restoreSolved) return;
+  if (imagineAnswer.trim().toUpperCase() !== "IMAGINE") {
+    imagineFeedback = "강조된 단어와 입력한 내용이 일치하지 않습니다.";
+  } else {
+    imagineSolved = true;
+    imagineFeedback = "기록 복원이 완료되었습니다.";
+  }
+  renderChapterThree();
+}
+
+function openChapterThreePreview(index) {
+  chapterThreePreviewIndex = index;
+  const record = chapterThreeRecords[index];
+  document.querySelector("#chapterThreePreviewTitle").textContent = record.name;
+  document.querySelector("#chapterThreePreviewSubtitle").textContent = record.recordTitle;
+  const photo = document.querySelector("#chapterThreePreviewPhoto");
+  photo.style.backgroundImage = `url(${record.photo})`;
+  photo.classList.toggle("star-analysis", starSolved && record.id !== "C");
+  photo.setAttribute("aria-label", `${record.name} 확대 이미지`);
+  document.querySelector("#chapterThreePreviewCopy").textContent = starSolved ? (record.id === "C" ? "증거물 01에서는 동일한 특징이 확인되지 않습니다." : "정답 보고 이후 분석 강조가 활성화되었습니다.") : "세 이미지를 직접 비교해 달라진 특징을 찾으세요.";
+  document.querySelector("#chapterThreePreviewModal").hidden = false;
 }
 
 function updateEvidenceTransmissionUi() {
@@ -797,12 +922,70 @@ document.addEventListener("input", (event) => {
     witnessWordAnswer = event.target.value;
     updateWitnessUi();
   }
+  if (event.target.matches("#starAnswer")) {
+    starAnswer = event.target.value;
+    renderChapterThree();
+  }
+  if (event.target.matches("#imagineAnswer")) {
+    imagineAnswer = event.target.value;
+    renderChapterThree();
+  }
+});
+
+document.addEventListener("pointerdown", (event) => {
+  if (event.target.closest("#restoreBoard")) markRestorePoint(event.clientX, event.clientY);
+});
+
+document.addEventListener("pointermove", (event) => {
+  if (event.buttons !== 1 && event.pointerType !== "touch") return;
+  if (event.target.closest("#restoreBoard")) markRestorePoint(event.clientX, event.clientY);
 });
 
 document.addEventListener("click", (event) => {
   const goButton = event.target.closest("[data-go]");
   if (goButton) {
     showScreen(goButton.dataset.go);
+    return;
+  }
+
+  if (event.target.closest("#startChapterThree")) {
+    showScreen("imagination");
+    return;
+  }
+
+  const chapterThreePreview = event.target.closest("[data-chapter-three-preview]");
+  if (chapterThreePreview) {
+    openChapterThreePreview(Number(chapterThreePreview.dataset.chapterThreePreview));
+    return;
+  }
+
+  if (event.target.closest("#chapterThreePrev")) {
+    openChapterThreePreview((chapterThreePreviewIndex + chapterThreeRecords.length - 1) % chapterThreeRecords.length);
+    return;
+  }
+
+  if (event.target.closest("#chapterThreeNext")) {
+    openChapterThreePreview((chapterThreePreviewIndex + 1) % chapterThreeRecords.length);
+    return;
+  }
+
+  if (event.target.closest("#closeChapterThreePreview")) {
+    document.querySelector("#chapterThreePreviewModal").hidden = true;
+    return;
+  }
+
+  if (event.target.closest("#submitStarAnswer")) {
+    submitStarAnswer();
+    return;
+  }
+
+  if (event.target.closest("#completeRestoreButton")) {
+    completeRestoreByAdmin();
+    return;
+  }
+
+  if (event.target.closest("#submitImagineAnswer")) {
+    submitImagineAnswer();
     return;
   }
 

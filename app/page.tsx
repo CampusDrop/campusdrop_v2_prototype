@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { PointerEvent } from "react";
 
-type Scene = "entry" | "incident" | "mission" | "camera" | "arrival" | "witness";
+type Scene = "entry" | "incident" | "mission" | "camera" | "arrival" | "witness" | "imagination";
 type MessageStep = "hidden" | "first";
 type DropLinkMode = "case" | "clue" | "arrange";
 type DirectionKey = "N" | "NE" | "E" | "SE" | "S" | "SW" | "W" | "NW";
@@ -112,6 +113,16 @@ const witnessArrangeBriefings = [
   "[CAMPUSDROP 기록 분석 지시] 획득한 세 건의 기록을 분석하십시오.",
   "기록의 형태와 내용을 확인하고, 오래된 기록부터 순서대로 배치하십시오.",
 ];
+const chapterThreeRecords = correctWitnessOrder.map((id) => witnesses.find((witness) => witness.id === id)!);
+const imaginationResults = [
+  "기록 복원이 완료되었습니다.",
+  "최초 학생수첩의 기록은 명확한 목격 보고가 아닙니다.",
+  "작성자는 탑을 바라보며 기린의 모습을 떠올렸습니다.",
+  "이후 기록에서는 유사한 기린의 모습이 반복해서 나타납니다.",
+  "기록 사이의 변화가 발생한 원인은 확인되지 않았습니다.",
+  "최초 기록의 내용이 이후 학생들에게 전해졌을 가능성이 있습니다.",
+  "그러나 현재 확보된 자료만으로 기록 사이의 관계를 확정할 수 없습니다.",
+];
 
 const posterCopy: Record<string, string> = {
   student_hall: "학생회관 포스터를 통해 접속했습니다. 창문 뒤로 긴 그림자를 봤다는 제보가 남아 있습니다.",
@@ -175,7 +186,18 @@ export default function Home() {
   const [witnessAnswerFeedback, setWitnessAnswerFeedback] = useState("기록 배열이 확인되면 보고 입력창이 열립니다.");
   const [witnessAnswerSubmitted, setWitnessAnswerSubmitted] = useState(false);
   const [expandedWitnessId, setExpandedWitnessId] = useState<string | null>(null);
+  const [chapterThreePreviewIndex, setChapterThreePreviewIndex] = useState<number | null>(null);
+  const [starAnswer, setStarAnswer] = useState("");
+  const [starFeedback, setStarFeedback] = useState("기록 속 개체의 외형에서 달라진 특징을 영문으로 보고하십시오.");
+  const [starSolved, setStarSolved] = useState(false);
+  const [restoreProgress, setRestoreProgress] = useState(0);
+  const [restoreSolved, setRestoreSolved] = useState(false);
+  const [imagineAnswer, setImagineAnswer] = useState("");
+  const [imagineFeedback, setImagineFeedback] = useState("복원된 페이지에서 강조된 단어를 확인하십시오.");
+  const [imagineSolved, setImagineSolved] = useState(false);
   const [draggedWitnessId, setDraggedWitnessId] = useState<string | null>(null);
+  const restoreBoardRef = useRef<HTMLDivElement | null>(null);
+  const restoreTouchedRef = useRef<Set<string>>(new Set());
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const cameraStreamRef = useRef<MediaStream | null>(null);
   const cameraWatchRef = useRef<number | null>(null);
@@ -520,6 +542,55 @@ export default function Home() {
     }
     setWitnessAnswerSubmitted(true);
     setWitnessAnswerFeedback("분석 결과가 등록되었습니다.");
+  }
+
+  function submitStarAnswer() {
+    const normalized = starAnswer.trim().toUpperCase();
+    if (starAnswer.trim() === "별") {
+      setStarFeedback("분석 보고는 영문으로 입력하십시오.");
+      return;
+    }
+    if (normalized !== "STAR") {
+      setStarFeedback("보고된 특징을 증거물에서 확인할 수 없습니다.");
+      return;
+    }
+    setStarSolved(true);
+    setStarFeedback("[증거 분석 결과] STAR 확인. 해당 특징은 증거물 02와 03에서 발견됩니다. 증거물 01에서는 동일한 특징이 확인되지 않습니다. 증거물 01에 미복원 기록이 남아 있습니다. 누락된 내용을 복원하십시오.");
+  }
+
+  function markRestorePoint(clientX: number, clientY: number) {
+    if (!starSolved || restoreSolved || !restoreBoardRef.current) return;
+    const rect = restoreBoardRef.current.getBoundingClientRect();
+    const x = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    const y = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
+    const key = `${Math.floor(x * 10)}-${Math.floor(y * 14)}`;
+    restoreTouchedRef.current.add(key);
+    const nextProgress = Math.min(100, Math.round((restoreTouchedRef.current.size / 58) * 100));
+    setRestoreProgress(nextProgress);
+    if (nextProgress >= 72) {
+      setRestoreSolved(true);
+      setRestoreProgress(100);
+    }
+  }
+
+  function handleRestorePointer(event: PointerEvent<HTMLDivElement>) {
+    if (event.buttons !== 1 && event.pointerType !== "touch") return;
+    markRestorePoint(event.clientX, event.clientY);
+  }
+
+  function completeRestoreByAdmin() {
+    setRestoreSolved(true);
+    setRestoreProgress(100);
+  }
+
+  function submitImagineAnswer() {
+    if (!restoreSolved) return;
+    if (imagineAnswer.trim().toUpperCase() !== "IMAGINE") {
+      setImagineFeedback("강조된 단어와 입력한 내용이 일치하지 않습니다.");
+      return;
+    }
+    setImagineSolved(true);
+    setImagineFeedback("기록 복원이 완료되었습니다.");
   }
 
   const allWitnessImagesAcquired = witnesses.every((witness) => visitedWitnesses[witness.id]);
@@ -978,6 +1049,91 @@ export default function Home() {
             <span>{witnessSolved ? "조사 결과 갱신" : "운영본부 분석 대기"}</span>
             <strong>{witnessSolved ? "시계탑의 기린은 최근에 처음 나타난 존재가 아닐 가능성이 있습니다." : allWitnessImagesAcquired ? "자료 이미지를 오래된 순서대로 배열하세요." : "세 지점의 자료 이미지를 모두 확보하세요."}</strong>
             <p>{witnessSolved ? "분석 결과가 등록되었습니다. 확인된 생물: GIRAFFE. 세 기록은 서로 다른 시기에 작성되었고, 작성자 사이의 직접적인 연관성은 확인되지 않습니다. 그러나 모든 기록에는 시계탑 상부에 나타난 긴 목의 기린이 묘사되어 있습니다." : allWitnessImagesAcquired ? "배열이 확인되기 전에는 생물명 보고 입력창이 열리지 않습니다." : "각 에너지 지점 반경 10m 안에 들어가야 자료 이미지가 열립니다."}</p>
+            {witnessSolved && <button className="primary-action" type="button" onClick={() => moveToScene("imagination")}>3장 기록 재분석 시작</button>}
+          </div>
+        </section>
+      )}
+
+      {scene === "imagination" && (
+        <section className="screen imagination-screen">
+          <div className="mission-copy">
+            <p>3장</p>
+            <h2>나만의 상상</h2>
+            <span>2장에서 확보한 세 기록을 시간순으로 다시 비교합니다. CAMPUSDROP은 아직 차이를 특정하지 못했습니다.</span>
+          </div>
+
+          <div className="order-quiz-panel imagination-panel">
+            <div className="order-quiz-copy">
+              <span>CAMPUSDROP 증거 분석 지시</span>
+              <strong>획득한 세 건의 증거물을 시간순으로 비교하십시오.</strong>
+              <p>기록 속 개체의 외형에서 달라진 점이나 특별한 특징이 발견된다면, 해당 요소를 영문으로 보고하십시오.</p>
+            </div>
+            <div className={`imagination-record-grid${starSolved ? " is-solved" : ""}`} aria-label="시간순 기록 비교">
+              {chapterThreeRecords.map((record, index) => (
+                <button key={record.id} type="button" className="imagination-record-card" onClick={() => setChapterThreePreviewIndex(index)}>
+                  <span>{record.name}</span>
+                  <div style={{ backgroundImage: `url(${record.photo})` }} role="img" aria-label={record.recordTitle} />
+                  <strong>{record.recordTitle}</strong>
+                </button>
+              ))}
+            </div>
+            <label className="word-submit">
+              <span>특징 보고</span>
+              <input value={starAnswer} onChange={(event) => setStarAnswer(event.target.value)} placeholder="영문 정답 입력" aria-label="특징 보고" disabled={starSolved} />
+            </label>
+            <button className="primary-action" type="button" onClick={submitStarAnswer} disabled={starSolved}>분석 보고 제출</button>
+            <p className={`order-feedback${starSolved ? " is-correct" : ""}`}>{starFeedback}</p>
+          </div>
+
+          {starSolved && (
+            <div className="order-quiz-panel restore-panel">
+              <div className="order-quiz-copy">
+                <span>CAMPUSDROP 기록 복원</span>
+                <strong>증거물 01의 미복원 페이지를 복원하십시오.</strong>
+                <p>화면을 문질러 훼손된 표면을 제거하세요. 조작이 어려우면 대체 복원 버튼을 사용할 수 있습니다.</p>
+              </div>
+              <div
+                ref={restoreBoardRef}
+                className={`restore-board${restoreSolved ? " is-restored" : ""}`}
+                onPointerDown={(event) => markRestorePoint(event.clientX, event.clientY)}
+                onPointerMove={handleRestorePointer}
+              >
+                <div className="restore-page-image" role="img" aria-label="복원된 학생수첩 다음 장" />
+                <div className="restore-note-text" aria-hidden={!restoreSolved}>
+                  <p>공강이라 잔디밭에 누워서 탑을 보고 있었다.</p>
+                  <p>저 위로 기린 한 마리가 빼꼼 올라오면 재밌겠다는 생각이 들었다.</p>
+                  <p className="english-line">Everything you can <mark>imagine</mark> is real.</p>
+                </div>
+                {!restoreSolved && <div className="restore-damage-layer" style={{ opacity: Math.max(0.18, 0.9 - restoreProgress / 100) }} aria-hidden="true" />}
+              </div>
+              <div className="transmission-progress restore-progress" aria-label={`복원 진행률 ${restoreProgress}%`}>
+                <i style={{ width: `${restoreProgress}%` }} />
+                <strong>{restoreProgress}%</strong>
+              </div>
+              {!restoreSolved && <button className="secondary-action" type="button" onClick={completeRestoreByAdmin}>대체 복원 버튼</button>}
+            </div>
+          )}
+
+          {restoreSolved && (
+            <div className="order-quiz-panel word-report-panel">
+              <div className="order-quiz-copy">
+                <span>CAMPUSDROP 기록 복원 지시</span>
+                <strong>복원된 페이지에서 강조된 단어를 확인하십시오.</strong>
+                <p>해당 단어를 영문으로 입력하십시오.</p>
+              </div>
+              <label className="word-submit">
+                <span>강조 단어 입력</span>
+                <input value={imagineAnswer} onChange={(event) => setImagineAnswer(event.target.value)} placeholder="영문 정답 입력" aria-label="강조 단어 입력" disabled={imagineSolved} />
+              </label>
+              <button className="primary-action" type="button" onClick={submitImagineAnswer} disabled={imagineSolved}>복원 결과 제출</button>
+              <p className={`order-feedback${imagineSolved ? " is-correct" : ""}`}>{imagineFeedback}</p>
+            </div>
+          )}
+
+          <div className={`conclusion witness-conclusion${imagineSolved ? " is-open" : ""}`} aria-live="polite">
+            <span>{imagineSolved ? "3장 조사 완료" : "분석 대기"}</span>
+            <strong>{imagineSolved ? "상상과 이후 기록 사이의 연결 가능성이 확인되었습니다." : "정답 입력 전에는 3장을 완료할 수 없습니다."}</strong>
+            <p>{imagineSolved ? imaginationResults.join(" ") : "CAMPUSDROP은 아직 기린의 발생 원리를 확정하지 않았습니다."}</p>
           </div>
         </section>
       )}
@@ -993,6 +1149,25 @@ export default function Home() {
               <div className="witness-acquisition-photo evidence-preview-photo" style={{ backgroundImage: `url(${witness.photo})` }} role="img" aria-label={`${witness.name} 확대 이미지`} />
               <p>이미지 속 기록 방식과 식별 문자를 확인하세요.</p>
               <button className="primary-action" type="button" onClick={() => setExpandedWitnessId(null)}>닫기</button>
+            </div>
+          </div>
+        );
+      })()}
+
+      {chapterThreePreviewIndex !== null && (() => {
+        const record = chapterThreeRecords[chapterThreePreviewIndex];
+        return (
+          <div className="witness-acquisition-modal evidence-preview-modal" role="dialog" aria-modal="true" aria-label="3장 기록 이미지 확대">
+            <div className="witness-acquisition-card evidence-preview-card">
+              <span>{record.name}</span>
+              <strong>{record.recordTitle}</strong>
+              <div className={`witness-acquisition-photo evidence-preview-photo${starSolved && record.id !== "C" ? " star-analysis" : ""}`} style={{ backgroundImage: `url(${record.photo})` }} role="img" aria-label={`${record.name} 확대 이미지`} />
+              <div className="preview-nav">
+                <button type="button" onClick={() => setChapterThreePreviewIndex((chapterThreePreviewIndex + chapterThreeRecords.length - 1) % chapterThreeRecords.length)}>이전</button>
+                <button type="button" onClick={() => setChapterThreePreviewIndex((chapterThreePreviewIndex + 1) % chapterThreeRecords.length)}>다음</button>
+              </div>
+              <p>{starSolved ? (record.id === "C" ? "증거물 01에서는 동일한 특징이 확인되지 않습니다." : "정답 보고 이후 분석 강조가 활성화되었습니다.") : "세 이미지를 직접 비교해 달라진 특징을 찾으세요."}</p>
+              <button className="primary-action" type="button" onClick={() => setChapterThreePreviewIndex(null)}>닫기</button>
             </div>
           </div>
         );
