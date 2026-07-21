@@ -2674,3 +2674,47 @@ button:focus-visible {
   }
 }
 
+
+/* Evidence send interaction */
+.arrival-screen .transmission-panel {
+  display: none;
+}
+
+.arrival-screen .transmission-panel.is-active {
+  display: grid;
+}
+
+.transmission-progress {
+  position: relative;
+  grid-template-columns: 1fr auto !important;
+  overflow: hidden;
+  min-height: 38px !important;
+  border-color: rgba(244, 196, 48, 0.28) !important;
+  background: rgba(4, 10, 9, 0.68) !important;
+}
+
+.transmission-progress i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0%;
+  background: linear-gradient(90deg, rgba(56, 211, 159, 0.24), rgba(244, 196, 48, 0.72));
+  box-shadow: 0 0 28px rgba(244, 196, 48, 0.24);
+  transition: width 90ms linear;
+}
+
+.transmission-progress strong {
+  position: relative;
+  z-index: 1;
+  justify-self: end;
+  color: #f7f1e3;
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.chapter-next-action:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+

@@ -58,6 +58,11 @@ const dropLinkBriefings = [
   "사용자 인증 완료. 임시 현장 조사원으로 등록합니다. 사건 번호 CD-SJ-01, 사건명 시계탑 대형 생물 목격 사건.",
   "세종대학교에는 오래된 소문이 하나 있습니다. 시계탑 꼭대기에는 기린이 산다. 본부는 목격 신고 7건을 근거로 현장 조사가 필요하다고 판단했습니다.",
 ];
+const clueTransmissionBriefings = [
+  "표본 A 수신 완료. 위치 기록과 촬영 시점이 현장 조사 로그에 정상 연결됐습니다.",
+  "노란색 섬유는 인공 재료가 아닙니다. 기존 동물 자료와 정확히 일치하지 않지만, 대형 초식동물의 체모 특성과 유사합니다.",
+  "같은 구역에서 접수된 세 건의 목격 기록을 개방합니다. 다음 미션은 목격 지점을 연결하는 현장 추론 조사입니다.",
+];
 const posterCopy = {
   student_hall: "학생회관 포스터를 통해 접속했습니다. 창문 뒤로 긴 그림자를 봤다는 제보가 남아 있습니다.",
   library: "학술정보원 포스터를 통해 접속했습니다. 새벽 시간대 시계탑 꼭대기 목격 신고가 반복됐습니다.",
@@ -66,6 +71,10 @@ const posterCopy = {
 let messageStep = 0;
 let dropLinkTyper = null;
 let dropLinkLine = 0;
+let dropLinkMode = "case";
+let evidenceSending = false;
+let evidenceProgress = 0;
+let evidenceTimer = null;
 let missionMapReady = false;
 let locationRefreshTimer = null;
 let locationInReach = false;
@@ -411,6 +420,56 @@ function updateWitnessConclusion() {
     : "현장 관찰을 바탕으로 목격자가 바라본 방향을 선택하면 지도 위에 추정선이 표시됩니다.";
 }
 
+function updateEvidenceTransmissionUi() {
+  const panel = document.querySelector("#evidenceTransmission");
+  const progressBar = document.querySelector("#evidenceProgressBar");
+  const progressText = document.querySelector("#evidenceProgressText");
+  const conclusion = document.querySelector("#conclusion");
+  panel?.classList.toggle("is-active", evidenceSending);
+  if (progressBar) progressBar.style.width = `${evidenceProgress}%`;
+  if (progressText) progressText.textContent = `${evidenceProgress}%`;
+  document.querySelectorAll("[data-transmission-step]").forEach((step) => {
+    const threshold = Number(step.dataset.transmissionStep);
+    if (threshold === 100) step.textContent = evidenceProgress >= 100 ? "수신 확인" : evidenceSending ? "전송 중" : "대기";
+    else step.textContent = evidenceProgress >= threshold ? "완료" : "대기";
+  });
+  if (conclusion) {
+    conclusion.classList.toggle("is-open", evidenceProgress >= 100);
+    conclusion.querySelector("span").textContent = evidenceProgress >= 100 ? "본부 수신 완료" : "전송 대기";
+    conclusion.querySelector("strong").textContent = evidenceProgress >= 100 ? "운영본부가 표본 분석을 시작했습니다." : "확보한 표본을 먼저 운영본부에 전송하세요.";
+    conclusion.querySelector("p").textContent = evidenceProgress >= 100 ? "분석 결과와 다음 조사 지시가 DROP LINK로 도착합니다." : "전송이 완료되면 다음 미션이 개방됩니다.";
+  }
+  const button = document.querySelector("#sendEvidenceButton");
+  if (button) {
+    button.disabled = evidenceSending;
+    button.textContent = evidenceSending ? "표본 전송 중..." : "표본 전송하기";
+  }
+}
+
+function startEvidenceTransmission() {
+  if (evidenceSending) return;
+  triggerDropLinkVibration();
+  evidenceSending = true;
+  evidenceProgress = 0;
+  updateEvidenceTransmissionUi();
+  if (evidenceTimer !== null) window.clearInterval(evidenceTimer);
+  evidenceTimer = window.setInterval(() => {
+    evidenceProgress = Math.min(100, evidenceProgress + 4);
+    updateEvidenceTransmissionUi();
+    if (evidenceProgress >= 100) {
+      window.clearInterval(evidenceTimer);
+      evidenceTimer = null;
+      window.setTimeout(() => {
+        dropLinkMode = "clue";
+        dropLinkLine = 0;
+        document.querySelector("#dropLinkModal").hidden = false;
+        startDropLinkTyping();
+        triggerDropLinkVibration();
+      }, 420);
+    }
+  }, 46);
+}
+
 function checkLocation() {
   requestMissionLocation();
 }
@@ -512,8 +571,9 @@ function startDropLinkTyping() {
   typeTarget.appendChild(cursor);
   nextButton.disabled = true;
 
-  const currentBriefing = dropLinkBriefings[dropLinkLine];
-  nextButton.textContent = dropLinkLine < dropLinkBriefings.length - 1 ? "다음" : "사건 개요 수신";
+  const activeBriefings = dropLinkMode === "case" ? dropLinkBriefings : clueTransmissionBriefings;
+  const currentBriefing = activeBriefings[dropLinkLine];
+  nextButton.textContent = dropLinkLine < activeBriefings.length - 1 ? "다음" : dropLinkMode === "case" ? "사건 개요 수신" : "다음 미션 수신";
 
   let index = 0;
   dropLinkTyper = window.setInterval(() => {
@@ -577,10 +637,16 @@ document.addEventListener("click", (event) => {
     return;
   }
 
+  if (event.target.closest("#sendEvidenceButton")) {
+    startEvidenceTransmission();
+    return;
+  }
+
   const closeDropLinkModal = event.target.closest("#closeDropLinkModal");
   if (closeDropLinkModal) {
     if (closeDropLinkModal.disabled) return;
-    if (dropLinkLine < dropLinkBriefings.length - 1) {
+    const activeBriefings = dropLinkMode === "case" ? dropLinkBriefings : clueTransmissionBriefings;
+    if (dropLinkLine < activeBriefings.length - 1) {
       dropLinkLine += 1;
       startDropLinkTyping();
       return;
@@ -595,7 +661,8 @@ document.addEventListener("click", (event) => {
       modal.classList.remove("is-transfer");
       messageStep = 0;
       dropLinkLine = 0;
-      showScreen("mission");
+      showScreen(dropLinkMode === "case" ? "mission" : "witness");
+      dropLinkMode = "case";
     }, 1500);
     return;
   }
@@ -603,6 +670,7 @@ document.addEventListener("click", (event) => {
   const unknownMessage = event.target.closest("#unknownMessage");
   if (unknownMessage) {
     if (messageStep === 0) {
+      dropLinkMode = "case";
       dropLinkLine = 0;
       document.querySelector("#dropLinkModal").hidden = false;
       startDropLinkTyping();
