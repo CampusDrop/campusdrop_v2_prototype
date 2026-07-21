@@ -836,14 +836,6 @@ function openEvidencePreview(id) {
 }
 
 function updateWitnessConclusion() {
-  const allVisited = witnesses.every((witness) => visitedWitnesses[witness.id]);
-  const conclusion = document.querySelector("#witnessConclusion");
-  conclusion.classList.toggle("is-open", witnessAnswerSubmitted);
-  conclusion.querySelector("span").textContent = witnessAnswerSubmitted ? "조사 결과 갱신" : "운영본부 분석 대기";
-  conclusion.querySelector("strong").textContent = witnessAnswerSubmitted ? "해당 개체가 최근에 처음 나타난 것은 아닐 가능성이 있습니다." : allVisited ? "자료 이미지를 오래된 순서대로 배열하세요." : "세 지점의 자료 이미지를 모두 확보하세요.";
-  conclusion.querySelector("p").textContent = witnessAnswerSubmitted
-    ? "분석 결과가 등록되었습니다. 확인된 생물: GIRAFFE. 세 기록은 서로 다른 시기에 작성되었고, 작성자 사이의 직접적인 연관성은 확인되지 않습니다. 그러나 모든 기록에는 시계탑 상부에 나타난 긴 목의 기린이 묘사되어 있습니다."
-    : allVisited ? "배열이 확인되기 전에는 생물명 보고 입력창이 열리지 않습니다." : "각 에너지 지점 반경 10m 안에 들어가야 자료 이미지가 열립니다.";
   const startChapterThree = document.querySelector("#startChapterThree");
   if (startChapterThree) startChapterThree.hidden = !witnessAnswerSubmitted;
 }
