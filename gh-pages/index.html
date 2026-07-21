@@ -27,7 +27,7 @@
         <p class="poster-source" id="posterSource">학생회관 포스터를 통해 접속했습니다. 창문 뒤로 긴 그림자를 봤다는 제보가 남아 있습니다.</p>
         <div class="entry-guide" aria-label="조사 안내">
           <article><span>소개</span><p>Campus Drop은 교내 QR 포스터에서 시작되는 현장 조사형 웹 게임입니다.</p></article>
-          <article><span>진행 방식</span><p>지정된 잔디밭으로 이동해 GPS 체크포인트를 열고, 첫 번째 흔적을 확인합니다.</p></article>
+          <article><span>진행 방식</span><p>지정된 잔디밭에서 카메라 조사를 시작하고, 반경 20m 안에서 첫 번째 흔적을 감지합니다.</p></article>
           <article><span>안내</span><p>이야기의 단서가 중요합니다. 큰 소리나 스포일러 없이 천천히 진행해 주세요.</p></article>
         </div>
         <button class="primary-action" type="button" data-go="incident">조사 참여하기</button>
@@ -106,23 +106,39 @@
         </div>
         <p class="location-status" id="locationStatus">위치 확인 전</p>
         <div class="mission-actions">
-          <button class="primary-action" type="button" id="checkLocation">현재 위치로 확인</button>
-          <button class="secondary-action" type="button" data-go="arrival">데모용 도착 처리</button>
+          <button class="primary-action" type="button" id="startCameraScan">카메라로 노란털 조사 시작</button>
+          <button class="secondary-action" type="button" id="checkLocation">현재 거리만 확인</button>
         </div>
+      </section>
+
+      <section class="screen camera-screen" data-screen="camera">
+        <video class="camera-feed" id="cameraFeed" playsinline muted></video>
+        <div class="camera-vignette" aria-hidden="true"></div>
+        <div class="camera-hud">
+          <p>AR 현장 조사</p>
+          <h2>잔디밭을 천천히 훑어보세요</h2>
+          <span id="cameraStatus">카메라 권한을 요청하는 중...</span>
+        </div>
+        <div class="camera-scan-line" aria-hidden="true"></div>
+        <div class="camera-bottom-signal" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="camera-readout"><span>조사 반경</span><strong id="scanDistanceText">측정 중</strong></div>
+        <button class="camera-exit" type="button" data-go="mission">조사 종료</button>
       </section>
 
       <section class="screen arrival-screen" data-screen="arrival">
         <div class="arrival-copy">
-          <p>체크포인트 열림</p>
-          <h2>잔디밭 조사 범위에 진입했습니다.</h2>
-          <span>잔디밭 가장자리에서 기린의 노란털 흔적을 찾아주세요.</span>
+          <p>첫 번째 흔적 발견</p>
+          <h2>노란색 털을 발견했다!</h2>
+          <span>카메라 조사 중 잔디밭 하단 신호가 반응했습니다. 확보한 표본을 운영본부로 전송합니다.</span>
         </div>
-        <div class="clue-list">
-          <button type="button" data-clue="노란털"><span>첫 번째 흔적</span><strong>기린의 노란털</strong><p>탭해서 흔적 조사</p></button>
+        <div class="fur-evidence-card">
+          <div class="fur-image-wrap"><img src="./GFfur.png" alt="기린의 노란털 표본" /></div>
+          <div><span>현장 표본 A</span><strong>기린의 노란털</strong><p>잔디밭 가장자리에서 노란 털 표본을 확보했습니다. 인공 섬유가 아니며 기린과 동물의 체모와 유사합니다.</p></div>
         </div>
-        <div class="conclusion" id="conclusion" aria-live="polite">
+        <div class="conclusion is-open" id="conclusion" aria-live="polite">
           <span>조사 결론</span>
-          <strong>0 / 1 흔적 확인</strong>
+          <strong>노란털 표본 확보. 첫 번째 현장 단서가 기록됐습니다.</strong>
+          <p>다음 파트: 추가 단서를 분석해 세린이와 첫 접촉하기</p>
         </div>
       </section>
     </main>

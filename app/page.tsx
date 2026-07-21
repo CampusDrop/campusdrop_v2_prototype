@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-type Scene = "entry" | "incident" | "mission" | "arrival";
+type Scene = "entry" | "incident" | "mission" | "camera" | "arrival";
 type MessageStep = "hidden" | "first";
 
 type KakaoLatLng = object;
@@ -43,14 +43,6 @@ const posterCopy: Record<string, string> = {
   gate: "정문 포스터를 통해 접속했습니다. 최근 30일 동안 같은 소문과 관련된 신고가 7건 접수됐습니다.",
 };
 
-const clues = [
-  {
-    direction: "첫 번째 흔적",
-    title: "기린의 노란털",
-    detail: "잔디밭 가장자리에서 노란 털 표본을 확보했습니다. 인공 섬유가 아니며 기린과 동물의 체모와 유사합니다.",
-  },
-];
-
 function getDistanceMeters(from: { lat: number; lng: number }, to: { lat: number; lng: number }) {
   const radius = 6371000;
   const lat1 = (from.lat * Math.PI) / 180;
@@ -68,11 +60,17 @@ export default function Home() {
   const [messageStep, setMessageStep] = useState<MessageStep>("hidden");
   const [distance, setDistance] = useState<number | null>(null);
   const [locationStatus, setLocationStatus] = useState("위치 확인 전");
-  const [foundClues, setFoundClues] = useState<string[]>([]);
   const [caseModalOpen, setCaseModalOpen] = useState(false);
   const [dropLinkText, setDropLinkText] = useState("");
   const [caseTransferActive, setCaseTransferActive] = useState(false);
   const [dropLinkLine, setDropLinkLine] = useState(0);
+  const [cameraStatus, setCameraStatus] = useState("카메라 권한을 요청하는 중...");
+  const [scanDistance, setScanDistance] = useState<number | null>(null);
+  const [scanFound, setScanFound] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const cameraStreamRef = useRef<MediaStream | null>(null);
+  const cameraWatchRef = useRef<number | null>(null);
+  const cameraFoundTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (scene !== "incident") return;
@@ -102,9 +100,91 @@ export default function Home() {
   }, []);
 
   const posterText = posterCopy[posterId] ?? posterCopy.student_hall;
-  const foundAllClues = foundClues.length === clues.length;
+
+  function stopCameraScan() {
+    cameraStreamRef.current?.getTracks().forEach((track) => track.stop());
+    cameraStreamRef.current = null;
+    if (cameraWatchRef.current !== null) {
+      navigator.geolocation.clearWatch(cameraWatchRef.current);
+      cameraWatchRef.current = null;
+    }
+    if (cameraFoundTimerRef.current !== null) {
+      window.clearTimeout(cameraFoundTimerRef.current);
+      cameraFoundTimerRef.current = null;
+    }
+  }
+
+  function completeCameraScan() {
+    if (cameraFoundTimerRef.current !== null) return;
+    setScanFound(true);
+    setCameraStatus("잔디밭 아래쪽에서 노란 신호가 감지됐습니다.");
+    cameraFoundTimerRef.current = window.setTimeout(() => {
+      stopCameraScan();
+      moveToScene("arrival");
+    }, 1500);
+  }
+
+  function updateCameraDistance(position: GeolocationPosition) {
+    const nextDistance = getDistanceMeters(
+      { lat: position.coords.latitude, lng: position.coords.longitude },
+      missionTarget,
+    );
+    setDistance(nextDistance);
+    setScanDistance(nextDistance);
+
+    if (nextDistance <= reachRadiusMeters) {
+      completeCameraScan();
+      return;
+    }
+
+    setCameraStatus(`현재 조사 지점까지 ${nextDistance}m. 잔디밭을 천천히 훑어보세요.`);
+  }
+
+  async function startCameraScan() {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setLocationStatus("이 브라우저에서는 카메라 조사를 사용할 수 없습니다.");
+      return;
+    }
+    if (!navigator.geolocation) {
+      setLocationStatus("위치 확인을 사용할 수 없어 조사 범위 판정을 할 수 없습니다.");
+      return;
+    }
+
+    setScanFound(false);
+    setScanDistance(null);
+    setCameraStatus("카메라 권한을 요청하는 중...");
+    moveToScene("camera");
+    await new Promise<void>((resolve) => window.requestAnimationFrame(() => resolve()));
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: "environment" } },
+        audio: false,
+      });
+      cameraStreamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
+      }
+      setCameraStatus("잔디밭 아래쪽을 천천히 비춰 주세요. 반경 20m 안에서 신호가 반응합니다.");
+      cameraWatchRef.current = navigator.geolocation.watchPosition(
+        updateCameraDistance,
+        () => setCameraStatus("위치 권한을 허용하면 노란털 신호를 감지할 수 있습니다."),
+        { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 },
+      );
+    } catch {
+      stopCameraScan();
+      setLocationStatus("카메라 권한을 허용하면 잔디밭 조사 화면을 열 수 있습니다.");
+      moveToScene("mission");
+    }
+  }
+
+  useEffect(() => () => stopCameraScan(), []);
 
   function moveToScene(nextScene: Scene) {
+    if (scene === "camera" && nextScene !== "camera") {
+      stopCameraScan();
+    }
     if (nextScene === "incident") {
       setMessageStep("hidden");
     }
@@ -126,8 +206,7 @@ export default function Home() {
         );
         setDistance(nextDistance);
         if (nextDistance <= reachRadiusMeters) {
-          setLocationStatus("잔디밭 조사 범위에 진입했습니다.");
-          moveToScene("arrival");
+          setLocationStatus("잔디밭 조사 범위에 진입했습니다. 카메라 조사를 시작하면 신호가 반응합니다.");
           return;
         }
         setLocationStatus("아직 조사 범위 밖입니다. 지정된 잔디밭 쪽으로 이동하세요.");
@@ -137,10 +216,6 @@ export default function Home() {
       },
       { enableHighAccuracy: true, timeout: 10000 },
     );
-  }
-
-  function toggleClue(title: string) {
-    setFoundClues((current) => (current.includes(title) ? current : [...current, title]));
   }
 
   function handleDropLink() {
@@ -192,7 +267,7 @@ export default function Home() {
             </article>
             <article>
               <span>진행 방식</span>
-              <p>지정된 잔디밭으로 이동해 GPS 체크포인트를 열고, 첫 번째 흔적을 확인합니다.</p>
+              <p>지정된 잔디밭에서 카메라 조사를 시작하고, 반경 20m 안에서 첫 번째 흔적을 감지합니다.</p>
             </article>
             <article>
               <span>안내</span>
@@ -309,50 +384,62 @@ export default function Home() {
 
           <p className="location-status">{locationStatus}</p>
           <div className="mission-actions">
-            <button className="primary-action" type="button" onClick={checkLocation}>
-              현재 위치로 확인
+            <button className="primary-action" type="button" onClick={startCameraScan}>
+              카메라로 노란털 조사 시작
             </button>
-            <button className="secondary-action" type="button" onClick={() => moveToScene("arrival")}>
-              데모용 도착 처리
+            <button className="secondary-action" type="button" onClick={checkLocation}>
+              현재 거리만 확인
             </button>
           </div>
+        </section>
+      )}
+
+      {scene === "camera" && (
+        <section className={`screen camera-screen${scanFound ? " is-found" : ""}`}>
+          <video ref={videoRef} className="camera-feed" playsInline muted />
+          <div className="camera-vignette" aria-hidden="true" />
+          <div className="camera-hud">
+            <p>AR 현장 조사</p>
+            <h2>잔디밭을 천천히 훑어보세요</h2>
+            <span>{cameraStatus}</span>
+          </div>
+          <div className="camera-scan-line" aria-hidden="true" />
+          <div className="camera-bottom-signal" aria-hidden="true">
+            <i />
+            <i />
+            <i />
+          </div>
+          <div className="camera-readout">
+            <span>조사 반경</span>
+            <strong>{scanDistance === null ? "측정 중" : `${scanDistance}m / ${reachRadiusMeters}m`}</strong>
+          </div>
+          <button className="camera-exit" type="button" onClick={() => moveToScene("mission")}>조사 종료</button>
         </section>
       )}
 
       {scene === "arrival" && (
         <section className="screen arrival-screen">
           <div className="arrival-copy">
-            <p>체크포인트 열림</p>
-            <h2>잔디밭 조사 범위에 진입했습니다.</h2>
-            <span>잔디밭 가장자리에서 기린의 노란털 흔적을 찾아주세요.</span>
+            <p>첫 번째 흔적 발견</p>
+            <h2>노란색 털을 발견했다!</h2>
+            <span>카메라 조사 중 잔디밭 하단 신호가 반응했습니다. 확보한 표본을 운영본부로 전송합니다.</span>
           </div>
 
-          <div className="clue-list">
-            {clues.map((clue) => {
-              const active = foundClues.includes(clue.title);
-              return (
-                <button
-                  key={clue.title}
-                  className={active ? "is-found" : ""}
-                  type="button"
-                  onClick={() => toggleClue(clue.title)}
-                >
-                  <span>{clue.direction}</span>
-                  <strong>{clue.title}</strong>
-                  <p>{active ? clue.detail : "탭해서 흔적 조사"}</p>
-                </button>
-              );
-            })}
+          <div className="fur-evidence-card">
+            <div className="fur-image-wrap">
+              <div className="fur-image" role="img" aria-label="기린의 노란털 표본" />
+            </div>
+            <div>
+              <span>현장 표본 A</span>
+              <strong>기린의 노란털</strong>
+              <p>잔디밭 가장자리에서 노란 털 표본을 확보했습니다. 인공 섬유가 아니며 기린과 동물의 체모와 유사합니다.</p>
+            </div>
           </div>
 
-          <div className={`conclusion ${foundAllClues ? "is-open" : ""}`} aria-live="polite">
+          <div className="conclusion is-open" aria-live="polite">
             <span>조사 결론</span>
-            <strong>
-              {foundAllClues
-                ? "노란털 표본 확보. 인공 섬유가 아니며 기린과 동물의 체모와 유사합니다."
-                : `${foundClues.length} / ${clues.length} 흔적 확인`}
-            </strong>
-            {foundAllClues && <p>첫 번째 현장 표본이 확보됐습니다. 다음 파트: 추가 단서를 분석해 세린이와 첫 접촉하기</p>}
+            <strong>노란털 표본 확보. 첫 번째 현장 단서가 기록됐습니다.</strong>
+            <p>다음 파트: 추가 단서를 분석해 세린이와 첫 접촉하기</p>
           </div>
         </section>
       )}

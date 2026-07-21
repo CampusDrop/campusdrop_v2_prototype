@@ -11,17 +11,31 @@ const posterCopy = {
   library: "학술정보원 포스터를 통해 접속했습니다. 새벽 시간대 시계탑 꼭대기 목격 신고가 반복됐습니다.",
   gate: "정문 포스터를 통해 접속했습니다. 최근 30일 동안 같은 소문과 관련된 신고가 7건 접수됐습니다.",
 };
-const clueDetails = {
-  "노란털": "잔디밭 가장자리에서 노란 털 표본을 확보했습니다. 인공 섬유가 아니며 기린과 동물의 체모와 유사합니다.",
-};
-
 let messageStep = 0;
 let dropLinkTyper = null;
 let dropLinkLine = 0;
-const foundClues = new Set();
 let missionMapReady = false;
+let cameraStream = null;
+let cameraWatch = null;
+let cameraFoundTimer = null;
+
+function stopCameraScan() {
+  cameraStream?.getTracks().forEach((track) => track.stop());
+  cameraStream = null;
+  if (cameraWatch !== null) {
+    navigator.geolocation.clearWatch(cameraWatch);
+    cameraWatch = null;
+  }
+  if (cameraFoundTimer !== null) {
+    window.clearTimeout(cameraFoundTimer);
+    cameraFoundTimer = null;
+  }
+}
 
 function showScreen(name) {
+  if (app.classList.contains("scene-camera") && name !== "camera") {
+    stopCameraScan();
+  }
   screens.forEach((screen) => {
     screen.classList.toggle("is-active", screen.dataset.screen === name);
   });
@@ -126,8 +140,7 @@ function checkLocation() {
       );
       distanceText.textContent = `${distance}m`;
       if (distance <= reachRadiusMeters) {
-        status.textContent = "잔디밭 조사 범위에 진입했습니다.";
-        showScreen("arrival");
+        status.textContent = "잔디밭 조사 범위에 진입했습니다. 카메라 조사를 시작하면 신호가 반응합니다.";
         return;
       }
       status.textContent = "아직 조사 범위 밖입니다. 지정된 잔디밭 쪽으로 이동하세요.";
@@ -137,6 +150,81 @@ function checkLocation() {
     },
     { enableHighAccuracy: true, timeout: 10000 },
   );
+}
+
+function completeCameraScan() {
+  if (cameraFoundTimer !== null) return;
+  const cameraScreen = document.querySelector('[data-screen="camera"]');
+  const status = document.querySelector("#cameraStatus");
+  cameraScreen?.classList.add("is-found");
+  if (status) status.textContent = "잔디밭 아래쪽에서 노란 신호가 감지됐습니다.";
+  cameraFoundTimer = window.setTimeout(() => {
+    stopCameraScan();
+    showScreen("arrival");
+  }, 1500);
+}
+
+function updateCameraDistance(position) {
+  const distance = getDistanceMeters(
+    { lat: position.coords.latitude, lng: position.coords.longitude },
+    missionTarget,
+  );
+  const distanceText = document.querySelector("#distanceText");
+  const scanDistanceText = document.querySelector("#scanDistanceText");
+  const status = document.querySelector("#cameraStatus");
+  if (distanceText) distanceText.textContent = `${distance}m`;
+  if (scanDistanceText) scanDistanceText.textContent = `${distance}m / ${reachRadiusMeters}m`;
+
+  if (distance <= reachRadiusMeters) {
+    completeCameraScan();
+    return;
+  }
+
+  if (status) status.textContent = `현재 조사 지점까지 ${distance}m. 잔디밭을 천천히 훑어보세요.`;
+}
+
+async function startCameraScan() {
+  const status = document.querySelector("#locationStatus");
+  const cameraStatus = document.querySelector("#cameraStatus");
+  const cameraScreen = document.querySelector('[data-screen="camera"]');
+  const video = document.querySelector("#cameraFeed");
+
+  if (!navigator.mediaDevices?.getUserMedia) {
+    status.textContent = "이 브라우저에서는 카메라 조사를 사용할 수 없습니다.";
+    return;
+  }
+  if (!navigator.geolocation) {
+    status.textContent = "위치 확인을 사용할 수 없어 조사 범위 판정을 할 수 없습니다.";
+    return;
+  }
+
+  stopCameraScan();
+  cameraScreen?.classList.remove("is-found");
+  if (cameraStatus) cameraStatus.textContent = "카메라 권한을 요청하는 중...";
+  const scanDistanceText = document.querySelector("#scanDistanceText");
+  if (scanDistanceText) scanDistanceText.textContent = "측정 중";
+  showScreen("camera");
+
+  try {
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: "environment" } },
+      audio: false,
+    });
+    video.srcObject = cameraStream;
+    await video.play();
+    if (cameraStatus) cameraStatus.textContent = "잔디밭 아래쪽을 천천히 비춰 주세요. 반경 20m 안에서 신호가 반응합니다.";
+    cameraWatch = navigator.geolocation.watchPosition(
+      updateCameraDistance,
+      () => {
+        if (cameraStatus) cameraStatus.textContent = "위치 권한을 허용하면 노란털 신호를 감지할 수 있습니다.";
+      },
+      { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 },
+    );
+  } catch {
+    stopCameraScan();
+    status.textContent = "카메라 권한을 허용하면 잔디밭 조사 화면을 열 수 있습니다.";
+    showScreen("mission");
+  }
 }
 
 function startDropLinkTyping() {
@@ -164,22 +252,6 @@ function startDropLinkTyping() {
   }, 34);
 }
 
-function updateConclusion() {
-  const conclusion = document.querySelector("#conclusion");
-  const strong = conclusion.querySelector("strong");
-  if (foundClues.size === 1) {
-    conclusion.classList.add("is-open");
-    strong.textContent = "노란털 표본 확보. 인공 섬유가 아니며 기린과 동물의 체모와 유사합니다.";
-    if (!conclusion.querySelector("p")) {
-      const next = document.createElement("p");
-      next.textContent = "첫 번째 현장 표본이 확보됐습니다. 다음 파트: 추가 단서를 분석해 세린이와 첫 접촉하기";
-      conclusion.appendChild(next);
-    }
-    return;
-  }
-  strong.textContent = `${foundClues.size} / 1 흔적 확인`;
-}
-
 document.addEventListener("click", (event) => {
   const goButton = event.target.closest("[data-go]");
   if (goButton) {
@@ -189,6 +261,11 @@ document.addEventListener("click", (event) => {
 
   if (event.target.closest("#checkLocation")) {
     checkLocation();
+    return;
+  }
+
+  if (event.target.closest("#startCameraScan")) {
+    startCameraScan();
     return;
   }
 
@@ -225,14 +302,6 @@ document.addEventListener("click", (event) => {
       showScreen("mission");
     }
     return;
-  }
-
-  const clueButton = event.target.closest("[data-clue]");
-  if (clueButton) {
-    foundClues.add(clueButton.dataset.clue);
-    clueButton.classList.add("is-found");
-    clueButton.querySelector("p").textContent = clueDetails[clueButton.dataset.clue];
-    updateConclusion();
   }
 });
 

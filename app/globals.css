@@ -1934,3 +1934,229 @@ button:focus-visible {
   border-color: rgba(115, 242, 223, 0.58);
 }
 
+
+.camera-screen.is-active {
+  display: flex;
+  min-height: 100svh;
+  width: 100%;
+  max-width: none;
+  padding: 0;
+  background: #050807;
+  overflow: hidden;
+}
+
+.camera-feed {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #070b0a;
+}
+
+.camera-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(5, 8, 7, 0.68), transparent 26%, transparent 58%, rgba(5, 8, 7, 0.8)),
+    radial-gradient(circle at 50% 42%, transparent 34%, rgba(0, 0, 0, 0.34) 100%);
+}
+
+.camera-hud {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  top: max(18px, env(safe-area-inset-top));
+  z-index: 3;
+  border: 1px solid rgba(115, 242, 223, 0.18);
+  border-radius: 22px;
+  background: rgba(4, 10, 9, 0.56);
+  padding: 15px 16px;
+  color: #f8fffb;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.28);
+}
+
+.camera-hud p,
+.camera-readout span,
+.fur-evidence-card span {
+  margin: 0;
+  color: #73f2df;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.camera-hud h2 {
+  margin: 7px 0 6px;
+  color: #f8fffb;
+  font-family: "HakgyoansimByeol", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 30px;
+  line-height: 1.04;
+}
+
+.camera-hud span {
+  display: block;
+  color: rgba(248, 255, 251, 0.78);
+  font-size: 13px;
+  font-weight: 760;
+  line-height: 1.55;
+}
+
+.camera-scan-line {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 46%;
+  z-index: 2;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(115, 242, 223, 0.9), transparent);
+  box-shadow: 0 0 18px rgba(115, 242, 223, 0.6);
+  opacity: 0.58;
+  animation: scan-line 2.6s ease-in-out infinite;
+}
+
+.camera-bottom-signal {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  height: 34svh;
+  pointer-events: none;
+  opacity: 0.24;
+  background:
+    radial-gradient(ellipse at 50% 92%, rgba(255, 209, 102, 0.74), transparent 42%),
+    linear-gradient(180deg, transparent, rgba(255, 190, 72, 0.16));
+  transform: translateY(38%);
+  transition: opacity 420ms ease, transform 420ms ease;
+}
+
+.camera-bottom-signal i {
+  position: absolute;
+  left: 50%;
+  bottom: 12%;
+  width: 42vw;
+  max-width: 260px;
+  aspect-ratio: 1;
+  border: 1px solid rgba(255, 217, 105, 0.48);
+  border-radius: 50%;
+  transform: translateX(-50%) scale(0.78);
+  animation: bottom-pulse 1.8s ease-out infinite;
+}
+
+.camera-bottom-signal i:nth-child(2) { animation-delay: 0.36s; }
+.camera-bottom-signal i:nth-child(3) { animation-delay: 0.72s; }
+
+.camera-screen.is-found .camera-bottom-signal {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.camera-screen.is-found .camera-scan-line {
+  background: linear-gradient(90deg, transparent, rgba(255, 221, 105, 1), transparent);
+  box-shadow: 0 0 30px rgba(255, 221, 105, 0.92);
+}
+
+.camera-readout {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: calc(86px + env(safe-area-inset-bottom));
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 18px;
+  background: rgba(4, 10, 9, 0.58);
+  padding: 12px 14px;
+  backdrop-filter: blur(16px);
+}
+
+.camera-readout strong {
+  color: #ffdc78;
+  font-size: 16px;
+  font-weight: 950;
+}
+
+.camera-exit {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: max(18px, env(safe-area-inset-bottom));
+  z-index: 4;
+  min-height: 54px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #111916;
+  cursor: pointer;
+  font-weight: 950;
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.28);
+}
+
+.fur-evidence-card {
+  display: grid;
+  gap: 15px;
+  margin-top: 22px;
+  border: 1px solid rgba(255, 209, 102, 0.26);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.13);
+  padding: 16px;
+  box-shadow: 0 22px 56px rgba(22, 19, 55, 0.18);
+  backdrop-filter: blur(16px);
+}
+
+.fur-image-wrap {
+  display: grid;
+  min-height: 220px;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255, 209, 102, 0.26), transparent 54%),
+    rgba(8, 16, 17, 0.72);
+}
+
+.fur-image-wrap img {
+  width: min(82%, 280px);
+  height: auto;
+  mix-blend-mode: normal;
+  filter: drop-shadow(0 18px 32px rgba(0, 0, 0, 0.34));
+}
+
+.fur-evidence-card strong {
+  display: block;
+  margin-top: 6px;
+  color: #ffe19a;
+  font-size: 24px;
+  font-weight: 950;
+}
+
+.fur-evidence-card p {
+  margin: 8px 0 0;
+  color: rgba(248, 255, 251, 0.76);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+@keyframes scan-line {
+  0%, 100% { transform: translateY(-16svh); opacity: 0.22; }
+  50% { transform: translateY(17svh); opacity: 0.72; }
+}
+
+@keyframes bottom-pulse {
+  0% { opacity: 0.7; transform: translateX(-50%) scale(0.58); }
+  100% { opacity: 0; transform: translateX(-50%) scale(1.42); }
+}
+
+
+.fur-image {
+  width: min(82%, 280px);
+  aspect-ratio: 1;
+  background: url("/GFfur.png") center / contain no-repeat;
+  filter: drop-shadow(0 18px 32px rgba(0, 0, 0, 0.34));
+}
