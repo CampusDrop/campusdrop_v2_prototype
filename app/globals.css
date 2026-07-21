@@ -2033,6 +2033,24 @@ button:focus-visible {
   line-height: 1.55;
 }
 
+
+
+
+.camera-discovery-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 64%, rgba(255, 236, 171, 0.98), rgba(255, 199, 77, 0.38) 22%, transparent 52%),
+    rgba(255, 255, 255, 0.52);
+  opacity: 0;
+}
+
+.camera-screen.is-found .camera-discovery-flash {
+  animation: evidence-flash 900ms ease-out both;
+}
+
 .camera-scan-line {
   position: absolute;
   left: 8%;
@@ -2044,6 +2062,79 @@ button:focus-visible {
   box-shadow: 0 0 18px rgba(115, 242, 223, 0.6);
   opacity: 0.58;
   animation: scan-line 2.6s ease-in-out infinite;
+}
+
+.camera-evidence-lock {
+  position: absolute;
+  left: 50%;
+  top: 55%;
+  z-index: 6;
+  width: min(58vw, 260px);
+  aspect-ratio: 1;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.82);
+}
+
+.camera-evidence-lock i,
+.camera-evidence-lock b {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+.camera-evidence-lock i:first-child {
+  border: 2px solid rgba(255, 224, 120, 0.95);
+  box-shadow: 0 0 22px rgba(255, 210, 93, 0.72), inset 0 0 20px rgba(255, 210, 93, 0.2);
+}
+
+.camera-evidence-lock i:nth-child(2) {
+  inset: 18%;
+  border: 1px dashed rgba(115, 242, 223, 0.88);
+}
+
+.camera-evidence-lock b {
+  inset: 42%;
+  background: radial-gradient(circle, rgba(255, 234, 145, 1), rgba(255, 192, 55, 0.42) 42%, transparent 66%);
+  box-shadow: 0 0 24px rgba(255, 216, 104, 0.92);
+}
+
+.camera-screen.is-found .camera-evidence-lock {
+  animation: evidence-lock 1420ms cubic-bezier(.16, .98, .18, 1) both;
+}
+
+.camera-screen.is-found .camera-evidence-lock i:nth-child(2) {
+  animation: evidence-ring-spin 1320ms linear both;
+}
+
+.camera-evidence-stamp {
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  z-index: 8;
+  width: max-content;
+  pointer-events: none;
+  border: 2px solid rgba(255, 225, 154, 0.95);
+  border-radius: 12px;
+  color: #ffe19a;
+  background: rgba(5, 8, 7, 0.72);
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  opacity: 0;
+  text-shadow: 0 0 16px rgba(255, 209, 102, 0.74);
+  transform: translate(-50%, -50%) rotate(-8deg) scale(1.45);
+}
+
+.camera-screen.is-found .camera-evidence-stamp {
+  animation: evidence-stamp 980ms cubic-bezier(.18, .9, .24, 1.18) 420ms both;
+}
+
+.camera-screen.is-found .camera-vignette {
+  background:
+    radial-gradient(circle at 50% 64%, transparent 12%, rgba(255, 202, 72, 0.18) 38%, rgba(0, 0, 0, 0.68) 100%),
+    linear-gradient(180deg, rgba(5, 8, 7, 0.6), transparent 25%, transparent 58%, rgba(5, 8, 7, 0.78));
 }
 
 .camera-bottom-signal {
@@ -2086,6 +2177,54 @@ button:focus-visible {
 .camera-screen.is-found .camera-scan-line {
   background: linear-gradient(90deg, transparent, rgba(255, 221, 105, 1), transparent);
   box-shadow: 0 0 30px rgba(255, 221, 105, 0.92);
+}
+
+.camera-spark-field {
+  position: absolute;
+  left: 50%;
+  bottom: calc(256px + env(safe-area-inset-bottom));
+  z-index: 5;
+  width: min(78vw, 340px);
+  height: 210px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-50%);
+}
+
+.camera-spark-field i {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  width: 8px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #ffe19a;
+  box-shadow: 0 0 16px rgba(255, 209, 102, 0.95);
+}
+
+.camera-spark-field i:nth-child(1) { --spark-x: -138px; --spark-y: -116px; --spark-r: -22deg; }
+.camera-spark-field i:nth-child(2) { --spark-x: -84px; --spark-y: -164px; --spark-r: 12deg; }
+.camera-spark-field i:nth-child(3) { --spark-x: -22px; --spark-y: -122px; --spark-r: 34deg; }
+.camera-spark-field i:nth-child(4) { --spark-x: 46px; --spark-y: -176px; --spark-r: -12deg; }
+.camera-spark-field i:nth-child(5) { --spark-x: 104px; --spark-y: -128px; --spark-r: 26deg; }
+.camera-spark-field i:nth-child(6) { --spark-x: 148px; --spark-y: -82px; --spark-r: -32deg; }
+
+.camera-screen.is-found .camera-spark-field {
+  opacity: 1;
+}
+
+.camera-screen.is-found .camera-spark-field i {
+  animation: evidence-spark 980ms cubic-bezier(.14, .82, .21, 1) both;
+}
+
+.camera-screen.is-found .camera-spark-field i:nth-child(2) { animation-delay: 60ms; }
+.camera-screen.is-found .camera-spark-field i:nth-child(3) { animation-delay: 120ms; }
+.camera-screen.is-found .camera-spark-field i:nth-child(4) { animation-delay: 40ms; }
+.camera-screen.is-found .camera-spark-field i:nth-child(5) { animation-delay: 100ms; }
+.camera-screen.is-found .camera-spark-field i:nth-child(6) { animation-delay: 150ms; }
+
+.camera-screen.is-found .camera-hud {
+  animation: evidence-hud-pulse 920ms ease-out both;
 }
 
 .camera-readout {
@@ -2298,6 +2437,45 @@ button:focus-visible {
 @keyframes user-location-pulse {
   0% { opacity: 0.7; transform: scale(0.72); }
   100% { opacity: 0; transform: scale(1.45); }
+}
+
+
+
+@keyframes evidence-flash {
+  0% { opacity: 0; }
+  12% { opacity: 1; }
+  30% { opacity: 0.28; }
+  100% { opacity: 0; }
+}
+
+@keyframes evidence-lock {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(1.4) rotate(-16deg); }
+  34% { opacity: 1; transform: translate(-50%, -50%) scale(0.94) rotate(0deg); }
+  72% { opacity: 1; transform: translate(-50%, -50%) scale(1.03) rotate(0deg); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.12) rotate(0deg); }
+}
+
+@keyframes evidence-ring-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(280deg); }
+}
+
+@keyframes evidence-stamp {
+  0% { opacity: 0; transform: translate(-50%, -50%) rotate(-8deg) scale(1.72); filter: blur(4px); }
+  48% { opacity: 1; transform: translate(-50%, -50%) rotate(-8deg) scale(0.94); filter: blur(0); }
+  74% { opacity: 1; transform: translate(-50%, -50%) rotate(-8deg) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) rotate(-8deg) scale(1.04); }
+}
+
+@keyframes evidence-spark {
+  0% { opacity: 0; transform: translate(-50%, 0) scale(0.5) rotate(0deg); }
+  16% { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--spark-x)), var(--spark-y)) scale(0.12) rotate(var(--spark-r)); }
+}
+
+@keyframes evidence-hud-pulse {
+  0%, 100% { border-color: rgba(115, 242, 223, 0.18); box-shadow: 0 18px 44px rgba(0, 0, 0, 0.28); }
+  35% { border-color: rgba(255, 225, 154, 0.88); box-shadow: 0 0 0 1px rgba(255, 225, 154, 0.42), 0 0 42px rgba(255, 209, 102, 0.34); }
 }
 
 @keyframes scan-line {

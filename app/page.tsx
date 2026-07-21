@@ -56,6 +56,11 @@ function triggerDropLinkVibration() {
   navigator.vibrate([70, 45, 110]);
 }
 
+function triggerEvidenceVibration() {
+  if (typeof navigator === "undefined" || typeof navigator.vibrate !== "function") return;
+  navigator.vibrate([45, 35, 70, 45, 130]);
+}
+
 function getDistanceMeters(from: { lat: number; lng: number }, to: { lat: number; lng: number }) {
   const radius = 6371000;
   const lat1 = (from.lat * Math.PI) / 180;
@@ -180,11 +185,12 @@ export default function Home() {
   function completeCameraScan() {
     if (cameraFoundTimerRef.current !== null) return;
     setScanFound(true);
-    setCameraStatus("잔디밭 아래쪽에서 노란 신호가 감지됐습니다.");
+    triggerEvidenceVibration();
+    setCameraStatus("신호 고정 완료. 노란털 표본을 증거로 확보합니다.");
     cameraFoundTimerRef.current = window.setTimeout(() => {
       stopCameraScan();
       moveToScene("arrival");
-    }, 1500);
+    }, 2600);
   }
 
   function updateCameraDistance(position: GeolocationPosition) {
@@ -460,12 +466,19 @@ export default function Home() {
         <section className={`screen camera-screen${scanFound ? " is-found" : ""}`}>
           <video ref={videoRef} className="camera-feed" playsInline muted />
           <div className="camera-vignette" aria-hidden="true" />
+          <div className="camera-discovery-flash" aria-hidden="true" />
           <div className="camera-hud">
             <p>AR 현장 조사</p>
             <h2>잔디밭을 천천히 훑어보세요</h2>
             <span>{cameraStatus}</span>
           </div>
           <div className="camera-scan-line" aria-hidden="true" />
+          <div className="camera-evidence-lock" aria-hidden="true">
+            <i />
+            <i />
+            <b />
+          </div>
+          <div className="camera-evidence-stamp" aria-hidden="true">EVIDENCE FOUND</div>
           <div className="camera-bottom-signal" aria-hidden="true">
             <i />
             <i />
@@ -480,6 +493,14 @@ export default function Home() {
             <button className="camera-admin-found" type="button" onClick={completeCameraScan}>관리자 권한으로 단서 발견</button>
           </div>
           <div className="camera-fur-glimpse" aria-hidden="true" />
+          <div className="camera-spark-field" aria-hidden="true">
+            <i />
+            <i />
+            <i />
+            <i />
+            <i />
+            <i />
+          </div>
         </section>
       )}
 
