@@ -250,6 +250,7 @@ export default function Home() {
   const [observationSubmitted, setObservationSubmitted] = useState(false);
   const [finalResponse, setFinalResponse] = useState("");
   const [draggedWitnessId, setDraggedWitnessId] = useState<string | null>(null);
+  const orderPointerRef = useRef<{ id: string; x: number; y: number } | null>(null);
   const restoreBoardRef = useRef<HTMLDivElement | null>(null);
   const restoreTouchedRef = useRef<Set<string>>(new Set());
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -559,6 +560,31 @@ export default function Home() {
     setWitnessAnswer("");
     setWitnessAnswerFeedback("기록 배열이 확인되면 보고 입력창이 열립니다.");
     setWitnessOrderFeedback("기록을 오래된 순서대로 배치한 뒤 분석을 요청하세요.");
+  }
+
+
+  function moveWitnessBySwipe(id: string, direction: "left" | "right") {
+    if (witnessOrderSubmitted) return;
+    resetWitnessAnalysis();
+    setWitnessOrder((current) => {
+      const index = current.indexOf(id);
+      if (index < 0) return current;
+      const targetIndex = direction === "left" ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= current.length) return current;
+      const next = [...current];
+      [next[index], next[targetIndex]] = [next[targetIndex], next[index]];
+      return next;
+    });
+  }
+
+  function handleOrderPointerUp(id: string, event: PointerEvent<HTMLElement>) {
+    const start = orderPointerRef.current;
+    orderPointerRef.current = null;
+    if (!start || start.id !== id || witnessOrderSubmitted) return;
+    const dx = event.clientX - start.x;
+    const dy = event.clientY - start.y;
+    if (Math.abs(dx) < 42 || Math.abs(dx) < Math.abs(dy) * 1.25) return;
+    moveWitnessBySwipe(id, dx < 0 ? "left" : "right");
   }
 
   function moveWitnessOrder(sourceId: string, targetId: string) {
@@ -1147,7 +1173,7 @@ export default function Home() {
               <div className="order-quiz-copy">
                 <span>CAMPUSDROP 분석 지시</span>
                 <strong>획득한 세 건의 기록을 분석하십시오.</strong>
-                <p>기록의 형태와 내용을 확인하고, 오래된 기록부터 순서대로 배치하십시오. 드래그하거나 카드 두 장을 차례로 눌러 위치를 교환할 수 있습니다.</p>
+                <p>기록의 형태와 내용을 확인하고, 오래된 기록부터 순서대로 배치하십시오. 카드를 좌우로 드래그하거나 두 장을 차례로 눌러 위치를 교환할 수 있습니다.</p>
               </div>
               <div className="order-dropzone" aria-label="자료 이미지 순서 배열">
                 {witnessOrder.map((id, index) => {
@@ -1157,6 +1183,8 @@ export default function Home() {
                       key={id}
                       className={`order-card${draggedWitnessId === id ? " is-dragging" : ""}${selectedOrderCardId === id ? " is-selected" : ""}${witnessOrderSubmitted ? " is-locked" : ""}`}
                       draggable={!witnessOrderSubmitted}
+                      onPointerDown={(event) => { orderPointerRef.current = { id, x: event.clientX, y: event.clientY }; }}
+                      onPointerUp={(event) => handleOrderPointerUp(id, event)}
                       onClick={() => selectOrderCard(id)}
                       onDragStart={(event) => {
                         if (witnessOrderSubmitted) return;

@@ -116,6 +116,7 @@ let witnessWordAnswer = "";
 let witnessAnswerFeedback = "기록 배열이 확인되면 보고 입력창이 열립니다.";
 let witnessAnswerSubmitted = false;
 let draggedWitnessId = null;
+let orderPointerStart = null;
 let cameraStream = null;
 let cameraWatch = null;
 let cameraFoundTimer = null;
@@ -594,6 +595,30 @@ function resetWitnessAnalysis() {
   witnessWordAnswer = "";
   witnessAnswerFeedback = "기록 배열이 확인되면 보고 입력창이 열립니다.";
   witnessOrderFeedback = "기록을 오래된 순서대로 배치한 뒤 분석을 요청하세요.";
+}
+
+
+function moveWitnessBySwipe(id, direction) {
+  if (witnessOrderSubmitted) return;
+  resetWitnessAnalysis();
+  const index = witnessOrder.indexOf(id);
+  if (index < 0) return;
+  const targetIndex = direction === "left" ? index - 1 : index + 1;
+  if (targetIndex < 0 || targetIndex >= witnessOrder.length) return;
+  const next = [...witnessOrder];
+  [next[index], next[targetIndex]] = [next[targetIndex], next[index]];
+  witnessOrder = next;
+  updateWitnessUi();
+}
+
+function handleOrderPointerUp(id, event) {
+  const start = orderPointerStart;
+  orderPointerStart = null;
+  if (!start || start.id !== id || witnessOrderSubmitted) return;
+  const dx = event.clientX - start.x;
+  const dy = event.clientY - start.y;
+  if (Math.abs(dx) < 42 || Math.abs(dx) < Math.abs(dy) * 1.25) return;
+  moveWitnessBySwipe(id, dx < 0 ? "left" : "right");
 }
 
 function swapWitnessOrder(sourceId, targetId) {
@@ -1138,6 +1163,7 @@ document.addEventListener("drop", (event) => {
 
 document.addEventListener("dragend", () => {
   draggedWitnessId = null;
+  orderPointerStart = null;
   document.querySelectorAll(".order-card.is-dragging").forEach((card) => card.classList.remove("is-dragging"));
 });
 
@@ -1161,7 +1187,16 @@ document.addEventListener("input", (event) => {
 });
 
 document.addEventListener("pointerdown", (event) => {
+  const orderCard = event.target.closest("[data-order-card]");
+  if (orderCard && !event.target.closest("[data-preview-witness]") && !witnessOrderSubmitted) {
+    orderPointerStart = { id: orderCard.dataset.orderCard, x: event.clientX, y: event.clientY };
+  }
   if (event.target.closest("#restoreBoard")) markRestorePoint(event.clientX, event.clientY);
+});
+
+document.addEventListener("pointerup", (event) => {
+  const orderCard = event.target.closest("[data-order-card]");
+  if (orderCard) handleOrderPointerUp(orderCard.dataset.orderCard, event);
 });
 
 document.addEventListener("pointermove", (event) => {
