@@ -634,23 +634,29 @@ export default function Home() {
             <span>카메라 조사 중 잔디밭 하단 신호가 반응했습니다. 확보한 표본을 운영본부로 전송합니다.</span>
           </div>
 
-          <div className="fur-evidence-card">
+          <div className="fur-evidence-card is-transmitting">
             <div className="fur-image-wrap">
               <div className="fur-image" role="img" aria-label="기린의 노란털 표본" />
             </div>
-            <div>
+            <div className="fur-evidence-copy">
               <span>현장 표본 A</span>
               <strong>기린의 노란털</strong>
-              <p>잔디밭 가장자리에서 노란 털 표본을 확보했습니다. 인공 섬유가 아니며 기린과 동물의 체모와 유사합니다.</p>
+              <p>잔디밭 가장자리에서 확보한 노란 털 표본입니다. 운영본부 분석 서버로 원본 데이터를 전송합니다.</p>
             </div>
           </div>
 
-          <div className="conclusion is-open" aria-live="polite">
-            <span>조사 결론</span>
-            <strong>노란털 표본 확보. 기존 동물 자료와 정확히 일치하지 않습니다.</strong>
-            <p>운영본부가 같은 구역에서 접수된 세 건의 목격 기록을 전달했습니다.</p>
+          <div className="transmission-panel" aria-live="polite">
+            <div><span>01</span><strong>표본 이미지 압축</strong><em>완료</em></div>
+            <div><span>02</span><strong>위치 기록 첨부</strong><em>완료</em></div>
+            <div><span>03</span><strong>CAMPUS DROP 운영본부 전송</strong><em>수신 확인</em></div>
           </div>
-          <button className="primary-action chapter-next-action" type="button" onClick={() => moveToScene("witness")}>2장 — 목격 지점 연결하기</button>
+
+          <div className="conclusion is-open mission-received" aria-live="polite">
+            <span>본부 분석 결과</span>
+            <strong>기존 동물 자료와 정확히 일치하지 않습니다.</strong>
+            <p>같은 구역에서 접수된 세 건의 목격 기록을 다음 조사 미션으로 전달합니다.</p>
+          </div>
+          <button className="primary-action chapter-next-action" type="button" onClick={() => moveToScene("witness")}>다음 미션 수신 — 목격 지점 연결하기</button>
         </section>
       )}
 
