@@ -2718,3 +2718,99 @@ button:focus-visible {
   opacity: 0.72;
 }
 
+
+/* Chapter 2 evidence acquisition modal */
+.witness-acquisition-modal[hidden] {
+  display: none;
+}
+
+.witness-acquisition-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  background: radial-gradient(circle at 50% 36%, rgba(115, 242, 223, 0.18), transparent 34%), rgba(3, 9, 9, 0.72);
+  backdrop-filter: blur(14px);
+  animation: acquisition-backdrop-in 220ms ease both;
+}
+
+.witness-acquisition-card {
+  position: relative;
+  width: min(100%, 390px);
+  overflow: hidden;
+  border: 1px solid rgba(244, 196, 48, 0.36);
+  border-radius: 24px;
+  background: linear-gradient(155deg, rgba(10, 22, 21, 0.96), rgba(21, 35, 32, 0.94));
+  padding: 18px;
+  text-align: center;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.42), 0 0 0 1px rgba(247, 241, 227, 0.06) inset;
+  animation: acquisition-card-pop 560ms cubic-bezier(.16, .98, .18, 1) both;
+}
+
+.witness-acquisition-card::before {
+  content: "";
+  position: absolute;
+  inset: -45% -20%;
+  background: conic-gradient(from 120deg, transparent, rgba(115, 242, 223, 0.18), transparent, rgba(244, 196, 48, 0.18), transparent);
+  animation: acquisition-spin 5.2s linear infinite;
+  pointer-events: none;
+}
+
+.witness-acquisition-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.witness-acquisition-card > span {
+  color: #73f2df;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.witness-acquisition-card > strong {
+  display: block;
+  margin-top: 8px;
+  color: #f7f1e3;
+  font-family: "HakgyoansimByeol", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 27px;
+  line-height: 1.1;
+}
+
+.witness-acquisition-photo {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  margin: 16px 0 13px;
+  border: 1px solid rgba(247, 241, 227, 0.14);
+  border-radius: 18px;
+  background-position: center;
+  background-size: cover;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);
+}
+
+.witness-acquisition-card p {
+  margin: 0 0 14px;
+  color: rgba(247, 241, 227, 0.76);
+  font-size: 14px;
+  font-weight: 760;
+  line-height: 1.55;
+}
+
+@keyframes acquisition-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes acquisition-card-pop {
+  0% { opacity: 0; transform: translateY(24px) scale(0.86); filter: blur(8px); }
+  60% { opacity: 1; transform: translateY(-4px) scale(1.02); filter: blur(0); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes acquisition-spin {
+  to { transform: rotate(360deg); }
+}
+

@@ -63,6 +63,11 @@ const clueTransmissionBriefings = [
   "노란색 섬유는 인공 재료가 아닙니다. 기존 동물 자료와 정확히 일치하지 않지만, 대형 초식동물의 체모 특성과 유사합니다.",
   "같은 구역에서 접수된 세 건의 목격 기록을 개방합니다. 다음 미션은 목격 지점을 연결하는 현장 추론 조사입니다.",
 ];
+const witnessArrangeBriefings = [
+  "목격 기록 사진 3건이 모두 확보됐습니다. 각 기록은 서로 다른 시점과 위치에서 수집된 자료입니다.",
+  "이제 세 목격자가 바라본 방향을 순서대로 표시하세요. 현장 사진과 진술을 비교해 시선이 교차하는 지점을 찾아야 합니다.",
+  "세 방향선이 하나의 지점에서 겹치면, 목격 대상이 어디에 있었는지 운영본부가 분석할 수 있습니다.",
+];
 const posterCopy = {
   student_hall: "학생회관 포스터를 통해 접속했습니다. 창문 뒤로 긴 그림자를 봤다는 제보가 남아 있습니다.",
   library: "학술정보원 포스터를 통해 접속했습니다. 새벽 시간대 시계탑 꼭대기 목격 신고가 반복됐습니다.",
@@ -85,6 +90,7 @@ let witnessDirections = { A: null, B: null, C: null };
 let cameraStream = null;
 let cameraWatch = null;
 let cameraFoundTimer = null;
+let arrangeBriefingQueued = false;
 
 function triggerDropLinkVibration() {
   if (typeof navigator.vibrate !== "function") return;
@@ -94,6 +100,12 @@ function triggerDropLinkVibration() {
 function triggerEvidenceVibration() {
   if (typeof navigator.vibrate !== "function") return;
   navigator.vibrate([45, 35, 70, 45, 130]);
+}
+
+function getActiveDropLinkBriefings() {
+  if (dropLinkMode === "case") return dropLinkBriefings;
+  if (dropLinkMode === "clue") return clueTransmissionBriefings;
+  return witnessArrangeBriefings;
 }
 
 function stopCameraScan() {
@@ -307,14 +319,11 @@ function applyWitnessLocation(position, options = {}) {
   });
 
   if (arrived) {
-    activeWitnessId = arrived.id;
-    visitedWitnesses[arrived.id] = true;
-    if (!options.silent) document.querySelector("#witnessStatus").textContent = `${arrived.name} 위치에 도착했습니다. 진술을 확인하고 바라본 방향을 표시하세요.`;
-    updateWitnessUi();
+    acquireWitnessEvidence(arrived.id, options);
     return;
   }
 
-  if (!options.silent) document.querySelector("#witnessStatus").textContent = "가장 가까운 목격 지점으로 이동하세요. 반경 10m 안에서 진술이 열립니다.";
+  if (!options.silent) document.querySelector("#witnessStatus").textContent = "가장 가까운 목격 지점으로 이동하세요. 반경 10m 안에서 증거 사진이 열립니다.";
   updateWitnessUi();
 }
 
@@ -350,11 +359,51 @@ function selectWitness(id) {
   updateWitnessUi();
 }
 
-function markActiveWitnessArrived() {
-  visitedWitnesses[activeWitnessId] = true;
-  const witness = witnesses.find((item) => item.id === activeWitnessId);
-  document.querySelector("#witnessStatus").textContent = `${witness?.name ?? "목격자"} 위치를 관리자 권한으로 도착 처리했습니다.`;
+function acquireWitnessEvidence(id, options = {}) {
+  const witness = witnesses.find((item) => item.id === id);
+  if (!witness) return;
+  activeWitnessId = witness.id;
+  if (visitedWitnesses[witness.id]) {
+    if (!options.silent) document.querySelector("#witnessStatus").textContent = `${witness.name} 기록은 이미 확보했습니다. 진술을 확인하고 바라본 방향을 표시하세요.`;
+    updateWitnessUi();
+    return;
+  }
+
+  visitedWitnesses[witness.id] = true;
+  triggerEvidenceVibration();
+  document.querySelector("#witnessStatus").textContent = `${witness.name} 증거 사진을 확보했습니다. 획득 자료를 확인하세요.`;
+  openWitnessAcquisition(witness);
+  if (witnesses.every((item) => visitedWitnesses[item.id])) arrangeBriefingQueued = true;
   updateWitnessUi();
+}
+
+function openWitnessAcquisition(witness) {
+  const modal = document.querySelector("#witnessAcquisitionModal");
+  const title = document.querySelector("#witnessAcquisitionTitle");
+  const photo = document.querySelector("#witnessAcquisitionPhoto");
+  if (!modal || !title || !photo) return;
+  title.textContent = `${witness.name} 증거 사진 획득`;
+  photo.style.backgroundImage = `url(${witness.photo})`;
+  photo.setAttribute("aria-label", `${witness.name} 증거 사진`);
+  modal.hidden = false;
+}
+
+function closeWitnessAcquisition() {
+  const modal = document.querySelector("#witnessAcquisitionModal");
+  if (modal) modal.hidden = true;
+  if (!arrangeBriefingQueued) return;
+  arrangeBriefingQueued = false;
+  window.setTimeout(() => {
+    dropLinkMode = "arrange";
+    dropLinkLine = 0;
+    document.querySelector("#dropLinkModal").hidden = false;
+    startDropLinkTyping();
+    triggerDropLinkVibration();
+  }, 260);
+}
+
+function markActiveWitnessArrived() {
+  acquireWitnessEvidence(activeWitnessId, { admin: true });
 }
 
 function chooseWitnessDirection(id, direction) {
@@ -370,7 +419,7 @@ function updateWitnessUi() {
     document.querySelector(`[data-witness-map="${witness.id}"]`)?.classList.toggle("is-active", activeWitnessId === witness.id);
     document.querySelector(`[data-witness-map="${witness.id}"]`)?.classList.toggle("is-visited", visitedWitnesses[witness.id]);
     const statement = document.querySelector(`[data-witness-statement="${witness.id}"]`);
-    if (statement) statement.textContent = visitedWitnesses[witness.id] ? witness.statement : "현장 반경 10m 안에 들어가면 목격자의 진술과 사진 자료를 확인할 수 있습니다.";
+    if (statement) statement.textContent = visitedWitnesses[witness.id] ? witness.statement : "현장 반경 10m 안에 들어가면 증거 사진을 획득하고 진술이 열립니다.";
     const photo = document.querySelector(`[data-witness-photo="${witness.id}"]`);
     if (photo) {
       photo.classList.toggle("is-open", visitedWitnesses[witness.id]);
@@ -571,9 +620,9 @@ function startDropLinkTyping() {
   typeTarget.appendChild(cursor);
   nextButton.disabled = true;
 
-  const activeBriefings = dropLinkMode === "case" ? dropLinkBriefings : clueTransmissionBriefings;
+  const activeBriefings = getActiveDropLinkBriefings();
   const currentBriefing = activeBriefings[dropLinkLine];
-  nextButton.textContent = dropLinkLine < activeBriefings.length - 1 ? "다음" : dropLinkMode === "case" ? "사건 개요 수신" : "다음 미션 수신";
+  nextButton.textContent = dropLinkLine < activeBriefings.length - 1 ? "다음" : dropLinkMode === "case" ? "사건 개요 수신" : dropLinkMode === "arrange" ? "배열 미션 시작" : "다음 미션 수신";
 
   let index = 0;
   dropLinkTyper = window.setInterval(() => {
@@ -642,10 +691,15 @@ document.addEventListener("click", (event) => {
     return;
   }
 
+  if (event.target.closest("#closeWitnessAcquisition")) {
+    closeWitnessAcquisition();
+    return;
+  }
+
   const closeDropLinkModal = event.target.closest("#closeDropLinkModal");
   if (closeDropLinkModal) {
     if (closeDropLinkModal.disabled) return;
-    const activeBriefings = dropLinkMode === "case" ? dropLinkBriefings : clueTransmissionBriefings;
+    const activeBriefings = getActiveDropLinkBriefings();
     if (dropLinkLine < activeBriefings.length - 1) {
       dropLinkLine += 1;
       startDropLinkTyping();
