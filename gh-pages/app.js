@@ -227,12 +227,42 @@ function stopCameraScan() {
   }
 }
 
-function openDropLinkBriefing(mode) {
+function getDropLinkNoticeText(mode) {
+  if (mode === "clue") return "증거물 분석 결과가 도착했습니다.";
+  if (mode === "arrange") return "기록 배열 지시가 도착했습니다.";
+  if (mode === "chapter3") return "추가 분석 지시가 도착했습니다.";
+  if (mode === "chapter4") return "증거물 상태 변화가 감지됐습니다.";
+  if (mode === "chapter5") return "잔류 패턴 추적 지시가 도착했습니다.";
+  return "사용자 인증 완료. CD-SJ-01 현장 조사에 임시 배정됐습니다.";
+}
+
+function openDropLinkNotice(mode) {
   dropLinkMode = mode;
   dropLinkLine = 0;
-  document.querySelector("#dropLinkModal").hidden = false;
+  const notice = document.querySelector("#dropLinkNotice");
+  const noticeText = document.querySelector("#dropLinkNoticeText");
+  if (noticeText) noticeText.textContent = getDropLinkNoticeText(mode);
+  if (notice) {
+    notice.hidden = false;
+    notice.classList.add("is-visible");
+  }
+  triggerDropLinkVibration();
+}
+
+function openDropLinkModalFromNotice() {
+  const notice = document.querySelector("#dropLinkNotice");
+  if (notice) {
+    notice.hidden = true;
+    notice.classList.remove("is-visible");
+  }
+  const modal = document.querySelector("#dropLinkModal");
+  modal.hidden = false;
   startDropLinkTyping();
   triggerDropLinkVibration();
+}
+
+function openDropLinkBriefing(mode) {
+  openDropLinkNotice(mode);
 }
 
 function showScreen(name) {
@@ -1066,11 +1096,7 @@ function startEvidenceTransmission() {
         evidenceSending = false;
         updateEvidenceTransmissionUi();
         showScreen("witness");
-        dropLinkMode = "clue";
-        dropLinkLine = 0;
-        document.querySelector("#dropLinkModal").hidden = false;
-        startDropLinkTyping();
-        triggerDropLinkVibration();
+        openDropLinkNotice("clue");
       }, 2000);
     }
   }, 50);
@@ -1486,6 +1512,12 @@ document.addEventListener("click", (event) => {
       dropLinkMode = "case";
       closeDropLinkModal.disabled = false;
     }, 1500);
+    return;
+  }
+
+  const dropLinkNotice = event.target.closest("#dropLinkNotice");
+  if (dropLinkNotice) {
+    openDropLinkModalFromNotice();
     return;
   }
 

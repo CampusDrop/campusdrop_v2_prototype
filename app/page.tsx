@@ -233,6 +233,7 @@ export default function Home() {
   const [locationInReach, setLocationInReach] = useState(false);
   const [lastLocationUpdatedAt, setLastLocationUpdatedAt] = useState<string | null>(null);
   const [caseModalOpen, setCaseModalOpen] = useState(false);
+  const [dropLinkNoticeOpen, setDropLinkNoticeOpen] = useState(false);
   const [dropLinkMode, setDropLinkMode] = useState<DropLinkMode>("case");
   const [dropLinkText, setDropLinkText] = useState("");
   const [caseTransferActive, setCaseTransferActive] = useState(false);
@@ -824,6 +825,21 @@ export default function Home() {
   const witnessOrderSolved = witnessOrderSubmitted;
   const witnessSolved = witnessAnswerSubmitted;
 
+  function openDropLinkNotice(mode: DropLinkMode) {
+    setDropLinkMode(mode);
+    setDropLinkLine(0);
+    setDropLinkText("");
+    setCaseModalOpen(false);
+    setDropLinkNoticeOpen(true);
+    triggerDropLinkVibration();
+  }
+
+  function openDropLinkModalFromNotice() {
+    setDropLinkNoticeOpen(false);
+    setCaseModalOpen(true);
+    triggerDropLinkVibration();
+  }
+
   function handleDropLink() {
     if (messageStep === "first") {
       setDropLinkMode("case");
@@ -876,11 +892,7 @@ export default function Home() {
   }
 
   function openDropLinkBriefing(mode: DropLinkMode) {
-    setDropLinkMode(mode);
-    setDropLinkLine(0);
-    setDropLinkText("");
-    setCaseModalOpen(true);
-    triggerDropLinkVibration();
+    openDropLinkNotice(mode);
   }
 
   function startEvidenceTransmission() {
@@ -898,11 +910,7 @@ export default function Home() {
           window.setTimeout(() => {
             setEvidenceSending(false);
             moveToScene("witness");
-            setDropLinkMode("clue");
-            setDropLinkLine(0);
-            setDropLinkText("");
-            setCaseModalOpen(true);
-            triggerDropLinkVibration();
+            openDropLinkNotice("clue");
           }, 2000);
         }
         return next;
@@ -994,35 +1002,6 @@ export default function Home() {
             </button>
           )}
 
-          {caseModalOpen && (
-            <div className={`drop-link-modal${caseTransferActive ? " is-transfer" : ""}`} role="dialog" aria-modal="true" aria-label="CAMPUS DROP 운영본부 메시지">
-              <div className="drop-link-reveal" aria-hidden="true">
-                <span className="drop-link-reveal-ring" />
-                <span className="drop-link-reveal-core">DROP LINK</span>
-                <span className="drop-link-reveal-spark spark-a" />
-                <span className="drop-link-reveal-spark spark-b" />
-                <span className="drop-link-reveal-spark spark-c" />
-              </div>
-              <div className="drop-link-transfer" aria-hidden="true">
-                <span>CD-SJ-01</span>
-                <strong>현장 조사 개방</strong>
-                <i />
-              </div>
-              <div className="drop-link-dialogue">
-                <div className="drop-link-speech">
-                  <p className="drop-link-type">{dropLinkText}<i aria-hidden="true" /></p>
-                  <button
-                    className="drop-link-next"
-                    type="button"
-                    onClick={advanceDropLinkDialogue}
-                    disabled={dropLinkText.length < getActiveDropLinkBriefings(dropLinkMode)[dropLinkLine].length || caseTransferActive}
-                  >
-                    {dropLinkLine < getActiveDropLinkBriefings(dropLinkMode).length - 1 ? "다음" : dropLinkMode === "case" ? "사건 개요 수신" : dropLinkMode === "clue" ? "2장으로 이동" : dropLinkMode === "arrange" ? "배열 미션 시작" : dropLinkMode === "chapter3" ? "3장 시작" : dropLinkMode === "chapter4" ? "4장 시작" : "5장 시작"}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
         </section>
       )}
 
@@ -1634,6 +1613,44 @@ export default function Home() {
           </div>
         );
       })()}
+
+
+      {dropLinkNoticeOpen && (
+        <button className="unknown-message is-visible drop-link-global-notice" type="button" onClick={openDropLinkModalFromNotice}>
+          <div className="talk-notice-head"><span>DROP LINK</span><em>지금</em></div>
+          <div className="talk-notice-body"><span className="talk-drop-core" aria-hidden="true">DROP</span><div><b>CAMPUS DROP 운영본부</b><strong>{dropLinkMode === "clue" ? "증거물 분석 결과가 도착했습니다." : dropLinkMode === "arrange" ? "기록 배열 지시가 도착했습니다." : dropLinkMode === "chapter3" ? "추가 분석 지시가 도착했습니다." : dropLinkMode === "chapter4" ? "증거물 상태 변화가 감지됐습니다." : "잔류 패턴 추적 지시가 도착했습니다."}</strong><small>탭해서 DROPLINK 열기</small></div></div>
+        </button>
+      )}
+
+      {caseModalOpen && (
+        <div className={`drop-link-modal${caseTransferActive ? " is-transfer" : ""}`} role="dialog" aria-modal="true" aria-label="CAMPUS DROP 운영본부 메시지">
+          <div className="drop-link-reveal" aria-hidden="true">
+            <span className="drop-link-reveal-ring" />
+            <span className="drop-link-reveal-core">DROP LINK</span>
+            <span className="drop-link-reveal-spark spark-a" />
+            <span className="drop-link-reveal-spark spark-b" />
+            <span className="drop-link-reveal-spark spark-c" />
+          </div>
+          <div className="drop-link-transfer" aria-hidden="true">
+            <span>CD-SJ-01</span>
+            <strong>현장 조사 개방</strong>
+            <i />
+          </div>
+          <div className="drop-link-dialogue">
+            <div className="drop-link-speech">
+              <p className="drop-link-type">{dropLinkText}<i aria-hidden="true" /></p>
+              <button
+                className="drop-link-next"
+                type="button"
+                onClick={advanceDropLinkDialogue}
+                disabled={dropLinkText.length < getActiveDropLinkBriefings(dropLinkMode)[dropLinkLine].length || caseTransferActive}
+              >
+                {dropLinkLine < getActiveDropLinkBriefings(dropLinkMode).length - 1 ? "다음" : dropLinkMode === "case" ? "사건 개요 수신" : dropLinkMode === "clue" ? "2장으로 이동" : dropLinkMode === "arrange" ? "배열 미션 시작" : dropLinkMode === "chapter3" ? "3장 시작" : dropLinkMode === "chapter4" ? "4장 시작" : "5장 시작"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

@@ -3752,3 +3752,5 @@ button:focus-visible {
   width: 100%;
   margin-top: 4px;
 }
+
+.drop-link-global-notice { z-index: 80; }
