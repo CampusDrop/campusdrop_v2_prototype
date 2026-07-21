@@ -4,6 +4,7 @@ const reachRadiusMeters = 20;
 const clueRevealRadiusMeters = 10;
 const witnessReachRadiusMeters = 10;
 const missionTarget = { lat: 37.55041617275794, lng: 127.07381801425053 };
+const DEFAULT_KAKAO_JAVASCRIPT_KEY = "97b8390b5c4e8c53f8504d89c5a5c8f4";
 const investigationMarkerSrc = "./investigation-marker-v2.png";
 const witnesses = [
   {
@@ -270,7 +271,7 @@ function initMissionMap() {
   if (missionMapReady) return;
   const shell = document.querySelector("#missionMap");
   const loading = document.querySelector("#mapLoading");
-  const key = new URLSearchParams(window.location.search).get("kakaoKey");
+  const key = new URLSearchParams(window.location.search).get("kakaoKey") || DEFAULT_KAKAO_JAVASCRIPT_KEY;
   if (!shell || !key) return;
 
   missionMapReady = true;
@@ -400,7 +401,7 @@ function initWitnessMap() {
   if (witnessMapReady) return;
   const shell = document.querySelector("#witnessMap");
   const loading = document.querySelector("#witnessMapLoading");
-  const key = new URLSearchParams(window.location.search).get("kakaoKey");
+  const key = new URLSearchParams(window.location.search).get("kakaoKey") || DEFAULT_KAKAO_JAVASCRIPT_KEY;
   if (!shell || !key) return;
 
   witnessMapReady = true;
