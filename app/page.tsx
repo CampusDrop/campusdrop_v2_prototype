@@ -234,6 +234,7 @@ export default function Home() {
   const [witnessAnswer, setWitnessAnswer] = useState("");
   const [witnessAnswerFeedback, setWitnessAnswerFeedback] = useState("기록 배열이 확인되면 보고 입력창이 열립니다.");
   const [witnessAnswerSubmitted, setWitnessAnswerSubmitted] = useState(false);
+  const [witnessAnswerFailed, setWitnessAnswerFailed] = useState(false);
   const [witnessReportSending, setWitnessReportSending] = useState(false);
   const [witnessReportProgress, setWitnessReportProgress] = useState(0);
   const [expandedWitnessId, setExpandedWitnessId] = useState<string | null>(null);
@@ -582,6 +583,9 @@ export default function Home() {
   function resetWitnessAnalysis() {
     setWitnessOrderSubmitted(false);
     setWitnessAnswerSubmitted(false);
+    setWitnessAnswerFailed(false);
+    setWitnessReportSending(false);
+    setWitnessReportProgress(0);
     setWitnessAnswer("");
     setWitnessAnswerFeedback("기록 배열이 확인되면 보고 입력창이 열립니다.");
     setWitnessOrderAnalyzing(false);
@@ -677,14 +681,17 @@ export default function Home() {
     if (!witnessOrderSubmitted || witnessAnswerSubmitted || witnessReportSending) return;
     const normalized = witnessAnswer.trim().toUpperCase();
     if (witnessAnswer.trim() === "기린") {
+      setWitnessAnswerFailed(true);
       setWitnessAnswerFeedback("국제 생물 분류 기록을 위해 영문 명칭이 필요합니다.");
       return;
     }
     if (normalized !== "GIRAFFE") {
+      setWitnessAnswerFailed(true);
       setWitnessAnswerFeedback("보고된 명칭이 증거물과 일치하지 않습니다.");
       return;
     }
 
+    setWitnessAnswerFailed(false);
     triggerDropLinkVibration();
     setWitnessReportSending(true);
     setWitnessReportProgress(0);
@@ -699,7 +706,9 @@ export default function Home() {
           window.clearInterval(witnessReportTimerRef.current);
           witnessReportTimerRef.current = null;
           window.setTimeout(() => {
+            setWitnessReportSending(false);
             setWitnessAnswerSubmitted(true);
+            setWitnessAnswerFailed(false);
             setWitnessAnswerFeedback("분석 결과가 등록되었습니다.");
             setDropLinkMode("chapter3");
             setDropLinkLine(0);
@@ -1272,7 +1281,7 @@ export default function Home() {
                   <input value={witnessAnswer} onChange={(event) => setWitnessAnswer(event.target.value)} placeholder="영문 정답 입력" aria-label="생물 명칭 보고" />
                 </label>
                 <button className="primary-action" type="button" onClick={submitWitnessAnswer} disabled={witnessAnswerSubmitted || witnessReportSending}>{witnessReportSending && !witnessAnswerSubmitted ? "보고서 제출 중..." : "보고 제출"}</button>
-                <p className={`order-feedback${witnessAnswerSubmitted ? " is-correct" : ""}`}>{witnessAnswerFeedback}</p>
+                <p className={`order-feedback${witnessAnswerSubmitted ? " is-correct" : ""}${witnessAnswerFailed ? " is-error" : ""}`}>{witnessAnswerFeedback}</p>
               </div>
             )}
           </div>
