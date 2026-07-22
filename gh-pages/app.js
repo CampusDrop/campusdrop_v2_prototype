@@ -662,8 +662,10 @@ function updateWitnessUi() {
     if (adminButton) adminButton.hidden = visitedWitnesses[witness.id];
   });
 
-  document.querySelector("#visitedWitnessText").textContent = `${Object.values(visitedWitnesses).filter(Boolean).length}/3`;
-  document.querySelector("#directionWitnessText").textContent = witnessOrderSubmitted ? "완료" : `${witnessOrder.filter((id) => visitedWitnesses[id]).length}/3`;
+  const visitedWitnessText = document.querySelector("#visitedWitnessText");
+  if (visitedWitnessText) visitedWitnessText.textContent = `${Object.values(visitedWitnesses).filter(Boolean).length}/3`;
+  const directionWitnessText = document.querySelector("#directionWitnessText");
+  if (directionWitnessText) directionWitnessText.textContent = witnessOrderSubmitted ? "완료" : `${witnessOrder.filter((id) => visitedWitnesses[id]).length}/3`;
   const allVisited = witnesses.every((witness) => visitedWitnesses[witness.id]);
   const briefingPanel = document.querySelector("#nextWitnessBriefingPanel");
   if (briefingPanel) briefingPanel.hidden = !allVisited || witnessOrderSubmitted;
@@ -691,17 +693,20 @@ function renderOrderQuiz() {
   }).join("");
   document.querySelector("#orderQuizPanel")?.classList.toggle("is-analysis-success", witnessOrderSubmitted);
   document.querySelector("#orderAnalysisModal")?.toggleAttribute("hidden", !witnessOrderAnalyzing);
-  document.querySelector("#submitOrderButton").disabled = witnessOrderSubmitted || witnessOrderAnalyzing;
-  document.querySelector("#submitOrderButton").textContent = witnessOrderAnalyzing ? "분석 중..." : "분석 요청";
+  const submitOrderButton = document.querySelector("#submitOrderButton");
+  if (submitOrderButton) submitOrderButton.disabled = witnessOrderSubmitted || witnessOrderAnalyzing;
+  if (submitOrderButton) submitOrderButton.textContent = witnessOrderAnalyzing ? "분석 중..." : "분석 요청";
   const wordPanel = document.querySelector("#wordReportPanel");
-  wordPanel.hidden = !witnessOrderSubmitted;
+  if (wordPanel) wordPanel.hidden = !witnessOrderSubmitted;
   const input = document.querySelector("#witnessWordAnswer");
   if (input && input.value !== witnessWordAnswer) input.value = witnessWordAnswer;
-  document.querySelector("#orderFeedback").textContent = witnessOrderFeedback;
-  document.querySelector("#orderFeedback").classList.toggle("is-correct", witnessOrderSubmitted);
-  document.querySelector("#orderFeedback").classList.toggle("is-error", witnessOrderFailed);
-  document.querySelector("#answerFeedback").textContent = witnessAnswerFeedback;
-  document.querySelector("#answerFeedback").classList.toggle("is-correct", witnessAnswerSubmitted);
+  const orderFeedback = document.querySelector("#orderFeedback");
+  if (orderFeedback) orderFeedback.textContent = witnessOrderFeedback;
+  if (orderFeedback) orderFeedback.classList.toggle("is-correct", witnessOrderSubmitted);
+  if (orderFeedback) orderFeedback.classList.toggle("is-error", witnessOrderFailed);
+  const answerFeedback = document.querySelector("#answerFeedback");
+  if (answerFeedback) answerFeedback.textContent = witnessAnswerFeedback;
+  if (answerFeedback) answerFeedback.classList.toggle("is-correct", witnessAnswerSubmitted);
   const submitAnswerButton = document.querySelector("#submitAnswerButton");
   if (submitAnswerButton) {
     submitAnswerButton.disabled = witnessAnswerSubmitted || witnessReportSending;
