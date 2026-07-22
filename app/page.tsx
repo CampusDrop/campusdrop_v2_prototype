@@ -1426,7 +1426,6 @@ export default function Home() {
               ))}
             </div>
             {chapterThreeRecords.map((record) => {
-              const mask = emptyRecordMasks[record.id];
               const isActive = activeEmptyRecordId === record.id;
               const isHit = emptyRecordHits[record.id];
               return (
@@ -1440,8 +1439,6 @@ export default function Home() {
                   <span>{record.recordTitle}</span>
                   <div className="empty-record-image" style={{ backgroundImage: `url(${record.emptyPhoto})` }}>
                     <span className="empty-original-layer" style={{ backgroundImage: `url(${record.photo})` }} />
-                    <i className="empty-loss-mask" style={{ left: `${mask.x}%`, top: `${mask.y}%`, width: `${mask.width}%`, height: `${mask.height}%` }} />
-                    <b className="empty-ghost-signal" style={{ left: `${mask.x}%`, top: `${mask.y}%`, width: `${mask.width}%`, height: `${mask.height}%` }} />
                   </div>
                   <strong>{isHit ? "개체 영역 재생성" : "개체 정보 손실"}</strong>
                 </button>

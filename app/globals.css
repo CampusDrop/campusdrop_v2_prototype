@@ -374,7 +374,7 @@ button:focus-visible {
 
 .clock-face.unknown {
   filter: blur(1px);
-  opacity: 0.5;
+  opacity: 0.56;
 }
 
 .time-report,
@@ -2408,7 +2408,7 @@ button:focus-visible {
 
 
 @keyframes user-location-pulse {
-  0% { opacity: 0.7; transform: scale(0.72); }
+  0% { opacity: 0.62; transform: scale(0.72); }
   100% { opacity: 0; transform: scale(1.45); }
 }
 
@@ -2479,11 +2479,11 @@ button:focus-visible {
 
 @keyframes scan-line {
   0%, 100% { transform: translateY(-16svh); opacity: 0.22; }
-  50% { transform: translateY(17svh); opacity: 0.72; }
+  50% { transform: translateY(17svh); opacity: 0.64; }
 }
 
 @keyframes bottom-pulse {
-  0% { opacity: 0.7; transform: translateX(-50%) scale(0.58); }
+  0% { opacity: 0.62; transform: translateX(-50%) scale(0.58); }
   100% { opacity: 0; transform: translateX(-50%) scale(1.42); }
 }
 
@@ -3025,7 +3025,7 @@ button:focus-visible {
 
 .chapter-next-action:disabled {
   cursor: wait;
-  opacity: 0.72;
+  opacity: 0.64;
 }
 
 
@@ -3964,7 +3964,7 @@ button:focus-visible {
 }
 
 .empty-record-card.is-restored .empty-original-layer {
-  opacity: 0.5;
+  opacity: 0.56;
   animation: empty-original-return 900ms ease-out both;
 }
 
@@ -3975,15 +3975,15 @@ button:focus-visible {
 @keyframes empty-original-return {
   0% {
     opacity: 0;
-    filter: blur(8px) saturate(0.5) brightness(1.35);
+    filter: saturate(0.92) brightness(1.08);
   }
   45% {
-    opacity: 0.72;
-    filter: blur(1px) saturate(1.08) brightness(1.15);
+    opacity: 0.64;
+    filter: saturate(1.02) brightness(1.04);
   }
   100% {
-    opacity: 0.5;
-    filter: blur(0) saturate(0.96) brightness(1);
+    opacity: 0.56;
+    filter: saturate(0.96) brightness(1);
   }
 }
 
@@ -3995,59 +3995,11 @@ button:focus-visible {
   pointer-events: none;
 }
 
-.empty-loss-mask,
-.empty-ghost-signal {
-  position: absolute;
-  border-radius: 48% 52% 50% 46%;
-  pointer-events: none;
-}
-
-.empty-loss-mask {
-  background:
-    radial-gradient(circle at 30% 24%, rgba(255, 252, 235, 0.72), transparent 36%),
-    repeating-linear-gradient(28deg, rgba(226, 200, 147, 0.96) 0 10px, rgba(179, 143, 86, 0.94) 10px 18px);
-  filter: blur(0.6px) saturate(0.72);
-  box-shadow: 0 0 0 999px rgba(247, 241, 227, 0.04), inset 0 0 30px rgba(40, 28, 14, 0.2);
-  opacity: 0;
-  animation: giraffe-loss 1700ms ease-out 420ms forwards;
-}
-
-.empty-ghost-signal {
-  border: 1px solid rgba(244, 196, 48, 0.72);
-  background: radial-gradient(circle, rgba(244, 196, 48, 0.16), rgba(115, 242, 223, 0.08), transparent 70%);
-  opacity: 0;
-  transform: scale(0.92);
-}
-
-.empty-record-card.is-restored .empty-loss-mask {
-  opacity: 0.08;
-}
-
-.empty-record-card.is-restored .empty-ghost-signal {
-  opacity: 0.72;
-  animation: empty-ghost-return 900ms ease-out both;
-}
-
-.empty-record-card.is-unstable .empty-ghost-signal {
-  animation: empty-ghost-return 900ms ease-out both, empty-instability 1700ms ease-in-out 900ms infinite;
-}
-
-@keyframes giraffe-loss {
-  0% { opacity: 0; transform: scale(0.86) rotate(-1deg); filter: blur(3px) saturate(0.3); }
-  55% { opacity: 0.94; transform: scale(1.04) rotate(1deg); }
-  100% { opacity: 0.98; transform: scale(1); filter: blur(0.6px) saturate(0.72); }
-}
-
-@keyframes empty-ghost-return {
-  0% { opacity: 0; transform: scale(0.72); box-shadow: 0 0 0 rgba(244, 196, 48, 0); }
-  60% { opacity: 0.92; transform: scale(1.08); box-shadow: 0 0 34px rgba(244, 196, 48, 0.28); }
-  100% { opacity: 0.72; transform: scale(1); }
-}
 
 @keyframes empty-instability {
-  0%, 100% { opacity: 0.54; filter: blur(0); }
-  45% { opacity: 0.25; filter: blur(2px); }
-  70% { opacity: 0.7; filter: blur(0.5px); }
+  0%, 100% { opacity: 0.5; filter: blur(0); }
+  45% { opacity: 0.28; filter: saturate(0.9) brightness(1.06); }
+  70% { opacity: 0.62; filter: saturate(1.02) brightness(1.03); }
 }
 
 @media (max-width: 390px) {
@@ -4331,7 +4283,7 @@ button:focus-visible {
 @keyframes summon-ring { 0%,100% { transform: scale(0.92) rotate(0deg); opacity: 0.62; } 50% { transform: scale(1.08) rotate(18deg); opacity: 1; } }
 @keyframes giraffe-enter { 0% { opacity: 0; transform: translateY(70px) scale(0.72) rotateY(-24deg); filter: blur(10px); } 100% { opacity: 1; transform: translateY(0) scale(1) rotateY(0); filter: blur(0); } }
 @keyframes giraffe-idle { 0%,100% { transform: translateY(0) rotateY(-4deg); } 50% { transform: translateY(-9px) rotateY(5deg); } }
-@keyframes star-pulse { 0%,100% { transform: scale(1); opacity: 0.72; } 50% { transform: scale(1.18); opacity: 1; } }
+@keyframes star-pulse { 0%,100% { transform: scale(1); opacity: 0.64; } 50% { transform: scale(1.18); opacity: 1; } }
 
 
 .witness-photo img[hidden] {

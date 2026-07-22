@@ -1051,10 +1051,9 @@ function renderEmptyRecordScene() {
   const stage = document.querySelector("#emptyRecordStage");
   if (stage) {
     stage.innerHTML = chapterThreeRecords.map((record) => {
-      const mask = emptyRecordMasks[record.id];
       const isActive = activeEmptyRecordId === record.id;
       const isHit = emptyRecordHits[record.id];
-      return `<button type="button" class="empty-record-card${isActive ? " is-active" : ""}${isHit ? " is-restored" : ""}${emptyRecordComplete ? " is-unstable" : ""}" data-empty-record="${record.id}" ${isActive ? "" : "hidden"}><span>${record.recordTitle}</span><div class="empty-record-image" style="background-image:url(${record.emptyPhoto})"><span class="empty-original-layer" style="background-image:url(${record.photo})"></span><i class="empty-loss-mask" style="left:${mask.x}%;top:${mask.y}%;width:${mask.width}%;height:${mask.height}%"></i><b class="empty-ghost-signal" style="left:${mask.x}%;top:${mask.y}%;width:${mask.width}%;height:${mask.height}%"></b></div><strong>${isHit ? "개체 영역 재생성" : "개체 정보 손실"}</strong></button>`;
+      return `<button type="button" class="empty-record-card${isActive ? " is-active" : ""}${isHit ? " is-restored" : ""}${emptyRecordComplete ? " is-unstable" : ""}" data-empty-record="${record.id}" ${isActive ? "" : "hidden"}><span>${record.recordTitle}</span><div class="empty-record-image" style="background-image:url(${record.emptyPhoto})"><span class="empty-original-layer" style="background-image:url(${record.photo})"></span></div><strong>${isHit ? "개체 영역 재생성" : "개체 정보 손실"}</strong></button>`;
     }).join("");
   }
   document.querySelector("#emptyAutoProgressBar").style.width = `${emptyAutoProgress}%`;
