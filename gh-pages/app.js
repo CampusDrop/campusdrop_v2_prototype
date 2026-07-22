@@ -1238,13 +1238,7 @@ function startEvidenceTransmission() {
         evidenceSending = false;
         updateEvidenceTransmissionUi();
         showScreen("witness");
-        dropLinkMode = "clue";
-        dropLinkLine = 0;
-        dropLinkText = "";
-        dropLinkNoticeOpen = false;
-        caseModalOpen = true;
-        triggerDropLinkVibration();
-        updateDropLinkUi();
+        openDropLinkNotice("clue");
       }, 2000);
     }
   }, 50);

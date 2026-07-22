@@ -944,12 +944,7 @@ export default function Home() {
           window.setTimeout(() => {
             setEvidenceSending(false);
             moveToScene("witness");
-            setDropLinkMode("clue");
-            setDropLinkLine(0);
-            setDropLinkText("");
-            setDropLinkNoticeOpen(false);
-            setCaseModalOpen(true);
-            triggerDropLinkVibration();
+            openDropLinkNotice("clue");
           }, 2000);
         }
         return next;
