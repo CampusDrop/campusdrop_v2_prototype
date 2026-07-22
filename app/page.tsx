@@ -935,7 +935,12 @@ export default function Home() {
           window.setTimeout(() => {
             setEvidenceSending(false);
             moveToScene("witness");
-            openDropLinkNotice("clue");
+            setDropLinkMode("clue");
+            setDropLinkLine(0);
+            setDropLinkText("");
+            setDropLinkNoticeOpen(false);
+            setCaseModalOpen(true);
+            triggerDropLinkVibration();
           }, 2000);
         }
         return next;
@@ -1663,7 +1668,7 @@ export default function Home() {
                 onClick={advanceDropLinkDialogue}
                 disabled={dropLinkText.length < getActiveDropLinkBriefings(dropLinkMode)[dropLinkLine].length || caseTransferActive}
               >
-                {dropLinkLine < getActiveDropLinkBriefings(dropLinkMode).length - 1 ? "다음" : dropLinkMode === "case" ? "사건 개요 수신" : dropLinkMode === "clue" ? "2장으로 이동" : dropLinkMode === "arrange" ? "배열 미션 시작" : dropLinkMode === "chapter3" ? "3장 시작" : dropLinkMode === "chapter4" ? "4장 시작" : "5장 시작"}
+                {dropLinkLine < getActiveDropLinkBriefings(dropLinkMode).length - 1 ? "다음" : dropLinkMode === "case" ? "사건 개요 수신" : dropLinkMode === "clue" ? "2장 조사 시작" : dropLinkMode === "arrange" ? "배열 미션 시작" : dropLinkMode === "chapter3" ? "3장 시작" : dropLinkMode === "chapter4" ? "4장 시작" : "5장 시작"}
               </button>
             </div>
           </div>
