@@ -780,9 +780,11 @@ function submitWitnessOrder() {
   witnessOrderFailed = false;
   witnessOrderFeedback = "CAMPUSDROP이 기록의 시간적 연결을 분석 중입니다...";
   updateWitnessUi();
+  const orderSnapshot = witnessOrder.join("@");
+  const isCorrectOrder = orderSnapshot === correctWitnessOrder.join("@");
   window.setTimeout(() => {
     witnessOrderAnalyzing = false;
-    if (witnessOrder.join("") !== correctWitnessOrder.join("")) {
+    if (!isCorrectOrder) {
       witnessOrderFailed = true;
       witnessOrderFeedback = "분석 실패. 기록 사이의 시간적 연결을 확인할 수 없습니다. 기록 매체와 작성 방식을 다시 분석하십시오.";
       triggerEvidenceVibration();
@@ -796,7 +798,7 @@ function submitWitnessOrder() {
     witnessAnswerFeedback = "세 기록에 공통으로 등장하는 생물을 영문으로 보고하십시오.";
     triggerDropLinkVibration();
     updateWitnessUi();
-  }, 2000);
+  }, isCorrectOrder ? 2000 : 1000);
 }
 
 function updateWitnessReportTransmissionUi() {
