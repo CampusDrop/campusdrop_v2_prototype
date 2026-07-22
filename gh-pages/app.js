@@ -116,6 +116,7 @@ const posterCopy = {
   library: "학술정보원 포스터를 통해 접속했습니다. 새벽 시간대 시계탑 꼭대기 목격 신고가 반복됐습니다.",
   gate: "정문 포스터를 통해 접속했습니다. 최근 30일 동안 같은 소문과 관련된 신고가 7건 접수됐습니다.",
 };
+let currentScreen = "entry";
 let messageStep = 0;
 let dropLinkTyper = null;
 let dropLinkLine = 0;
@@ -256,6 +257,7 @@ function openDropLinkBriefing(mode) {
 }
 
 function showScreen(name) {
+  currentScreen = name;
   if ((app.classList.contains("scene-camera") && name !== "camera") || (app.classList.contains("scene-firstContact") && name !== "firstContact")) {
     stopCameraScan();
   }
