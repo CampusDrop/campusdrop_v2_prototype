@@ -3783,7 +3783,7 @@ button:focus-visible {
 }
 
 .restore-page-image,
-.restore-damage-layer,
+.restore-dust-layer,
 .restore-note-text {
   position: absolute;
   inset: 0;
@@ -3832,20 +3832,53 @@ button:focus-visible {
   padding: 0 4px;
 }
 
-.restore-damage-layer {
-  background:
-    radial-gradient(circle at 24% 20%, rgba(255,255,255,0.26), transparent 22%),
-    radial-gradient(circle at 72% 36%, rgba(0,0,0,0.28), transparent 30%),
-    repeating-linear-gradient(38deg, rgba(247,241,227,0.18) 0 8px, rgba(15,23,22,0.22) 8px 16px),
-    rgba(15, 23, 22, 0.78);
-  backdrop-filter: blur(7px) saturate(0.5);
-  transition: opacity 160ms ease;
+.restore-dust-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: auto;
 }
 
-.restore-board.is-restored .restore-damage-layer {
-  opacity: 0 !important;
+.restore-board.is-restored .restore-dust-layer {
   pointer-events: none;
 }
+
+.restore-dust {
+  position: absolute;
+  border: 0;
+  border-radius: 48% 52% 43% 57%;
+  background:
+    radial-gradient(circle at 35% 32%, rgba(255, 253, 235, 0.92), transparent 38%),
+    radial-gradient(circle at 68% 68%, rgba(112, 87, 51, 0.42), transparent 45%),
+    rgba(88, 72, 48, 0.5);
+  box-shadow: 0 8px 18px rgba(41, 29, 16, 0.24), inset 0 0 12px rgba(255, 248, 217, 0.35);
+  cursor: pointer;
+  pointer-events: auto;
+  opacity: 0.92;
+  transform-origin: center;
+  transition: opacity 220ms ease, filter 220ms ease, scale 220ms ease;
+}
+
+.restore-dust::after {
+  content: "";
+  position: absolute;
+  inset: -9px;
+  border-radius: inherit;
+}
+
+.restore-dust:hover,
+.restore-dust:focus-visible {
+  filter: brightness(1.2);
+  outline: 2px solid rgba(244, 196, 48, 0.75);
+  outline-offset: 3px;
+}
+
+.restore-dust.is-cleared {
+  opacity: 0;
+  scale: 0.2;
+  pointer-events: none;
+}
+
 
 .restore-progress {
   margin-top: 12px;

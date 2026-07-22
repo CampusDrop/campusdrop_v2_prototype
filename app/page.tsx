@@ -147,6 +147,21 @@ const chapterFiveBriefings = [
   "[DROPLINK] 발견한 이미지를 DROPLINK 카메라로 조사하십시오.",
 ];
 const chapterThreeRecords = correctWitnessOrder.map((id) => witnesses.find((witness) => witness.id === id)!);
+const restoreDustPatches: Array<{ id: string; x: number; y: number; size: number; rotate: number }> = [
+  { id: "d1", x: 15, y: 18, size: 24, rotate: -12 },
+  { id: "d2", x: 38, y: 14, size: 30, rotate: 8 },
+  { id: "d3", x: 68, y: 20, size: 26, rotate: -4 },
+  { id: "d4", x: 22, y: 35, size: 34, rotate: 15 },
+  { id: "d5", x: 52, y: 34, size: 38, rotate: -9 },
+  { id: "d6", x: 78, y: 41, size: 32, rotate: 6 },
+  { id: "d7", x: 17, y: 57, size: 28, rotate: 4 },
+  { id: "d8", x: 45, y: 59, size: 36, rotate: -15 },
+  { id: "d9", x: 71, y: 62, size: 30, rotate: 12 },
+  { id: "d10", x: 31, y: 78, size: 28, rotate: -5 },
+  { id: "d11", x: 57, y: 80, size: 34, rotate: 10 },
+  { id: "d12", x: 83, y: 76, size: 24, rotate: -11 },
+];
+
 const emptyRecordMasks: Record<string, { x: number; y: number; width: number; height: number; radius: number }> = {
   C: { x: 32, y: 18, width: 40, height: 54, radius: 28 },
   B: { x: 24, y: 28, width: 42, height: 48, radius: 27 },
@@ -242,6 +257,7 @@ export default function Home() {
   const [starAnswer, setStarAnswer] = useState("");
   const [starFeedback, setStarFeedback] = useState("기록 속 개체의 외형에서 달라진 특징을 영문으로 보고하십시오.");
   const [starSolved, setStarSolved] = useState(false);
+  const [clearedRestoreDust, setClearedRestoreDust] = useState<Record<string, boolean>>({});
   const [restoreProgress, setRestoreProgress] = useState(0);
   const [restoreSolved, setRestoreSolved] = useState(false);
   const [imagineAnswer, setImagineAnswer] = useState("");
@@ -263,8 +279,6 @@ export default function Home() {
   const [finalResponse, setFinalResponse] = useState("");
   const [draggedWitnessId, setDraggedWitnessId] = useState<string | null>(null);
   const orderPointerRef = useRef<{ id: string; x: number; y: number } | null>(null);
-  const restoreBoardRef = useRef<HTMLDivElement | null>(null);
-  const restoreTouchedRef = useRef<Set<string>>(new Set());
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const cameraStreamRef = useRef<MediaStream | null>(null);
   const cameraWatchRef = useRef<number | null>(null);
@@ -736,27 +750,20 @@ export default function Home() {
     setStarFeedback("STAR 확인. 증거물 01의 미복원 페이지가 열렸습니다.");
   }
 
-  function markRestorePoint(clientX: number, clientY: number) {
-    if (!starSolved || restoreSolved || !restoreBoardRef.current) return;
-    const rect = restoreBoardRef.current.getBoundingClientRect();
-    const x = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    const y = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
-    const key = `${Math.floor(x * 10)}-${Math.floor(y * 14)}`;
-    restoreTouchedRef.current.add(key);
-    const nextProgress = Math.min(100, Math.round((restoreTouchedRef.current.size / 58) * 100));
+  function clearRestoreDust(dustId: string) {
+    if (!starSolved || restoreSolved || clearedRestoreDust[dustId]) return;
+    const nextDust = { ...clearedRestoreDust, [dustId]: true };
+    const nextProgress = Math.min(100, Math.round((Object.keys(nextDust).length / restoreDustPatches.length) * 100));
+    setClearedRestoreDust(nextDust);
     setRestoreProgress(nextProgress);
-    if (nextProgress >= 72) {
+    if (nextProgress >= 100) {
       setRestoreSolved(true);
       setRestoreProgress(100);
     }
   }
 
-  function handleRestorePointer(event: PointerEvent<HTMLDivElement>) {
-    if (event.buttons !== 1 && event.pointerType !== "touch") return;
-    markRestorePoint(event.clientX, event.clientY);
-  }
-
   function completeRestoreByAdmin() {
+    setClearedRestoreDust(Object.fromEntries(restoreDustPatches.map((dust) => [dust.id, true])));
     setRestoreSolved(true);
     setRestoreProgress(100);
   }
@@ -1344,21 +1351,27 @@ export default function Home() {
               <div className="order-quiz-copy">
                 <span>CAMPUSDROP 기록 복원</span>
                 <strong>증거물 01의 미복원 페이지를 복원하십시오.</strong>
-                <p>화면을 문질러 훼손된 표면을 제거하세요. 조작이 어려우면 대체 복원 버튼을 사용할 수 있습니다.</p>
+                <p>먼지 흔적을 하나씩 눌러 훼손된 표면을 제거하세요. 조작이 어려우면 대체 복원 버튼을 사용할 수 있습니다.</p>
               </div>
-              <div
-                ref={restoreBoardRef}
-                className={`restore-board${restoreSolved ? " is-restored" : ""}`}
-                onPointerDown={(event) => markRestorePoint(event.clientX, event.clientY)}
-                onPointerMove={handleRestorePointer}
-              >
+              <div className={`restore-board${restoreSolved ? " is-restored" : ""}`}>
                 <div className="restore-page-image" role="img" aria-label="복원된 학생수첩 다음 장" />
                 <div className="restore-note-text" aria-hidden={!restoreSolved}>
                   <p>공강이라 잔디밭에 누워서 탑을 보고 있었다.</p>
                   <p>저 위로 기린 한 마리가 빼꼼 올라오면 재밌겠다는 생각이 들었다.</p>
                   <p className="english-line">Everything you can <mark>imagine</mark> is real.</p>
                 </div>
-                {!restoreSolved && <div className="restore-damage-layer" style={{ opacity: Math.max(0.18, 0.9 - restoreProgress / 100) }} aria-hidden="true" />}
+                <div className="restore-dust-layer" aria-hidden={restoreSolved}>
+                  {restoreDustPatches.map((dust) => (
+                    <button
+                      key={dust.id}
+                      type="button"
+                      className={`restore-dust${clearedRestoreDust[dust.id] ? " is-cleared" : ""}`}
+                      style={{ left: `${dust.x}%`, top: `${dust.y}%`, width: `${dust.size}px`, height: `${dust.size}px`, transform: `rotate(${dust.rotate}deg)` }}
+                      onClick={(event) => { event.stopPropagation(); clearRestoreDust(dust.id); }}
+                      aria-label="먼지 제거"
+                    />
+                  ))}
+                </div>
               </div>
               <div className="transmission-progress restore-progress" aria-label={`복원 진행률 ${restoreProgress}%`}>
                 <i style={{ width: `${restoreProgress}%` }} />

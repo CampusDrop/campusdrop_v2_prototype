@@ -101,6 +101,20 @@ const chapterFiveBriefings = [
   "[DROPLINK] 발견한 이미지를 DROPLINK 카메라로 조사하십시오.",
 ];
 const chapterThreeRecords = correctWitnessOrder.map((id) => witnesses.find((witness) => witness.id === id));
+const restoreDustPatches = [
+  { id: "d1", x: 15, y: 18, size: 24, rotate: -12 },
+  { id: "d2", x: 38, y: 14, size: 30, rotate: 8 },
+  { id: "d3", x: 68, y: 20, size: 26, rotate: -4 },
+  { id: "d4", x: 22, y: 35, size: 34, rotate: 15 },
+  { id: "d5", x: 52, y: 34, size: 38, rotate: -9 },
+  { id: "d6", x: 78, y: 41, size: 32, rotate: 6 },
+  { id: "d7", x: 17, y: 57, size: 28, rotate: 4 },
+  { id: "d8", x: 45, y: 59, size: 36, rotate: -15 },
+  { id: "d9", x: 71, y: 62, size: 30, rotate: 12 },
+  { id: "d10", x: 31, y: 78, size: 28, rotate: -5 },
+  { id: "d11", x: 57, y: 80, size: 34, rotate: 10 },
+  { id: "d12", x: 83, y: 76, size: 24, rotate: -11 },
+];
 const emptyRecordMasks = {
   C: { x: 32, y: 18, width: 40, height: 54, radius: 28 },
   B: { x: 24, y: 28, width: 42, height: 48, radius: 27 },
@@ -159,9 +173,9 @@ let chapterThreePreviewIndex = 0;
 let starAnswer = "";
 let starSolved = false;
 let starFeedback = "기록 속 개체의 외형에서 달라진 특징을 영문으로 보고하십시오.";
+let clearedRestoreDust = {};
 let restoreProgress = 0;
 let restoreSolved = false;
-let restoreTouchedPoints = new Set();
 let imagineAnswer = "";
 let imagineFeedback = "복원된 페이지에서 강조된 단어를 확인하십시오.";
 let imagineSolved = false;
@@ -944,8 +958,7 @@ function renderChapterThree() {
   document.querySelector("#restorePanel").hidden = !starSolved;
   const board = document.querySelector("#restoreBoard");
   board?.classList.toggle("is-restored", restoreSolved);
-  const damage = document.querySelector("#restoreDamageLayer");
-  if (damage) damage.style.opacity = String(Math.max(0.18, 0.9 - restoreProgress / 100));
+  renderRestoreDustLayer();
   const note = document.querySelector("#restoreNoteText");
   if (note) note.setAttribute("aria-hidden", restoreSolved ? "false" : "true");
   document.querySelector("#restoreProgressBar").style.width = `${restoreProgress}%`;
@@ -982,16 +995,18 @@ function submitStarAnswer() {
   renderChapterThree();
 }
 
-function markRestorePoint(clientX, clientY) {
-  if (!starSolved || restoreSolved) return;
-  const board = document.querySelector("#restoreBoard");
-  if (!board) return;
-  const rect = board.getBoundingClientRect();
-  const x = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-  const y = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
-  restoreTouchedPoints.add(`${Math.floor(x * 10)}-${Math.floor(y * 14)}`);
-  restoreProgress = Math.min(100, Math.round((restoreTouchedPoints.size / 58) * 100));
-  if (restoreProgress >= 72) {
+function renderRestoreDustLayer() {
+  const dustLayer = document.querySelector("#restoreDustLayer");
+  if (!dustLayer) return;
+  dustLayer.innerHTML = restoreDustPatches.map((dust) => `<button type="button" class="restore-dust${clearedRestoreDust[dust.id] ? " is-cleared" : ""}" data-restore-dust="${dust.id}" aria-label="먼지 제거" style="left:${dust.x}%;top:${dust.y}%;width:${dust.size}px;height:${dust.size}px;transform:rotate(${dust.rotate}deg)"></button>`).join("");
+  dustLayer.setAttribute("aria-hidden", restoreSolved ? "true" : "false");
+}
+
+function clearRestoreDust(dustId) {
+  if (!starSolved || restoreSolved || clearedRestoreDust[dustId]) return;
+  clearedRestoreDust[dustId] = true;
+  restoreProgress = Math.min(100, Math.round((Object.keys(clearedRestoreDust).length / restoreDustPatches.length) * 100));
+  if (restoreProgress >= 100) {
     restoreSolved = true;
     restoreProgress = 100;
   }
@@ -999,6 +1014,7 @@ function markRestorePoint(clientX, clientY) {
 }
 
 function completeRestoreByAdmin() {
+  clearedRestoreDust = Object.fromEntries(restoreDustPatches.map((dust) => [dust.id, true]));
   restoreSolved = true;
   restoreProgress = 100;
   renderChapterThree();
@@ -1413,7 +1429,6 @@ document.addEventListener("pointerdown", (event) => {
   if (orderCard && !event.target.closest("[data-preview-witness]") && !event.target.closest("[data-order-select]") && !witnessOrderSubmitted && !witnessOrderAnalyzing) {
     orderPointerStart = { id: orderCard.dataset.orderCard, x: event.clientX, y: event.clientY };
   }
-  if (event.target.closest("#restoreBoard")) markRestorePoint(event.clientX, event.clientY);
 });
 
 document.addEventListener("pointerup", (event) => {
@@ -1421,12 +1436,13 @@ document.addEventListener("pointerup", (event) => {
   if (orderCard && !event.target.closest("[data-order-select]")) handleOrderPointerUp(orderCard.dataset.orderCard, event);
 });
 
-document.addEventListener("pointermove", (event) => {
-  if (event.buttons !== 1 && event.pointerType !== "touch") return;
-  if (event.target.closest("#restoreBoard")) markRestorePoint(event.clientX, event.clientY);
-});
-
 document.addEventListener("click", (event) => {
+  const restoreDust = event.target.closest("[data-restore-dust]");
+  if (restoreDust) {
+    clearRestoreDust(restoreDust.dataset.restoreDust);
+    return;
+  }
+
   const goButton = event.target.closest("[data-go]");
   if (goButton) {
     showScreen(goButton.dataset.go);
