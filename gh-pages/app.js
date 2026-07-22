@@ -784,16 +784,33 @@ function submitWitnessOrder() {
   witnessOrderAnalyzing = true;
   witnessOrderFailed = false;
   witnessOrderFeedback = "CAMPUSDROP이 기록의 시간적 연결을 분석 중입니다...";
-  updateWitnessUi();
   const orderSnapshot = witnessOrder.join("@");
   const isCorrectOrder = orderSnapshot === correctWitnessOrder.join("@");
+  const analysisModal = document.querySelector("#orderAnalysisModal");
+  if (analysisModal) analysisModal.hidden = false;
+  try {
+    updateWitnessUi();
+  } catch (error) {
+    console.error("Failed to render order analysis start", error);
+  }
   window.setTimeout(() => {
     witnessOrderAnalyzing = false;
+    const modal = document.querySelector("#orderAnalysisModal");
+    if (modal) modal.hidden = true;
     if (!isCorrectOrder) {
       witnessOrderFailed = true;
       witnessOrderFeedback = "분석 실패. 기록 사이의 시간적 연결을 확인할 수 없습니다. 기록 매체와 작성 방식을 다시 분석하십시오.";
       triggerEvidenceVibration();
-      updateWitnessUi();
+      try {
+        updateWitnessUi();
+      } catch (error) {
+        console.error("Failed to render order analysis failure", error);
+        const feedback = document.querySelector("#orderFeedback");
+        if (feedback) {
+          feedback.textContent = witnessOrderFeedback;
+          feedback.classList.add("is-error");
+        }
+      }
       return;
     }
     witnessOrderSubmitted = true;
@@ -802,7 +819,18 @@ function submitWitnessOrder() {
     witnessOrderFeedback = "분석 성공. 기록의 시간적 배열이 확인되었습니다. 각 기록에 포함된 식별 문자를 연결하십시오.";
     witnessAnswerFeedback = "세 기록에 공통으로 등장하는 생물을 영문으로 보고하십시오.";
     triggerDropLinkVibration();
-    updateWitnessUi();
+    try {
+      updateWitnessUi();
+    } catch (error) {
+      console.error("Failed to render order analysis success", error);
+      const panel = document.querySelector("#orderQuizPanel");
+      if (panel) panel.classList.add("is-analysis-success");
+      const feedback = document.querySelector("#orderFeedback");
+      if (feedback) {
+        feedback.textContent = witnessOrderFeedback;
+        feedback.classList.add("is-correct");
+      }
+    }
   }, isCorrectOrder ? 2000 : 1000);
 }
 
