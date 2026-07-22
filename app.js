@@ -1196,7 +1196,13 @@ function startEvidenceTransmission() {
         evidenceSending = false;
         updateEvidenceTransmissionUi();
         showScreen("witness");
-        openDropLinkNotice("clue");
+        dropLinkMode = "clue";
+        dropLinkLine = 0;
+        dropLinkText = "";
+        dropLinkNoticeOpen = false;
+        caseModalOpen = true;
+        triggerDropLinkVibration();
+        updateDropLinkUi();
       }, 2000);
     }
   }, 50);
@@ -1305,7 +1311,7 @@ function startDropLinkTyping() {
 
   const activeBriefings = getActiveDropLinkBriefings();
   const currentBriefing = activeBriefings[dropLinkLine];
-  nextButton.textContent = dropLinkLine < activeBriefings.length - 1 ? "다음" : dropLinkMode === "case" ? "사건 개요 수신" : dropLinkMode === "clue" ? "2장으로 이동" : dropLinkMode === "arrange" ? "배열 미션 시작" : dropLinkMode === "chapter3" ? "3장 시작" : dropLinkMode === "chapter4" ? "4장 시작" : "5장 시작";
+  nextButton.textContent = dropLinkLine < activeBriefings.length - 1 ? "다음" : dropLinkMode === "case" ? "사건 개요 수신" : dropLinkMode === "clue" ? "2장 조사 시작" : dropLinkMode === "arrange" ? "배열 미션 시작" : dropLinkMode === "chapter3" ? "3장 시작" : dropLinkMode === "chapter4" ? "4장 시작" : "5장 시작";
 
   let index = 0;
   dropLinkTyper = window.setInterval(() => {
